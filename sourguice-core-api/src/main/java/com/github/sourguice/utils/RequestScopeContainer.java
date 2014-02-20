@@ -36,6 +36,7 @@ public final class RequestScopeContainer {
 	 * @param cls The class of the object to fetch
 	 * @return The object if it was previously registered or null
 	 */
+	@SuppressWarnings("unchecked")
 	public @CheckForNull <T> T get(Class<T> cls) {
 		return (T)map.get(cls);
 	}

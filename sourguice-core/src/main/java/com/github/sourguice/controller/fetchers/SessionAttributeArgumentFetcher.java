@@ -40,6 +40,7 @@ public class SessionAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) {
 		return (T)req.getSession(true).getAttribute(infos.value());

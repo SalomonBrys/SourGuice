@@ -25,6 +25,7 @@ public final class ControllerHandlersRepository {
 	 * @param clazz The class on which to get / create a {@link ControllerHandler}
 	 * @return The handler for the given class
 	 */
+	@SuppressWarnings("unchecked")
 	public <T> ControllerHandler<T> get(InstanceGetter<T> ig) {
 		if (map.containsKey(ig))
 			return (ControllerHandler<T>)map.get(ig);

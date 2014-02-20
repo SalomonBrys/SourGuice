@@ -48,6 +48,7 @@ public class ExceptionServiceImpl implements ExceptionService {
 	 * @param clazz The class of the exception to be handled
 	 * @return The handler or null
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public @CheckForNull <T extends Exception> ExceptionHandler<? super T> getHandler(Class<T> clazz) {
 		for (Class<? extends Exception> c : map.keySet()) {

@@ -49,6 +49,7 @@ public class PathVariableArgumentFetcher<T> extends ArgumentFetcher<T> {
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) throws NoSuchRequestParameterException {
 		if (pathVariables == null || pathVariables.get(infos.value()) == null)

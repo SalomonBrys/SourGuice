@@ -220,6 +220,7 @@ public final class MvcCallerImpl implements MvcCaller {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private @CheckForNull <T extends Exception> Object handleException(T exception, boolean throwWhenHandled) throws Exception {
 		ExceptionHandler<T> handler = (ExceptionHandler<T>) exceptionService.getHandler(exception.getClass());
 		if (handler != null && handler.handle(exception, req, res)) {

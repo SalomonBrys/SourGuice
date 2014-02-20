@@ -67,7 +67,7 @@ public abstract class ArgumentFetcher<T> {
 	 * @throws NoSuchRequestParameterException In case of a parameter asked from request argument or path variable that does not exists
 	 * @throws Throwable Any exception that would be thrown by a fetcher
 	 */
-	@SuppressWarnings({ "rawtypes" })
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public @CheckForNull T get(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector, CalltimeArgumentFetcher<?>[] additionalFetchers) throws Throwable {
 		for (CalltimeArgumentFetcher f : additionalFetchers)
 			if (f.canGet(this.type, pos, annotations))

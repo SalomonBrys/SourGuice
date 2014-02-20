@@ -20,6 +20,7 @@ public class GivenInstanceGetter<T> implements InstanceGetter<T> {
 		return instance;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Class<T> getInstanceClass() {
 		return (Class<T>)instance.getClass();

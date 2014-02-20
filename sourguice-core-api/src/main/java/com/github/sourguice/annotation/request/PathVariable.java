@@ -10,8 +10,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Tainted;
 import javax.annotation.meta.TypeQualifierNickname;
 
-import com.github.sourguice.value.ValueConstants;
-
 /**
  * Indicates that a parameter is to be binded to a path variable
  * Example:
