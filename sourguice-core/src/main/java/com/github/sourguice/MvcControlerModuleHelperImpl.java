@@ -7,7 +7,7 @@ import javax.annotation.CheckForNull;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
-import com.github.sourguice.MvcControlerModule.ControlBuilder;
+import com.github.sourguice.MvcControlerModule.BindBuilder;
 import com.github.sourguice.MvcControlerModule.MvcControlerModuleHelperProxy;
 import com.github.sourguice.annotation.request.GuiceRequest;
 import com.github.sourguice.annotation.request.PathVariablesMap;
@@ -187,7 +187,7 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 
 	/**
 	 * Registers a pattern to a controller class
-	 * This is called by {@link ControlBuilder#with(Class)}
+	 * This is called by {@link BindBuilder#with(Class)}
 	 *
 	 * @param clazz The controller class to register
 	 * @param pattern The pattern on which to register to controller

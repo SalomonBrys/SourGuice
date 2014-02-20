@@ -182,22 +182,20 @@ public abstract class MvcControlerModule extends ServletModule {
 	/**
 	 * Interface returned by {@link #control(String, String...)} to permit the syntax control(pattern).with(controller.class)
 	 */
-	public static interface ControlBuilder {
+	public static interface BindBuilder<T> {
 		/**
-		 * Second method of the syntax control(pattern).with(Controller.class)
-		 * Associates the previously defined pattern to a class
+		 * Second method of the syntax *.with(*)
 		 *
 		 * @param clazz The class to register
 		 */
-		public void with(Class<?> clazz);
+		public void with(Class<? extends T> clazz);
 
 		/**
-		 * Second method of the syntax control(pattern).withInstance(controller)
-		 * Associates the previously defined pattern to a specific instance
+		 * Second method of the syntax *.withInstance(*)
 		 *
-		 * @param controller The controller object to register
+		 * @param controller The object to register
 		 */
-		public void withInstance(Object controller);
+		public void withInstance(T controller);
 	}
 
 	/**
@@ -205,11 +203,11 @@ public abstract class MvcControlerModule extends ServletModule {
 	 *
 	 * @param pattern The pattern to register for the later controller
 	 * @param patterns Any additional patterns to register
-	 * @return ControlBuilder on which {@link ControlBuilder#with(Class)} must be called
+	 * @return ControlBuilder on which {@link BindBuilder#with(Class)} must be called
 	 */
-	public final ControlBuilder control(final String pattern, final String... patterns) {
-		return new ControlBuilder() {
-			@Override public void with(Class<?> clazz) {
+	public final BindBuilder<Object> control(final String pattern, final String... patterns) {
+		return new BindBuilder<Object>() {
+			@Override public void with(Class<? extends Object> clazz) {
 				// Now that we have all the patterns and the corresponding controller class,
 				// registers all patterns to the given controller class.
 				bind(clazz);
