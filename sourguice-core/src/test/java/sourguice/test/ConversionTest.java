@@ -1,0 +1,247 @@
+package sourguice.test;
+
+import org.eclipse.jetty.testing.HttpTester;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import com.github.sourguice.MvcControlerModule;
+import com.github.sourguice.annotation.request.RequestMapping;
+import com.github.sourguice.annotation.request.RequestParam;
+import com.github.sourguice.annotation.request.Writes;
+import com.google.inject.Singleton;
+
+@SuppressWarnings({ "javadoc", "static-method" })
+public class ConversionTest extends TestBase {
+
+	// ===================== POJOS =====================
+
+	public static enum Finger {
+		Thumb, Index, Middle, Ring, Little
+	}
+
+	public static class Weird {
+		int schloff;
+		String schtroumpf;
+	}
+
+	// ===================== CONTROLLER =====================
+
+	@Singleton
+	public static class Controller {
+
+		@RequestMapping("/boolean")
+		@Writes
+		public String _boolean(@RequestParam("var") Boolean[] var) {
+			String ret = "";
+			for (Boolean v : var)
+				ret += ":" + v.toString();
+			return ret;
+		}
+
+		@RequestMapping("/short")
+		@Writes
+		public String _short(@RequestParam("p") short p, @RequestParam("o") Short o) {
+			return ":" + p + ":" + o;
+		}
+
+		@RequestMapping("/int")
+		@Writes
+		public String _int(@RequestParam("p") int p, @RequestParam("o") Integer o) {
+			return ":" + p + ":" + o;
+		}
+
+		@RequestMapping("/long")
+		@Writes
+		public String _long(@RequestParam("p") long p, @RequestParam("o") Long o) {
+			return ":" + p + ":" + o;
+		}
+
+		@RequestMapping("/float")
+		@Writes
+		public String _float(@RequestParam("p") float p, @RequestParam("o") Float o) {
+			return ":" + p + ":" + o;
+		}
+
+		@RequestMapping("/double")
+		@Writes
+		public String _double(@RequestParam("p") double p, @RequestParam("o") Double o) {
+			return ":" + p + ":" + o;
+		}
+
+		@RequestMapping("/enum")
+		@Writes
+		public String _enum(@RequestParam("var") Finger f) {
+			return ":" + f;
+		}
+
+		@SuppressWarnings("unused")
+		@RequestMapping("/primarray")
+		public void primarray(@RequestParam("var") int[] var) {
+			/**/
+		}
+
+		@SuppressWarnings("unused")
+		@RequestMapping("/noconverter")
+		public void noconverter(@RequestParam("var") Weird var) {
+			/**/
+		}
+
+		@RequestMapping("/bigintarray")
+		@Writes
+		public String bigintarray(@RequestParam("var") Integer[][] var) {
+			String ret = "";
+			for (Integer[] ints : var) {
+				ret += ":";
+				for (Integer i : ints)
+					ret += "-" + i;
+			}
+			return ret;
+		}
+
+	}
+
+	// ===================== MODULE =====================
+
+	public static class ControllerModule extends MvcControlerModule {
+		@Override
+		protected void configureControllers() {
+			control("/*").with(Controller.class);
+		}
+
+
+	}
+
+	@Override
+	protected MvcControlerModule module() {
+		return new ControllerModule();
+	}
+
+	// ===================== DATA PROVIDER =====================
+
+	@DataProvider(name = "primitives")
+	public Object[][] createPrimitives() {
+		return new Object[][] {
+			{ "short",  "42",    "63",    "0" },
+			{ "int",    "42",    "63",    "0" },
+			{ "long",   "42",    "63",    "0" },
+			{ "float",  "42.21", "63.84", "0.0" },
+			{ "double", "42.21", "63.84", "0.0" }
+		};
+
+	}
+
+	// ===================== TESTS =====================
+
+	@Test
+	public void getBoolean() throws Exception {
+		HttpTester request = makeRequest("GET", "/boolean?var=true,on,Y,yes,1,choucroute,0");
+
+		HttpTester response = getResponse(request);
+
+		assert response.getStatus() == 200;
+		assert response.getContent().equals(":true:true:true:true:true:false:false");
+	}
+
+	@Test
+	public void getEmptyArray() throws Exception {
+		HttpTester request = makeRequest("GET", "/boolean?var=");
+
+		HttpTester response = getResponse(request);
+
+		assert response.getStatus() == 200;
+		assert response.getContent() == null;
+	}
+
+	@Test(dataProvider = "primitives")
+	@SuppressWarnings("unused")
+	public void getPrimitive(String name, String v1, String v2, String zero) throws Exception {
+		HttpTester request = makeRequest("GET", "/" + name + "?p=" + v1 + "&o=" + v2);
+
+		HttpTester response = getResponse(request);
+
+		assert response.getStatus() == 200;
+		assert response.getContent().equals(":" + v1 + ":" + v2);
+	}
+
+	@Test(dataProvider = "primitives")
+	@SuppressWarnings("unused")
+	public void getBadPrimitive(String name, String v1, String v2, String zero) throws Exception {
+		HttpTester request = makeRequest("GET", "/" + name + "?p=salut&o=coucou");
+
+		HttpTester response = getResponse(request);
+
+		assert response.getStatus() == 200;
+		assert response.getContent().equals(":" + zero + ":null");
+	}
+
+	@Test
+	public void getEnum() throws Exception {
+		HttpTester request = makeRequest("GET", "/enum?var=Index");
+
+		HttpTester response = getResponse(request);
+
+		assert response.getStatus() == 200;
+		assert response.getContent().equals(":Index");
+	}
+
+	@Test
+	public void getEnumNoArray() throws Exception {
+		HttpTester request = makeRequest("GET", "/enum?var=Index&var=Thumb");
+
+		HttpTester response = getResponse(request);
+
+		assert response.getStatus() == 200;
+		assert response.getContent().equals(":Index");
+	}
+
+	@Test
+	public void getBadEnum() throws Exception {
+		HttpTester request = makeRequest("GET", "/enum?var=Choucroute");
+
+		HttpTester response = getResponse(request);
+
+		assert response.getStatus() == 200;
+		assert response.getContent().equals(":null");
+	}
+
+	@Test
+	public void getPrimReqArray() throws Exception {
+		HttpTester request = makeRequest("GET", "/primarray?var=21&var=42");
+
+		HttpTester response = getResponse(request);
+
+		assert response.getStatus() == 500;
+		assert response.getReason().equals("Array conversion does not support primitive types");
+	}
+
+	@Test
+	public void getPrimConvArray() throws Exception {
+		HttpTester request = makeRequest("GET", "/primarray?var=21,42");
+
+		HttpTester response = getResponse(request);
+
+		assert response.getStatus() == 500;
+		assert response.getReason().equals("Array conversion does not support primitive types");
+	}
+
+	@Test
+	public void getNoConverter() throws Exception {
+		HttpTester request = makeRequest("GET", "/noconverter?var=coucou");
+
+		HttpTester response = getResponse(request);
+
+		assert response.getStatus() == 500;
+		assert response.getReason().equals("Could not find converter for sourguice.test.ConversionTest.Weird");
+	}
+
+	@Test
+	public void getBigIntArray() throws Exception {
+		HttpTester request = makeRequest("GET", "/bigintarray?var=21,42&var=63,84");
+
+		HttpTester response = getResponse(request);
+
+		assert response.getStatus() == 200;
+		assert response.getContent().equals(":-21-42:-63-84");
+	}
+
+}
