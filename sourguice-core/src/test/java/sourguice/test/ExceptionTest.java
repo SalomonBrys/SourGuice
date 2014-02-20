@@ -79,14 +79,14 @@ public class ExceptionTest extends TestBase {
         protected void configureControllers() {
             control("/*").with(Controller.class);
             try {
-            	handleException(CustomException.class).with(new CustomExceptionHandler());
+            	handleException(CustomException.class).with(CustomExceptionHandler.class);
             }
             catch (UnreachableExceptionHandlerException e) {
             	throw new RuntimeException(e);
             }
 
             try {
-            	handleException(SubCustomException.class).with(new SubCustomExceptionHandler());
+            	handleException(SubCustomException.class).with(SubCustomExceptionHandler.class);
             }
             catch (UnreachableExceptionHandlerException e) {
             	exceptionCaught = true;

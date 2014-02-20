@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import javax.annotation.CheckForNull;
 import javax.inject.Singleton;
 
+import com.github.sourguice.controller.InstanceGetter;
 import com.github.sourguice.exception.ExceptionHandler;
 import com.github.sourguice.exception.ExceptionService;
 import com.github.sourguice.throwable.service.exception.UnreachableExceptionHandlerException;
@@ -23,7 +24,7 @@ public class ExceptionServiceImpl implements ExceptionService {
 	/**
 	 * Map of Exception classes and their corresponding ExceptionHandlers
 	 */
-	private LinkedHashMap<Class<? extends Exception>, ExceptionHandler<?>> map = new LinkedHashMap<>();
+	private LinkedHashMap<Class<? extends Exception>, InstanceGetter<? extends ExceptionHandler<? extends Exception>>> map = new LinkedHashMap<>();
 
 	/**
 	 * Registers an exception class and its corresponding exception handler
@@ -33,14 +34,13 @@ public class ExceptionServiceImpl implements ExceptionService {
 	 * @throws UnreachableExceptionHandlerException When an ExceptionHandler will never be reached because a previous ExceptionHandler
 	 *                                              has been registered that already handles this class of exception
 	 */
-	@Override
-	public <T extends Exception> void registerHandler(Class<? extends T> clazz, ExceptionHandler<? super T> handler) throws UnreachableExceptionHandlerException {
-		if (!map.containsKey(clazz))
+	public <T extends Exception> void register(Class<? extends T> cls, InstanceGetter<? extends ExceptionHandler<T>> ig) throws UnreachableExceptionHandlerException {
+		if (!map.containsKey(cls))
 			for (Class<? extends Exception> sup : map.keySet()) {
-				if (sup.isAssignableFrom(clazz))
-					throw new UnreachableExceptionHandlerException(clazz, sup);
+				if (sup.isAssignableFrom(cls))
+					throw new UnreachableExceptionHandlerException(cls, sup);
 			}
-		map.put(clazz, handler);
+		map.put(cls, ig);
 	}
 
 	/**
@@ -53,7 +53,7 @@ public class ExceptionServiceImpl implements ExceptionService {
 	public @CheckForNull <T extends Exception> ExceptionHandler<? super T> getHandler(Class<T> clazz) {
 		for (Class<? extends Exception> c : map.keySet()) {
 			if (c.isAssignableFrom(clazz))
-				return (ExceptionHandler<? super T>) map.get(c);
+				return (ExceptionHandler<? super T>) map.get(c).getInstance();
 		}
 		return null;
 	}

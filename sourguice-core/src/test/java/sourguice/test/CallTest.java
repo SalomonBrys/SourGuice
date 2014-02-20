@@ -165,7 +165,7 @@ public class CallTest extends TestBase {
         protected void configureControllers() {
             control("/*").with(Controller.class);
             try {
-				handleException(TestException.class).with(new TestExceptionHandler());
+				handleException(TestException.class).withInstance(new TestExceptionHandler());
 			}
             catch (UnreachableExceptionHandlerException e) {/**/}
         }

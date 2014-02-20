@@ -17,9 +17,7 @@ import com.github.sourguice.controller.GuiceInstanceGetter;
 import com.github.sourguice.controller.InstanceGetter;
 import com.github.sourguice.conversion.Converter;
 import com.github.sourguice.exception.ExceptionHandler;
-import com.github.sourguice.exception.ExceptionService;
 import com.github.sourguice.request.ForwardableRequestFactory;
-import com.github.sourguice.throwable.service.exception.UnreachableExceptionHandlerException;
 import com.github.sourguice.utils.RedirectServlet;
 import com.github.sourguice.utils.RequestScopeContainer;
 import com.github.sourguice.value.RequestMethod;
@@ -61,9 +59,9 @@ public abstract class MvcControlerModule extends ServletModule {
 
 		public void registerConverter(Class<?> cls, InstanceGetter<? extends Converter<?>> ig);
 
-		public void setRenderer(Class<? extends ViewRenderer> renderer);
+		public <T extends Exception> void registerExceptionHandler(Class<? extends T> cls, InstanceGetter<? extends ExceptionHandler<T>> ig);
 
-		public ExceptionService getExceptionService();
+		public void setRenderer(Class<? extends ViewRenderer> renderer);
 	}
 
 	/**
@@ -282,19 +280,6 @@ public abstract class MvcControlerModule extends ServletModule {
 	}
 
 	/**
-	 * Interface returned by {@link MvcControlerModule#handleException(Class, Class...)} to permit the syntax handleException(class).with(handler)
-	 */
-	public static interface HandleExceptionBuilder<T> {
-		/**
-		 * Second method of the syntax handleException(class).with(handler)
-		 * Associates previously defined exception classes to the handler
-		 *
-		 * @param handler The handler to use
-		 */
-		public void with(ExceptionHandler<? super T> handler) throws UnreachableExceptionHandlerException;
-	}
-
-	/**
 	 * First method of the syntax handleException(class).with(handler)
 	 *
 	 * @param exc The exception class to handle using the later handler
@@ -302,12 +287,12 @@ public abstract class MvcControlerModule extends ServletModule {
 	 * @return HandleExceptionBuilder on which {@link HandleExceptionBuilder#with(ExceptionHandler)} must be called
 	 */
 	@SafeVarargs
-	public final <T extends Exception> HandleExceptionBuilder<T> handleException(final Class<? extends T> exc, final Class<? extends T>... excs) {
-		return new HandleExceptionBuilder<T>() {
-			@Override public void with(ExceptionHandler<? super T> handler) throws UnreachableExceptionHandlerException {
-				helper.getExceptionService().registerHandler(exc, handler);
-				for (Class<? extends T> aExc : excs)
-					helper.getExceptionService().registerHandler(aExc, handler);
+	public final <T extends Exception> BindBuilder<ExceptionHandler<T>> handleException(final Class<? extends T> exc, final Class<? extends T>... excs) {
+		return new BindBuilder<ExceptionHandler<T>>() {
+			@Override protected void register(InstanceGetter<? extends ExceptionHandler<T>> ig) {
+				helper.registerExceptionHandler(exc, ig);
+				for (Class<? extends T> e : excs)
+					helper.registerExceptionHandler(e, ig);
 			}
 		};
 	}

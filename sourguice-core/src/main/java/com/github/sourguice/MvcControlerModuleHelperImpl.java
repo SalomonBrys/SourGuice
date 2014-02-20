@@ -30,6 +30,7 @@ import com.github.sourguice.conversion.def.LongConverter;
 import com.github.sourguice.conversion.def.ShortConverter;
 import com.github.sourguice.conversion.def.StringConverter;
 import com.github.sourguice.conversion.impl.ConversionServiceImpl;
+import com.github.sourguice.exception.ExceptionHandler;
 import com.github.sourguice.exception.ExceptionService;
 import com.github.sourguice.exception.def.MVCResponseExceptionHandler;
 import com.github.sourguice.exception.impl.ExceptionServiceImpl;
@@ -84,7 +85,7 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 	/**
 	 * Exception service
 	 */
-	private ExceptionService exceptionService = new ExceptionServiceImpl();
+	private ExceptionServiceImpl exceptionService = new ExceptionServiceImpl();
 
 	/**
 	 * Constructor, used by {@link MvcControlerModule}.
@@ -121,7 +122,7 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 
 		// Registers default exception handlers
 		try {
-			exceptionService.registerHandler(MvcResponseException.class, new MVCResponseExceptionHandler());
+			module.handleException(MvcResponseException.class).withInstance(new MVCResponseExceptionHandler());
 		}
 		catch (UnreachableExceptionHandlerException e) {
 			// THIS SHOULD NEVER HAPPEN
@@ -211,12 +212,13 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 	}
 
 	@Override
-	public ExceptionService getExceptionService() {
-		return exceptionService;
-	}
-
-	@Override
 	public void registerConverter(Class<?> cls, InstanceGetter<? extends Converter<?>> ig) {
 		conversionService.register(cls, ig);
 	}
+
+	@Override
+	public <T extends Exception> void registerExceptionHandler(Class<? extends T> cls, InstanceGetter<? extends ExceptionHandler<T>> ig) {
+		exceptionService.register(cls, ig);
+	}
+
 }
