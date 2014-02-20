@@ -66,8 +66,8 @@ public class CustomConvertorTest extends TestBase {
 		@Override
 		protected void configureControllers() {
 			control("/*").with(Controller.class);
-			convertTo(Man.class).with(new ManConverter());
-			convertTo(Child.class).with(new ChildConverter());
+			convertTo(Man.class).withInstance(new ManConverter());
+			convertTo(Child.class).with(ChildConverter.class);
 		}
 	}
 

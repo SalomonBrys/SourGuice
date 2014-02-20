@@ -15,7 +15,6 @@ import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.controller.GivenInstanceGetter;
 import com.github.sourguice.controller.GuiceInstanceGetter;
 import com.github.sourguice.controller.InstanceGetter;
-import com.github.sourguice.conversion.ConversionService;
 import com.github.sourguice.conversion.Converter;
 import com.github.sourguice.exception.ExceptionHandler;
 import com.github.sourguice.exception.ExceptionService;
@@ -58,11 +57,11 @@ public abstract class MvcControlerModule extends ServletModule {
 
 		public void configureServlets();
 
-		public void registerControl(final String pattern, InstanceGetter<?> ig);
+		public void registerControl(String pattern, InstanceGetter<?> ig);
+
+		public void registerConverter(Class<?> cls, InstanceGetter<? extends Converter<?>> ig);
 
 		public void setRenderer(Class<? extends ViewRenderer> renderer);
-
-		public ConversionService getConversionService();
 
 		public ExceptionService getExceptionService();
 	}
@@ -182,20 +181,33 @@ public abstract class MvcControlerModule extends ServletModule {
 	/**
 	 * Interface returned by {@link #control(String, String...)} to permit the syntax control(pattern).with(controller.class)
 	 */
-	public static interface BindBuilder<T> {
+	public abstract class BindBuilder<T> {
 		/**
 		 * Second method of the syntax *.with(*)
 		 *
 		 * @param clazz The class to register
 		 */
-		public void with(Class<? extends T> clazz);
-
+		public void with(Class<? extends T> clazz) {
+			// Now that we have all the patterns and the corresponding controller class,
+			// registers all patterns to the given controller class.
+			bind(clazz);
+			InstanceGetter<? extends T> ig = new GuiceInstanceGetter<>(clazz);
+			requestInjection(ig);
+			register(ig);
+		}
 		/**
 		 * Second method of the syntax *.withInstance(*)
 		 *
 		 * @param controller The object to register
 		 */
-		public void withInstance(T controller);
+		public void withInstance(T controller) {
+			// Now that we have all the patterns and the corresponding controller object,
+			// registers all patterns to the given controller object.
+			InstanceGetter<? extends T> ig = new GivenInstanceGetter<>(controller);
+			requestInjection(controller);
+			register(ig);
+		}
+		abstract protected void register(InstanceGetter<? extends T> ig);
 	}
 
 	/**
@@ -207,21 +219,7 @@ public abstract class MvcControlerModule extends ServletModule {
 	 */
 	public final BindBuilder<Object> control(final String pattern, final String... patterns) {
 		return new BindBuilder<Object>() {
-			@Override public void with(Class<? extends Object> clazz) {
-				// Now that we have all the patterns and the corresponding controller class,
-				// registers all patterns to the given controller class.
-				bind(clazz);
-				InstanceGetter<?> ig = new GuiceInstanceGetter<>(clazz);
-				requestInjection(ig);
-				helper.registerControl(pattern, ig);
-				for (String p : patterns)
-					helper.registerControl(p, ig);
-			}
-			@Override public void withInstance(Object controller) {
-				// Now that we have all the patterns and the corresponding controller object,
-				// registers all patterns to the given controller object.
-				InstanceGetter<?> ig = new GivenInstanceGetter<>(controller);
-				requestInjection(controller);
+			@Override protected void register(InstanceGetter<? extends Object> ig) {
 				helper.registerControl(pattern, ig);
 				for (String p : patterns)
 					helper.registerControl(p, ig);
@@ -267,31 +265,18 @@ public abstract class MvcControlerModule extends ServletModule {
 	}
 
 	/**
-	 * Interface returned by {@link MvcControlerModule#convertTo(Class, Class...)} to permit the syntax convertTo(class).with(converter)
-	 */
-	public static interface ConvertToBuilder {
-		/**
-		 * Second method of the syntax convertTo(class).with(converter)
-		 * Associates previously defined classes to the converter
-		 *
-		 * @param converter The converter to use
-		 */
-		public void with(Converter<?> converter);
-	}
-
-	/**
 	 * First method of the syntax convertTo(class).with(converter)
 	 *
 	 * @param to The class to convert to using the later converter
 	 * @param tos Any additional class to convert to
 	 * @return ConvertToBuilder on which {@link ConvertToBuilder#with(Converter)} must be called
 	 */
-	public final ConvertToBuilder convertTo(final Class<?> to, final Class<?>... tos) {
-		return new ConvertToBuilder() {
-			@Override public void with(final Converter<?> converter) {
-				helper.getConversionService().registerConverter(to, converter);
-				for (Class<?> aTo : tos)
-					helper.getConversionService().registerConverter(aTo, converter);
+	public final BindBuilder<Converter<?>> convertTo(final Class<?> to, final Class<?>... tos) {
+		return new BindBuilder<Converter<?>>() {
+			@Override protected void register(InstanceGetter<? extends Converter<?>> ig) {
+				helper.registerConverter(to, ig);
+				for (Class<?> t : tos)
+					helper.registerConverter(t, ig);
 			}
 		};
 	}

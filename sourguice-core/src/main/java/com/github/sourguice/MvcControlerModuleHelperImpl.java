@@ -20,6 +20,7 @@ import com.github.sourguice.controller.ControllersServlet;
 import com.github.sourguice.controller.InstanceGetter;
 import com.github.sourguice.controller.InterceptWithMatcher;
 import com.github.sourguice.conversion.ConversionService;
+import com.github.sourguice.conversion.Converter;
 import com.github.sourguice.conversion.def.BooleanConverter;
 import com.github.sourguice.conversion.def.DoubleConverter;
 import com.github.sourguice.conversion.def.EnumConverter;
@@ -78,7 +79,7 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 	/**
 	 * Conversion service
 	 */
-	private ConversionService conversionService = new ConversionServiceImpl();
+	private ConversionServiceImpl conversionService = new ConversionServiceImpl();
 
 	/**
 	 * Exception service
@@ -109,26 +110,14 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 	public final void configureServlets() {
 
 		// Registers default converters
-		BooleanConverter booleanConverter = new BooleanConverter();
-		conversionService.registerConverter(boolean.class, booleanConverter);
-		conversionService.registerConverter(Boolean.class, booleanConverter);
-		ShortConverter shortConverter = new ShortConverter();
-		conversionService.registerConverter(short.class, shortConverter);
-		conversionService.registerConverter(Short.class, shortConverter);
-		IntegerConverter integerConverter = new IntegerConverter();
-		conversionService.registerConverter(int.class, integerConverter);
-		conversionService.registerConverter(Integer.class, integerConverter);
-		LongConverter longConverter = new LongConverter();
-		conversionService.registerConverter(long.class, longConverter);
-		conversionService.registerConverter(Long.class, longConverter);
-		FloatConverter floatConverter = new FloatConverter();
-		conversionService.registerConverter(float.class, floatConverter);
-		conversionService.registerConverter(Float.class, floatConverter);
-		DoubleConverter doubleConverter = new DoubleConverter();
-		conversionService.registerConverter(double.class, doubleConverter);
-		conversionService.registerConverter(Double.class, doubleConverter);
-		conversionService.registerConverter(Enum.class, new EnumConverter());
-		conversionService.registerConverter(String.class, new StringConverter());
+		module.convertTo(boolean.class, Boolean.class).withInstance(new BooleanConverter());
+		module.convertTo(short.class, Short.class).withInstance(new ShortConverter());
+		module.convertTo(int.class, Integer.class).withInstance(new IntegerConverter());
+		module.convertTo(long.class, Long.class).withInstance(new LongConverter());
+		module.convertTo(float.class, Float.class).withInstance(new FloatConverter());
+		module.convertTo(double.class, Double.class).withInstance(new DoubleConverter());
+		module.convertTo(Enum.class).withInstance(new EnumConverter());
+		module.convertTo(String.class).withInstance(new StringConverter());
 
 		// Registers default exception handlers
 		try {
@@ -222,12 +211,12 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 	}
 
 	@Override
-	public ConversionService getConversionService() {
-		return conversionService;
+	public ExceptionService getExceptionService() {
+		return exceptionService;
 	}
 
 	@Override
-	public ExceptionService getExceptionService() {
-		return exceptionService;
+	public void registerConverter(Class<?> cls, InstanceGetter<? extends Converter<?>> ig) {
+		conversionService.register(cls, ig);
 	}
 }

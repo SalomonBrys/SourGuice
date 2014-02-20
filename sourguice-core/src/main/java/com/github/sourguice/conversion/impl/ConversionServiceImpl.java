@@ -8,6 +8,8 @@ import javax.annotation.CheckForNull;
 import javax.inject.Singleton;
 
 import com.github.sourguice.annotation.ConverterCanConstructChild;
+import com.github.sourguice.controller.GivenInstanceGetter;
+import com.github.sourguice.controller.InstanceGetter;
 import com.github.sourguice.conversion.ConversionService;
 import com.github.sourguice.conversion.Converter;
 import com.github.sourguice.conversion.def.ArrayConverter;
@@ -26,7 +28,7 @@ public class ConversionServiceImpl implements ConversionService {
 	/**
 	 * Map of registered convertable classes and their associated converter
 	 */
-	private HashMap<Class<?>, Converter<?>> converters = new HashMap<>();
+	private HashMap<Class<?>, InstanceGetter<? extends Converter<?>>> converters = new HashMap<>();
 
 	/**
 	 * Register a converter to be associated with the given type
@@ -35,10 +37,8 @@ public class ConversionServiceImpl implements ConversionService {
 	 * @param type The type to associate the converter with
 	 * @return The converter associated with the class
 	 */
-	@Override
-	public Converter<?> registerConverter(Class<?> type, Converter<?> conv) {
+	public void register(Class<?> type, InstanceGetter<? extends Converter<?>> conv) {
 		converters.put(type, conv);
-		return conv;
 	}
 
 	/**
@@ -82,11 +82,11 @@ public class ConversionServiceImpl implements ConversionService {
 	@Override
 	public @CheckForNull <T> Converter<T> getConverter(Class<T> clazz) {
 		if (converters.containsKey(clazz))
-			return (Converter<T>)converters.get(clazz);
+			return (Converter<T>)converters.get(clazz).getInstance();
 
 		int closestDistance = Integer.MAX_VALUE;
 		Class<?> closestType = null;
-		for (Map.Entry<Class<?>, Converter<?>> entry : converters.entrySet()) {
+		for (Map.Entry<Class<?>, InstanceGetter<? extends Converter<?>>> entry : converters.entrySet()) {
 			if (clazz.isAssignableFrom(entry.getKey())) {
 				int distance = ClassUtilDistance(entry.getKey(), clazz, 0);
 				if (distance < closestDistance) {
@@ -94,7 +94,7 @@ public class ConversionServiceImpl implements ConversionService {
 					closestType = entry.getKey();
 				}
 			}
-			if (entry.getValue().getClass().isAnnotationPresent(ConverterCanConstructChild.class) && entry.getKey().isAssignableFrom(clazz)) {
+			if (entry.getValue().getInstanceClass().isAnnotationPresent(ConverterCanConstructChild.class) && entry.getKey().isAssignableFrom(clazz)) {
 				int distance = ClassUtilDistance(clazz, entry.getKey(), 0);
 				if (distance < closestDistance) {
 					closestDistance = distance;
@@ -104,7 +104,7 @@ public class ConversionServiceImpl implements ConversionService {
 		}
 
 		if (closestType != null)
-			return (Converter<T>)converters.get(closestType);
+			return (Converter<T>)converters.get(closestType).getInstance();
 
 		return null;
 	}
@@ -152,8 +152,11 @@ public class ConversionServiceImpl implements ConversionService {
 			Converter conv = this.getConverter(toClazz);
 			if (conv == null && toClazz.isArray()) {
 				Converter compConv = this.getConverter(toClazz.getComponentType());
-				if (compConv != null)
-					conv = registerConverter(toClazz, new ArrayConverter<>(compConv));
+				if (compConv != null) {
+					GivenInstanceGetter<? extends Converter<?>> ig = new GivenInstanceGetter<>(new ArrayConverter<>(compConv));
+					register(toClazz, ig);
+					conv = ig.getInstance();
+				}
 			}
 			if (conv == null)
 				throw new NoConverterException(toClazz);

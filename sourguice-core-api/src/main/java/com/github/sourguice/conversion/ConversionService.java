@@ -12,14 +12,6 @@ import com.github.sourguice.throwable.service.converter.NoConverterException;
 public interface ConversionService {
 
 	/**
-	 * Register a converter
-	 *
-	 * @param type The type to convert to
-	 * @param conv The converter to register
-	 */
-	public Converter<?> registerConverter(Class<?> type, Converter<?> conv);
-
-	/**
 	 * Gets the better converter for the given class
 	 * If a converter is registered for the given class, returns it
 	 * If not, tries to find the converter that can convert to a subclass of this class (and gets the closest).
