@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -79,7 +80,7 @@ public class CallTest extends TestBase {
 
     	@RequestMapping("/callfetched")
     	@Writes
-    	public @CheckForNull String callfetched(MvcCaller caller) throws Throwable {
+    	public @Nullable String callfetched(MvcCaller caller) throws Throwable {
     		return (String)caller.call(this.getClass(), "fetched", null, false, new NoArgumentFetcher(), new TestArgumentFetcher());
     	}
 
