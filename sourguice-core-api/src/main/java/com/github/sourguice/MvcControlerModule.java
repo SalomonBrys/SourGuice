@@ -186,8 +186,6 @@ public abstract class MvcControlerModule extends ServletModule {
 		 * @param clazz The class to register
 		 */
 		public void with(Class<? extends T> clazz) {
-			// Now that we have all the patterns and the corresponding controller class,
-			// registers all patterns to the given controller class.
 			bind(clazz);
 			InstanceGetter<? extends T> ig = new GuiceInstanceGetter<>(clazz);
 			requestInjection(ig);
@@ -198,11 +196,9 @@ public abstract class MvcControlerModule extends ServletModule {
 		 *
 		 * @param controller The object to register
 		 */
-		public void withInstance(T controller) {
-			// Now that we have all the patterns and the corresponding controller object,
-			// registers all patterns to the given controller object.
-			InstanceGetter<? extends T> ig = new GivenInstanceGetter<>(controller);
-			requestInjection(controller);
+		public void withInstance(T instance) {
+			InstanceGetter<? extends T> ig = new GivenInstanceGetter<>(instance);
+			requestInjection(instance);
 			register(ig);
 		}
 		abstract protected void register(InstanceGetter<? extends T> ig);
