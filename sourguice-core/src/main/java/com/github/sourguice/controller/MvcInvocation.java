@@ -114,7 +114,7 @@ public final class MvcInvocation {
 		// Registers all fetchers
 		// Fetchers are configured in constructor so they are constrcted only once
 		// If no fetcher is suitable, then uses the guice fetcher
-		Type[] parameterTypes = GenericTypeReflector.getExactParameterTypes(method, ig.getInstanceClass());
+		Type[] parameterTypes = GenericTypeReflector.getExactParameterTypes(method, ig.getTypeLiteral().getRawType());
 		Annotation[][] annotations = method.getParameterAnnotations();
 		fetchers = new ArgumentFetcher<?>[parameterTypes.length];
 		// TODO: Make plugins able to hook here

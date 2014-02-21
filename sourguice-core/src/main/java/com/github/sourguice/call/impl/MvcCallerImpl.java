@@ -26,6 +26,7 @@ import com.github.sourguice.throwable.invocation.HandledException;
 import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.servlet.RequestScoped;
 
 /**
@@ -138,7 +139,7 @@ public final class MvcCallerImpl implements MvcCaller {
 				}
 
 		if (invoc == null)
-			throw new NoSuchMethodException("No such method @Callable " + ig.getInstanceClass().getCanonicalName() + "." + methodName);
+			throw new NoSuchMethodException("No such method @Callable " + ig.getTypeLiteral().getRawType().getCanonicalName() + "." + methodName);
 
 		return invoc;
 	}
@@ -166,7 +167,7 @@ public final class MvcCallerImpl implements MvcCaller {
 	public @CheckForNull Object call(Class<?> cls, String methodName, @CheckForNull @PathVariablesMap Map<String, String> pathVariables, boolean throwWhenHandled, CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchMethodException, NoSuchRequestParameterException, Throwable {
 		if (cls.getSimpleName().contains("$$EnhancerByGuice$$"))
 			cls = cls.getSuperclass();
-		GuiceInstanceGetter<?> ig = new GuiceInstanceGetter<>(cls);
+		GuiceInstanceGetter<?> ig = new GuiceInstanceGetter<>(Key.get(cls));
 		injector.injectMembers(ig);
 		return call(findInvocation(ig, methodName), pathVariables, throwWhenHandled, additionalFetchers);
 	}
@@ -180,7 +181,7 @@ public final class MvcCallerImpl implements MvcCaller {
 			cls = cls.getSuperclass();
 			method = cls.getMethod(method.getName(), method.getParameterTypes());
 		}
-		GuiceInstanceGetter<?> ig = new GuiceInstanceGetter<>(cls);
+		GuiceInstanceGetter<?> ig = new GuiceInstanceGetter<>(Key.get(cls));
 		injector.injectMembers(ig);
 		return call(findInvocation(ig, method.getName()), pathVariables, throwWhenHandled, additionalFetchers);
 	}

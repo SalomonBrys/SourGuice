@@ -94,7 +94,7 @@ public class ConversionServiceImpl implements ConversionService {
 					closestType = entry.getKey();
 				}
 			}
-			if (entry.getValue().getInstanceClass().isAnnotationPresent(ConverterCanConstructChild.class) && entry.getKey().isAssignableFrom(clazz)) {
+			if (entry.getValue().getTypeLiteral().getRawType().isAnnotationPresent(ConverterCanConstructChild.class) && entry.getKey().isAssignableFrom(clazz)) {
 				int distance = ClassUtilDistance(clazz, entry.getKey(), 0);
 				if (distance < closestDistance) {
 					closestDistance = distance;

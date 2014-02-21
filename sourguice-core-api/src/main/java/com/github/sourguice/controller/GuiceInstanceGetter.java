@@ -4,6 +4,8 @@ import javax.annotation.CheckForNull;
 import javax.inject.Inject;
 
 import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 
 /**
  * Used by the syntax control().with()
@@ -12,34 +14,34 @@ import com.google.inject.Injector;
  */
 public class GuiceInstanceGetter<T> implements InstanceGetter<T> {
 
-	Class<T> cls;
+	Key<T> key;
 
 	@Inject @CheckForNull Injector injector;
 
-	public GuiceInstanceGetter(Class<T> cls) {
+	public GuiceInstanceGetter(Key<T> key) {
 		super();
-		this.cls = cls;
+		this.key = key;
 	}
 
 	@Override
 	public T getInstance() {
 		assert injector != null;
-		return injector.getInstance(cls);
+		return injector.getInstance(key);
 	}
 
 	@Override
-	public Class<T> getInstanceClass() {
-		return cls;
+	public TypeLiteral<T> getTypeLiteral() {
+		return key.getTypeLiteral();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj instanceof GuiceInstanceGetter && cls.equals(((GuiceInstanceGetter<?>)obj).cls);
+		return obj instanceof GuiceInstanceGetter && key.equals(((GuiceInstanceGetter<?>)obj).key);
 	}
 
 	@Override
 	public int hashCode() {
-		return cls.hashCode();
+		return key.hashCode();
 	}
 
 }

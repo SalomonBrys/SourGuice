@@ -23,7 +23,9 @@ import com.github.sourguice.utils.RequestScopeContainer;
 import com.github.sourguice.value.RequestMethod;
 import com.github.sourguice.view.ViewRenderer;
 import com.google.inject.Binder;
+import com.google.inject.Key;
 import com.google.inject.Provides;
+import com.google.inject.TypeLiteral;
 import com.google.inject.servlet.RequestScoped;
 import com.google.inject.servlet.ServletModule;
 
@@ -180,27 +182,26 @@ public abstract class MvcControlerModule extends ServletModule {
 	 * Interface returned by {@link #control(String, String...)} to permit the syntax control(pattern).with(controller.class)
 	 */
 	public abstract class BindBuilder<T> {
-		/**
-		 * Second method of the syntax *.with(*)
-		 *
-		 * @param clazz The class to register
-		 */
-		public void with(Class<? extends T> clazz) {
-			bind(clazz);
-			InstanceGetter<? extends T> ig = new GuiceInstanceGetter<>(clazz);
+
+		public void with(Key<? extends T> key) {
+			InstanceGetter<? extends T> ig = new GuiceInstanceGetter<>(key);
 			requestInjection(ig);
 			register(ig);
 		}
-		/**
-		 * Second method of the syntax *.withInstance(*)
-		 *
-		 * @param controller The object to register
-		 */
+
+		public void with(Class<? extends T> type) {
+			with(Key.get(type));
+		}
+
+		public void with(TypeLiteral<? extends T> type) {
+			with(Key.get(type));
+		}
+
 		public void withInstance(T instance) {
 			InstanceGetter<? extends T> ig = new GivenInstanceGetter<>(instance);
-			requestInjection(instance);
 			register(ig);
 		}
+
 		abstract protected void register(InstanceGetter<? extends T> ig);
 	}
 

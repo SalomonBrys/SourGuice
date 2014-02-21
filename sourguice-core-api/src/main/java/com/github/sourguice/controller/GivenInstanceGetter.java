@@ -1,5 +1,7 @@
 package com.github.sourguice.controller;
 
+import com.google.inject.TypeLiteral;
+
 /**
  * Used by the syntax control().withInstance()
  *
@@ -22,8 +24,8 @@ public class GivenInstanceGetter<T> implements InstanceGetter<T> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Class<T> getInstanceClass() {
-		return (Class<T>)instance.getClass();
+	public TypeLiteral<T> getTypeLiteral() {
+		return (TypeLiteral<T>) TypeLiteral.get(instance.getClass());
 	}
 
 	@Override

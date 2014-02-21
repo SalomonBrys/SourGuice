@@ -118,7 +118,7 @@ public final class ControllerHandler<T> {
 	public ControllerHandler(InstanceGetter<T> ig) {
 		this.ig = ig;
 
-		for (Method method : ig.getInstanceClass().getMethods())
+		for (Method method : ig.getTypeLiteral().getRawType().getMethods())
 			if (Annotations.GetOneTreeRecursive(Callable.class, method) != null)
 				invocations.add(new MvcInvocation(Annotations.GetOneRecursive(RequestMapping.class, method.getAnnotations()), ig, method));
 	}
@@ -138,7 +138,7 @@ public final class ControllerHandler<T> {
 		//TODO: There should be no reflexivity at call-time !
 		// If found (not null) gather invocation informations from annotations
 		if (infos != null) {
-			ViewSystem vsAnno = Annotations.GetOneTreeRecursive(ViewSystem.class, ig.getInstanceClass());
+			ViewSystem vsAnno = Annotations.GetOneTreeRecursive(ViewSystem.class, ig.getTypeLiteral().getRawType());
 			if (vsAnno != null && !vsAnno.directory().isEmpty())
 				infos.viewDirectory = vsAnno.directory();
 
