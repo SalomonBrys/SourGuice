@@ -4,9 +4,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
@@ -40,7 +40,7 @@ import com.github.sourguice.utils.Arrays;
 import com.github.sourguice.utils.HttpStrings;
 import com.github.sourguice.value.RequestMethod;
 import com.google.inject.Injector;
-import com.googlecode.gentyref.GenericTypeReflector;
+import com.google.inject.TypeLiteral;
 
 /**
  * Class that holds every informations available at compile time needed to call a controller's method
@@ -114,50 +114,50 @@ public final class MvcInvocation {
 		// Registers all fetchers
 		// Fetchers are configured in constructor so they are constrcted only once
 		// If no fetcher is suitable, then uses the guice fetcher
-		Type[] parameterTypes = GenericTypeReflector.getExactParameterTypes(method, ig.getTypeLiteral().getRawType());
+		List<TypeLiteral<?>> parameterTypes = ig.getTypeLiteral().getParameterTypes(method);
 		Annotation[][] annotations = method.getParameterAnnotations();
-		fetchers = new ArgumentFetcher<?>[parameterTypes.length];
+		fetchers = new ArgumentFetcher<?>[parameterTypes.size()];
 		// TODO: Make plugins able to hook here
-		for (int n = 0; n < parameterTypes.length; ++n) {
+		for (int n = 0; n < parameterTypes.size(); ++n) {
 			AnnotatedElement annos = Annotations.fromArray(annotations[n]);
 
 			RequestParam requestParam = annos.getAnnotation(RequestParam.class);
 			if (requestParam != null) {
-				fetchers[n] = new RequestParamArgumentFetcher(parameterTypes[n], n, annotations[n], requestParam);
+				fetchers[n] = new RequestParamArgumentFetcher(parameterTypes.get(n), n, annotations[n], requestParam);
 				continue ;
 			}
 
 			PathVariable pathVariable = annos.getAnnotation(PathVariable.class);
 			if (pathVariable != null) {
-				fetchers[n] = new PathVariableArgumentFetcher(parameterTypes[n], n, annotations[n], pathVariable, matchRef, this.mapping != null && this.mapping.value().length > 0);
+				fetchers[n] = new PathVariableArgumentFetcher(parameterTypes.get(n), n, annotations[n], pathVariable, matchRef, this.mapping != null && this.mapping.value().length > 0);
 				continue ;
 			}
 
 			RequestAttribute requestAttribute = annos.getAnnotation(RequestAttribute.class);
 			if (requestAttribute != null) {
-				fetchers[n] = new RequestAttributeArgumentFetcher(parameterTypes[n], n, annotations[n], requestAttribute);
+				fetchers[n] = new RequestAttributeArgumentFetcher(parameterTypes.get(n), n, annotations[n], requestAttribute);
 				continue ;
 			}
 
 			SessionAttribute sessionAttribute = annos.getAnnotation(SessionAttribute.class);
 			if (sessionAttribute != null) {
-				fetchers[n] = new SessionAttributeArgumentFetcher(parameterTypes[n], n, annotations[n], sessionAttribute);
+				fetchers[n] = new SessionAttributeArgumentFetcher(parameterTypes.get(n), n, annotations[n], sessionAttribute);
 				continue ;
 			}
 
 			RequestHeader requestHeader = annos.getAnnotation(RequestHeader.class);
 			if (requestHeader != null) {
-				fetchers[n] = new RequestHeaderArgumentFetcher(parameterTypes[n], n, annotations[n], requestHeader);
+				fetchers[n] = new RequestHeaderArgumentFetcher(parameterTypes.get(n), n, annotations[n], requestHeader);
 				continue ;
 			}
 
 			InterceptParam interceptParam = annos.getAnnotation(InterceptParam.class);
 			if (interceptParam != null) {
-				fetchers[n] = new NullArgumentFetcher(parameterTypes[n], n, annotations[n]);
+				fetchers[n] = new NullArgumentFetcher(parameterTypes.get(n), n, annotations[n]);
 				continue ;
 			}
 
-			fetchers[n] = new InjectorArgumentFetcher(parameterTypes[n], n, annotations[n]);
+			fetchers[n] = new InjectorArgumentFetcher(parameterTypes.get(n), n, annotations[n]);
 		}
 	}
 

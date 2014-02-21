@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.annotation.request.SessionAttribute;
 import com.google.inject.Injector;
+import com.google.inject.TypeLiteral;
 
 /**
  * Fetcher that handles @{@link SessionAttribute} annotated arguments
@@ -32,7 +33,7 @@ public class SessionAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 	 * @param annotations Annotations that were found on the method's argument
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 */
-	public SessionAttributeArgumentFetcher(Type type, int pos, Annotation[] annotations, SessionAttribute infos) {
+	public SessionAttributeArgumentFetcher(TypeLiteral<T> type, int pos, Annotation[] annotations, SessionAttribute infos) {
 		super(type, pos, annotations);
 		this.infos = infos;
 	}

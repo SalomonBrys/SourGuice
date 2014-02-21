@@ -1,7 +1,6 @@
 package com.github.sourguice.controller.fetchers;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
 import java.util.Map;
 
 import javax.annotation.CheckForNull;
@@ -12,6 +11,7 @@ import com.github.sourguice.call.CalltimeArgumentFetcher;
 import com.github.sourguice.conversion.ConversionService;
 import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException;
 import com.google.inject.Injector;
+import com.google.inject.TypeLiteral;
 
 /**
  * Base class for argument fetchers
@@ -30,7 +30,7 @@ public abstract class ArgumentFetcher<T> {
 	/**
 	 * The type of the argument to fetch
 	 */
-	protected Type type;
+	protected TypeLiteral<T> type;
 
 	/**
 	 * The position of the method's argument to fetch
@@ -48,7 +48,7 @@ public abstract class ArgumentFetcher<T> {
 	 * @param pos The position of the method's argument to fetch
 	 * @param annotations Annotations that were found on the method's argument
 	 */
-	protected ArgumentFetcher(Type type, int pos, Annotation[] annotations) {
+	protected ArgumentFetcher(TypeLiteral<T> type, int pos, Annotation[] annotations) {
 		this.type = type;
 		this.pos = pos;
 		this.annotations = annotations;

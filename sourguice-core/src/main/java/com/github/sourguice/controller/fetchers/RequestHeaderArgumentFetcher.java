@@ -14,7 +14,7 @@ import com.github.sourguice.conversion.ConversionService;
 import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException;
 import com.github.sourguice.value.ValueConstants;
 import com.google.inject.Injector;
-import com.googlecode.gentyref.GenericTypeReflector;
+import com.google.inject.TypeLiteral;
 
 /**
  * Fetcher that handles @{@link PathVariable} annotated arguments
@@ -37,7 +37,7 @@ public class RequestHeaderArgumentFetcher<T> extends ArgumentFetcher<T> {
 	 * @param annotations Annotations that were found on the method's argument
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 */
-	public RequestHeaderArgumentFetcher(Type type, int pos, Annotation[] annotations, RequestHeader infos) {
+	public RequestHeaderArgumentFetcher(TypeLiteral<T> type, int pos, Annotation[] annotations, RequestHeader infos) {
 		super(type, pos, annotations);
 		this.infos = infos;
 	}
@@ -50,9 +50,9 @@ public class RequestHeaderArgumentFetcher<T> extends ArgumentFetcher<T> {
 	protected @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) throws NoSuchRequestParameterException {
 		if (req.getHeader(infos.value()) == null) {
 			if (!this.infos.defaultValue().equals(ValueConstants.DEFAULT_NONE))
-				return (T) injector.getInstance(ConversionService.class).convert(GenericTypeReflector.erase(this.type), this.infos.defaultValue());
+				return (T) injector.getInstance(ConversionService.class).convert(this.type.getRawType(), this.infos.defaultValue());
 			throw new NoSuchRequestParameterException(this.infos.value(), "header");
 		}
-		return (T) injector.getInstance(ConversionService.class).convert(GenericTypeReflector.erase(this.type), req.getHeader(infos.value()));
+		return (T) injector.getInstance(ConversionService.class).convert(this.type.getRawType(), req.getHeader(infos.value()));
 	}
 }

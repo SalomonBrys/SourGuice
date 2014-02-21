@@ -19,7 +19,7 @@ import com.github.sourguice.conversion.ConversionService;
 import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException;
 import com.github.sourguice.value.ValueConstants;
 import com.google.inject.Injector;
-import com.googlecode.gentyref.GenericTypeReflector;
+import com.google.inject.TypeLiteral;
 
 /**
  * Fetcher that handles @{@link RequestParam} annotated arguments
@@ -42,7 +42,7 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 	 * @param annotations Annotations that were found on the method's argument
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 */
-	public RequestParamArgumentFetcher(Type type, int pos, Annotation[] annotations, RequestParam infos) {
+	public RequestParamArgumentFetcher(TypeLiteral<T> type, int pos, Annotation[] annotations, RequestParam infos) {
 		super(type, pos, annotations);
 		this.infos = infos;
 	}
@@ -56,7 +56,7 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 		ConversionService conversionService = injector.getInstance(ConversionService.class);
 		// TODO: Handle Sets & concrete collection types
 		// If a List is requested, gets an array and converts it to list
-		if (GenericTypeReflector.erase(this.type).equals(List.class)) {
+		if (type.getRawType().equals(List.class)) {
 			Object[] objs;
 			if (req.getParameterValues(this.infos.value()) == null || req.getParameterValues(this.infos.value()).length == 0) {
 				// If there are no value and not default value, throws the exception
@@ -68,15 +68,16 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 			}
 			else
 				// Gets converted array and returns it as list
-				objs = conversionService.convertArray(GenericTypeReflector.erase(((ParameterizedType)GenericTypeReflector.getExactSuperType(type, List.class)).getActualTypeArguments()[0]), req.getParameterValues(this.infos.value()));
+				objs = conversionService.convertArray(TypeLiteral.get(((ParameterizedType)type.getSupertype(List.class).getType()).getActualTypeArguments()[0]).getRawType(), req.getParameterValues(this.infos.value()));
 			return (T)Arrays.asList(objs);
 		}
 		// If a Map is requested, gets all name[key] or name:key request parameter and fills the map with converted values
-		if (GenericTypeReflector.erase(this.type).equals(Map.class)) {
+		if (type.getRawType().equals(Map.class)) {
 			Map<Object, Object> ret = new HashMap<>();
 			Enumeration<String> names = req.getParameterNames();
-			Class<?> keyClass = GenericTypeReflector.erase(((ParameterizedType)GenericTypeReflector.getExactSuperType(type, Map.class)).getActualTypeArguments()[0]);
-			Class<?> valueClass = GenericTypeReflector.erase(((ParameterizedType)GenericTypeReflector.getExactSuperType(type, Map.class)).getActualTypeArguments()[1]);
+			ParameterizedType mapType = (ParameterizedType) type.getSupertype(Map.class).getType();
+			Class<?> keyClass = TypeLiteral.get(mapType.getActualTypeArguments()[0]).getRawType();
+			Class<?> valueClass = TypeLiteral.get(mapType.getActualTypeArguments()[1]).getRawType();
 			while (names.hasMoreElements()) {
 				String name = names.nextElement();
 				if (name.startsWith(infos.value() + ":"))
@@ -111,12 +112,12 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 		// If the parameter does not exists, returns the default value or, if there are none, throw an exception
 		if (req.getParameter(this.infos.value()) == null) {
 			if (!this.infos.defaultValue().equals(ValueConstants.DEFAULT_NONE))
-				return (T) conversionService.convert(GenericTypeReflector.erase(this.type), this.infos.defaultValue());
-			throw new NoSuchRequestParameterException(this.infos.value(), "request parameters");
+				return (T) conversionService.convert(type.getRawType(), infos.defaultValue());
+			throw new NoSuchRequestParameterException(infos.value(), "request parameters");
 		}
 		// Returns the converted parameter value
 		if (req.getParameterValues(this.infos.value()).length == 1)
-			return (T) conversionService.convert(GenericTypeReflector.erase(this.type), req.getParameter(this.infos.value()));
-		return (T) conversionService.convert(GenericTypeReflector.erase(this.type), req.getParameterValues(this.infos.value()));
+			return (T) conversionService.convert(type.getRawType(), req.getParameter(infos.value()));
+		return (T) conversionService.convert(type.getRawType(), req.getParameterValues(infos.value()));
 	}
 }

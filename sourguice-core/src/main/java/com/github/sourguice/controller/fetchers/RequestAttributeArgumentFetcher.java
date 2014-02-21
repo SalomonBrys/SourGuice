@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.annotation.request.RequestAttribute;
 import com.google.inject.Injector;
+import com.google.inject.TypeLiteral;
 
 /**
  * Fetcher that handles @{@link RequestAttribute} annotated arguments
@@ -32,7 +33,7 @@ public class RequestAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 	 * @param annotations Annotations that were found on the method's argument
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 */
-	public RequestAttributeArgumentFetcher(Type type, int pos, Annotation[] annotations, RequestAttribute infos) {
+	public RequestAttributeArgumentFetcher(TypeLiteral<T> type, int pos, Annotation[] annotations, RequestAttribute infos) {
 		super(type, pos, annotations);
 		this.infos = infos;
 	}

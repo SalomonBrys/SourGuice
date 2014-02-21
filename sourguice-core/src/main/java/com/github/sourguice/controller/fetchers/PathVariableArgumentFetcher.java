@@ -14,7 +14,7 @@ import com.github.sourguice.conversion.ConversionService;
 import com.github.sourguice.throwable.invocation.NoSuchPathVariableException;
 import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException;
 import com.google.inject.Injector;
-import com.googlecode.gentyref.GenericTypeReflector;
+import com.google.inject.TypeLiteral;
 
 /**
  * Fetcher that handles @{@link PathVariable} annotated arguments
@@ -39,7 +39,7 @@ public class PathVariableArgumentFetcher<T> extends ArgumentFetcher<T> {
 	 * @param ref The reference map that links path variable name to their index when a url matches
 	 * @param check Whether or not to check that ref contains the reference to the path variable
 	 */
-	public PathVariableArgumentFetcher(Type type, int pos, Annotation[] annotations, PathVariable infos, HashMap<String, Integer> ref, boolean check) {
+	public PathVariableArgumentFetcher(TypeLiteral<T> type, int pos, Annotation[] annotations, PathVariable infos, HashMap<String, Integer> ref, boolean check) {
 		super(type, pos, annotations);
 		this.infos = infos;
 		if (check && !ref.containsKey(infos.value()))
@@ -57,6 +57,6 @@ public class PathVariableArgumentFetcher<T> extends ArgumentFetcher<T> {
 			//   1- Existence of the pathvariable key has been checked in constructor
 			//   2- If we are here, it means that the URL has matched the regex with the corresponding key
 			throw new NoSuchRequestParameterException(this.infos.value(), "path variables");
-		return (T) injector.getInstance(ConversionService.class).convert(GenericTypeReflector.erase(this.type), pathVariables.get(infos.value()));
+		return (T) injector.getInstance(ConversionService.class).convert(this.type.getRawType(), pathVariables.get(infos.value()));
 	}
 }

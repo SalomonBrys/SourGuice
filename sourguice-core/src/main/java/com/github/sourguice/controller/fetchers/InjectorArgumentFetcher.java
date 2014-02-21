@@ -13,7 +13,7 @@ import com.github.sourguice.utils.Annotations;
 import com.google.inject.BindingAnnotation;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.googlecode.gentyref.GenericTypeReflector;
+import com.google.inject.TypeLiteral;
 
 /**
  * Fetcher that handles argument that are not annotated with an annotation handled by previous fetchers
@@ -33,7 +33,7 @@ public class InjectorArgumentFetcher<T> extends ArgumentFetcher<T> {
 	/**
 	 * @see ArgumentFetcher#ArgumentFetcher(Type, int, Annotation[])
 	 */
-	public InjectorArgumentFetcher(Type type, int pos, Annotation[] annotations) {
+	public InjectorArgumentFetcher(TypeLiteral<T> type, int pos, Annotation[] annotations) {
 		super(type, pos, annotations);
 
 		bindingAnnotation = Annotations.GetOneAnnotated(BindingAnnotation.class, annotations);
@@ -48,7 +48,7 @@ public class InjectorArgumentFetcher<T> extends ArgumentFetcher<T> {
 	@Override
 	protected @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) {
 		if (bindingAnnotation != null)
-			return (T)injector.getInstance(Key.get(GenericTypeReflector.erase(this.type), bindingAnnotation));
-		return (T)injector.getInstance(Key.get(GenericTypeReflector.erase(this.type)));
+			return (T)injector.getInstance(Key.get(this.type.getRawType(), bindingAnnotation));
+		return (T)injector.getInstance(Key.get(this.type.getRawType()));
 	}
 }

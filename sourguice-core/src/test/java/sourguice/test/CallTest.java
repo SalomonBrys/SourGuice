@@ -9,7 +9,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -32,6 +31,7 @@ import com.github.sourguice.exception.ExceptionHandler;
 import com.github.sourguice.throwable.service.exception.UnreachableExceptionHandlerException;
 import com.github.sourguice.utils.Annotations;
 import com.google.inject.Singleton;
+import com.google.inject.TypeLiteral;
 
 @SuppressWarnings({"javadoc", "static-method"})
 public class CallTest extends TestBase {
@@ -142,19 +142,19 @@ public class CallTest extends TestBase {
     }
 
     public static class TestArgumentFetcher implements CalltimeArgumentFetcher<String> {
-		@Override public boolean canGet(Type type, int pos, Annotation[] annos) {
-			return type == String.class && Annotations.fromArray(annos).isAnnotationPresent(TestArgument.class);
+		@Override public boolean canGet(TypeLiteral<?> type, int pos, Annotation[] annos) {
+			return type.getRawType() == String.class && Annotations.fromArray(annos).isAnnotationPresent(TestArgument.class);
 		}
-		@Override public String get(Type type, int pos, Annotation[] annos) throws Throwable {
+		@Override public String get(TypeLiteral<?> type, int pos, Annotation[] annos) throws Throwable {
 			return "Salomon";
 		}
     }
 
     public static class NoArgumentFetcher implements CalltimeArgumentFetcher<String> {
-		@Override public boolean canGet(Type type, int pos, Annotation[] annos) {
+		@Override public boolean canGet(TypeLiteral<?> type, int pos, Annotation[] annos) {
 			return false;
 		}
-		@Override @CheckForNull public String get(Type type, int pos, Annotation[] annos) throws Throwable {
+		@Override @CheckForNull public String get(TypeLiteral<?> type, int pos, Annotation[] annos) throws Throwable {
 			return null;
 		}
     }
