@@ -3,6 +3,7 @@ package com.github.sourguice.conversion.def;
 import javax.annotation.CheckForNull;
 
 import com.github.sourguice.conversion.Converter;
+import com.google.inject.TypeLiteral;
 
 /**
  * Converts a String to Double and double
@@ -15,12 +16,12 @@ public class DoubleConverter implements Converter<Double> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public @CheckForNull Double get(Class<? extends Double> clazz, String arg) {
+	public @CheckForNull Double get(TypeLiteral<? extends Double> type, String arg) {
 		try {
 			return Double.valueOf(arg);
 		}
 		catch (NumberFormatException e) {
-			if (clazz.isPrimitive())
+			if (type.getRawType().isPrimitive())
 				return Double.valueOf(0);
 			return null;
 		}

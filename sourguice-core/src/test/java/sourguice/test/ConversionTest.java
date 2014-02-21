@@ -231,7 +231,7 @@ public class ConversionTest extends TestBase {
 		HttpTester response = getResponse(request);
 
 		assert response.getStatus() == 500;
-		assert response.getReason().equals("Could not find converter for sourguice.test.ConversionTest.Weird");
+		assert response.getReason().equals("Could not find converter for sourguice.test.ConversionTest$Weird");
 	}
 
 	@Test

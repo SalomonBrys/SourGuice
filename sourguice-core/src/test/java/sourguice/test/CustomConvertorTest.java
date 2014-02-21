@@ -9,6 +9,7 @@ import com.github.sourguice.annotation.request.RequestParam;
 import com.github.sourguice.annotation.request.Writes;
 import com.github.sourguice.conversion.Converter;
 import com.google.inject.Singleton;
+import com.google.inject.TypeLiteral;
 
 @SuppressWarnings({ "javadoc", "static-method" })
 public class CustomConvertorTest extends TestBase {
@@ -38,13 +39,13 @@ public class CustomConvertorTest extends TestBase {
     // ===================== CONVERTERS =====================
 
 	public static class ManConverter implements Converter<Man> {
-		@Override public Man get(Class<? extends Man> clazz, String arg) {
+		@Override public Man get(TypeLiteral<? extends Man> clazz, String arg) {
 			return new Man(arg);
 		}
 	}
 
 	public static class ChildConverter implements Converter<Child> {
-		@Override public Child get(Class<? extends Child> clazz, String arg) {
+		@Override public Child get(TypeLiteral<? extends Child> clazz, String arg) {
 			return new Child(arg);
 		}
 	}

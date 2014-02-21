@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 
 import com.github.sourguice.conversion.Converter;
+import com.google.inject.TypeLiteral;
 
 /**
  * Converts a String to Boolean and boolean
@@ -28,7 +29,7 @@ public class BooleanConverter implements Converter<Boolean> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public @CheckForNull Boolean get(Class<? extends Boolean> clazz, String arg) {
+	public @CheckForNull Boolean get(TypeLiteral<? extends Boolean> clazz, String arg) {
 		if (arg.equalsIgnoreCase("true") || arg.equalsIgnoreCase("on") || arg.equalsIgnoreCase("Y") || arg.equalsIgnoreCase("yes") || (number.matcher(arg).matches() && !zero.matcher(arg).matches()))
 			return new Boolean(true);
 		return new Boolean(false);

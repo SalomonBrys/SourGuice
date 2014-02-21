@@ -3,6 +3,8 @@ package com.github.sourguice.conversion;
 
 import javax.annotation.CheckForNull;
 
+import com.google.inject.TypeLiteral;
+
 /**
  * Base interface for all converters
  *
@@ -18,5 +20,5 @@ public interface Converter<T> {
 	 * @param arg The string to convert
 	 * @return The conversion result
 	 */
-	public @CheckForNull T get(Class<? extends T> assign, String arg);
+	public @CheckForNull T get(TypeLiteral<? extends T> assign, String arg);
 }

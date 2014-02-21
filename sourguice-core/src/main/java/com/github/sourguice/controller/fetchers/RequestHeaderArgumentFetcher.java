@@ -50,9 +50,9 @@ public class RequestHeaderArgumentFetcher<T> extends ArgumentFetcher<T> {
 	protected @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) throws NoSuchRequestParameterException {
 		if (req.getHeader(infos.value()) == null) {
 			if (!this.infos.defaultValue().equals(ValueConstants.DEFAULT_NONE))
-				return (T) injector.getInstance(ConversionService.class).convert(this.type.getRawType(), this.infos.defaultValue());
+				return (T) injector.getInstance(ConversionService.class).convert(this.type, this.infos.defaultValue());
 			throw new NoSuchRequestParameterException(this.infos.value(), "header");
 		}
-		return (T) injector.getInstance(ConversionService.class).convert(this.type.getRawType(), req.getHeader(infos.value()));
+		return (T) injector.getInstance(ConversionService.class).convert(this.type, req.getHeader(infos.value()));
 	}
 }

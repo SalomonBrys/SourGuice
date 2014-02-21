@@ -42,6 +42,7 @@ import com.github.sourguice.utils.RequestScopeContainer;
 import com.github.sourguice.view.Model;
 import com.github.sourguice.view.ViewRenderer;
 import com.github.sourguice.view.def.JSPViewRenderer;
+import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.servlet.RequestScoped;
 import com.google.inject.servlet.ServletScopes;
@@ -212,8 +213,8 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 	}
 
 	@Override
-	public void registerConverter(Class<?> cls, InstanceGetter<? extends Converter<?>> ig) {
-		conversionService.register(cls, ig);
+	public void registerConverter(Class<?> type, InstanceGetter<? extends Converter<?>> ig) {
+		conversionService.register(type, ig);
 	}
 
 	@Override

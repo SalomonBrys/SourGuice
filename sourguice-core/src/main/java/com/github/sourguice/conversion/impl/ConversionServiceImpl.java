@@ -14,6 +14,7 @@ import com.github.sourguice.conversion.ConversionService;
 import com.github.sourguice.conversion.Converter;
 import com.github.sourguice.conversion.def.ArrayConverter;
 import com.github.sourguice.throwable.service.converter.NoConverterException;
+import com.google.inject.TypeLiteral;
 
 /**
  * Holds all registered converters
@@ -62,8 +63,8 @@ public class ConversionServiceImpl implements ConversionService {
 			if (nSuper < distance)
 				distance = nSuper;
 		}
-		for (Class<?> clazz : child.getInterfaces()) {
-			int nSuper = ClassUtilDistance(clazz, parent, n + 1);
+		for (Class<?> intf : child.getInterfaces()) {
+			int nSuper = ClassUtilDistance(intf, parent, n + 1);
 			if (nSuper < distance)
 				distance = nSuper;
 		}
@@ -119,10 +120,10 @@ public class ConversionServiceImpl implements ConversionService {
 	 * @throws NoConverterException When no converter is found for the specific type (RuntimeException)
 	 */
 	@Override
-	public <T> T[] convertArray(Class<T> componentType, Object[] from) throws NoConverterException {
-		if (componentType.isPrimitive())
+	public <T> T[] convertArray(TypeLiteral<T> componentType, Object[] from) throws NoConverterException {
+		if (componentType.getRawType().isPrimitive())
 			throw new RuntimeException("Array conversion does not support primitive types");
-		Object[] ret = (Object[])Array.newInstance(componentType, from.length);
+		Object[] ret = (Object[])Array.newInstance(componentType.getRawType(), from.length);
 		for (int i = 0; i < from.length; ++i)
 			ret[i] = convert(componentType, from[i]);
 		return (T[])ret;
@@ -139,8 +140,8 @@ public class ConversionServiceImpl implements ConversionService {
 	 */
 	@Override
 	@SuppressWarnings("rawtypes")
-	public @CheckForNull Object convert(Class<?> toClazz, Object from) throws NoConverterException {
-		if (from.getClass().isArray() && !toClazz.isArray()) {
+	public @CheckForNull Object convert(TypeLiteral<?> toType, Object from) throws NoConverterException {
+		if (from.getClass().isArray() && !toType.getRawType().isArray()) {
 			while (from.getClass().isArray())
 				if (((Object[])from).length > 0)
 					from = ((Object[])from)[0];
@@ -149,21 +150,21 @@ public class ConversionServiceImpl implements ConversionService {
 					return null;
 		}
 		if (from.getClass().equals(String.class)) {
-			Converter conv = this.getConverter(toClazz);
-			if (conv == null && toClazz.isArray()) {
-				Converter compConv = this.getConverter(toClazz.getComponentType());
+			Converter conv = this.getConverter(toType.getRawType());
+			if (conv == null && toType.getRawType().isArray()) {
+				Converter compConv = this.getConverter(toType.getRawType().getComponentType());
 				if (compConv != null) {
 					GivenInstanceGetter<? extends Converter<?>> ig = new GivenInstanceGetter<>(new ArrayConverter<>(compConv));
-					register(toClazz, ig);
+					register(toType.getRawType(), ig);
 					conv = ig.getInstance();
 				}
 			}
 			if (conv == null)
-				throw new NoConverterException(toClazz);
-			return conv.get(toClazz, (String)from);
+				throw new NoConverterException(toType);
+			return conv.get(toType, (String)from);
 		}
 		if (from.getClass().isArray()) {
-			return this.convertArray(toClazz.getComponentType(), (Object[])from);
+			return this.convertArray(TypeLiteral.get(toType.getRawType().getComponentType()), (Object[])from);
 		}
 		/* This should never happen in a servlet environment and therefore cannot be tested in one */
 		throw new RuntimeException("Only String, array of String, array of array of string, etc. are allowed");

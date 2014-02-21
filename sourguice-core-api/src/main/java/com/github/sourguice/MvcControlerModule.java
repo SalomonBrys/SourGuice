@@ -59,7 +59,7 @@ public abstract class MvcControlerModule extends ServletModule {
 
 		public void registerControl(String pattern, InstanceGetter<?> ig);
 
-		public void registerConverter(Class<?> cls, InstanceGetter<? extends Converter<?>> ig);
+		public void registerConverter(Class<?> type, InstanceGetter<? extends Converter<?>> ig);
 
 		public <T extends Exception> void registerExceptionHandler(Class<? extends T> cls, InstanceGetter<? extends ExceptionHandler<T>> ig);
 

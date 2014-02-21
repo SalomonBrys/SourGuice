@@ -3,6 +3,7 @@ package com.github.sourguice.conversion;
 import javax.annotation.CheckForNull;
 
 import com.github.sourguice.throwable.service.converter.NoConverterException;
+import com.google.inject.TypeLiteral;
 
 /**
  * Singleton service that handles conversion from string to anything
@@ -32,7 +33,7 @@ public interface ConversionService {
 	 * @return The array of type converted from the strings
 	 * @throws NoConverterException When no converter is found for the specific type (RuntimeException)
 	 */
-	public abstract <T>T[] convertArray(Class<T> componentType, Object[] from) throws NoConverterException;
+	public abstract <T>T[] convertArray(TypeLiteral<T> componentType, Object[] from) throws NoConverterException;
 
 	/**
 	 * Converts a string or an array of string into a value or an array of values
@@ -44,6 +45,6 @@ public interface ConversionService {
 	 * @throws NoConverterException When no converter is found for the specific type (RuntimeException)
 	 */
 	public @CheckForNull
-	abstract Object convert(Class<?> toClazz, Object from) throws NoConverterException;
+	abstract Object convert(TypeLiteral<?> toClazz, Object from) throws NoConverterException;
 
 }

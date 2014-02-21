@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 
 import com.github.sourguice.conversion.Converter;
+import com.google.inject.TypeLiteral;
 /**
  * Converts a coma separated array of string into an array of value of type T
  *
@@ -39,10 +40,10 @@ public class ArrayConverter<T> implements Converter<T[]> {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public @CheckForNull T[] get(Class<? extends T[]> clazz, String arg) {
+	public @CheckForNull T[] get(TypeLiteral<? extends T[]> type, String arg) {
 		String[] args = separator.split(arg);
 
-		Class<?> componentType = clazz.getComponentType();
+		Class<?> componentType = type.getRawType().getComponentType();
 
 		if (componentType.isPrimitive())
 			throw new RuntimeException("Array conversion does not support primitive types");
@@ -54,7 +55,7 @@ public class ArrayConverter<T> implements Converter<T[]> {
 		T[] ret = (T[])Array.newInstance(componentType, length);
 
 		for (int i = 0; i < length; ++i) {
-			ret[i] = converter.get((Class<? extends T>)componentType, args[i]);
+			ret[i] = converter.get(TypeLiteral.get((Class<? extends T>)componentType), args[i]);
 		}
 
 		return ret;

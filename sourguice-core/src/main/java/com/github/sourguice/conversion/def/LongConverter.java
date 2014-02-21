@@ -3,6 +3,7 @@ package com.github.sourguice.conversion.def;
 import javax.annotation.CheckForNull;
 
 import com.github.sourguice.conversion.Converter;
+import com.google.inject.TypeLiteral;
 
 /**
  * Converts a String to Long and long
@@ -15,12 +16,12 @@ public class LongConverter implements Converter<Long> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public @CheckForNull Long get(Class<? extends Long> clazz, String arg) {
+	public @CheckForNull Long get(TypeLiteral<? extends Long> type, String arg) {
 		try {
 			return Long.valueOf(arg);
 		}
 		catch (NumberFormatException e) {
-			if (clazz.isPrimitive())
+			if (type.getRawType().isPrimitive())
 				return Long.valueOf(0);
 			return null;
 		}

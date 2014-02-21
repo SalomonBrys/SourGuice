@@ -4,6 +4,7 @@ import javax.annotation.CheckForNull;
 
 import com.github.sourguice.annotation.ConverterCanConstructChild;
 import com.github.sourguice.conversion.Converter;
+import com.google.inject.TypeLiteral;
 
 /**
  * Converts a String to an Enum value
@@ -18,10 +19,10 @@ public class EnumConverter implements Converter<Enum> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
-	public @CheckForNull Enum get(Class<? extends Enum> clazz, String arg) {
+	@SuppressWarnings({ "unchecked", "cast" })
+	public @CheckForNull Enum get(TypeLiteral<? extends Enum> type, String arg) {
 		try {
-			return Enum.valueOf(clazz, arg);
+			return (Enum) Enum.valueOf((Class<? extends Enum>)type.getRawType(), arg);
 		}
 		catch (IllegalArgumentException e) {
 			return null;

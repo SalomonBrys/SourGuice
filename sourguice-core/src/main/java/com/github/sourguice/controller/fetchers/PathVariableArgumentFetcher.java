@@ -57,6 +57,6 @@ public class PathVariableArgumentFetcher<T> extends ArgumentFetcher<T> {
 			//   1- Existence of the pathvariable key has been checked in constructor
 			//   2- If we are here, it means that the URL has matched the regex with the corresponding key
 			throw new NoSuchRequestParameterException(this.infos.value(), "path variables");
-		return (T) injector.getInstance(ConversionService.class).convert(this.type.getRawType(), pathVariables.get(infos.value()));
+		return (T) injector.getInstance(ConversionService.class).convert(this.type, pathVariables.get(infos.value()));
 	}
 }

@@ -68,7 +68,7 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 			}
 			else
 				// Gets converted array and returns it as list
-				objs = conversionService.convertArray(TypeLiteral.get(((ParameterizedType)type.getSupertype(List.class).getType()).getActualTypeArguments()[0]).getRawType(), req.getParameterValues(this.infos.value()));
+				objs = conversionService.convertArray(TypeLiteral.get(((ParameterizedType)type.getSupertype(List.class).getType()).getActualTypeArguments()[0]), req.getParameterValues(this.infos.value()));
 			return (T)Arrays.asList(objs);
 		}
 		// If a Map is requested, gets all name[key] or name:key request parameter and fills the map with converted values
@@ -76,8 +76,8 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 			Map<Object, Object> ret = new HashMap<>();
 			Enumeration<String> names = req.getParameterNames();
 			ParameterizedType mapType = (ParameterizedType) type.getSupertype(Map.class).getType();
-			Class<?> keyClass = TypeLiteral.get(mapType.getActualTypeArguments()[0]).getRawType();
-			Class<?> valueClass = TypeLiteral.get(mapType.getActualTypeArguments()[1]).getRawType();
+			TypeLiteral<?> keyClass = TypeLiteral.get(mapType.getActualTypeArguments()[0]);
+			TypeLiteral<?> valueClass = TypeLiteral.get(mapType.getActualTypeArguments()[1]);
 			while (names.hasMoreElements()) {
 				String name = names.nextElement();
 				if (name.startsWith(infos.value() + ":"))
@@ -112,12 +112,12 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 		// If the parameter does not exists, returns the default value or, if there are none, throw an exception
 		if (req.getParameter(this.infos.value()) == null) {
 			if (!this.infos.defaultValue().equals(ValueConstants.DEFAULT_NONE))
-				return (T) conversionService.convert(type.getRawType(), infos.defaultValue());
+				return (T) conversionService.convert(type, infos.defaultValue());
 			throw new NoSuchRequestParameterException(infos.value(), "request parameters");
 		}
 		// Returns the converted parameter value
 		if (req.getParameterValues(this.infos.value()).length == 1)
-			return (T) conversionService.convert(type.getRawType(), req.getParameter(infos.value()));
-		return (T) conversionService.convert(type.getRawType(), req.getParameterValues(infos.value()));
+			return (T) conversionService.convert(type, req.getParameter(infos.value()));
+		return (T) conversionService.convert(type, req.getParameterValues(infos.value()));
 	}
 }
