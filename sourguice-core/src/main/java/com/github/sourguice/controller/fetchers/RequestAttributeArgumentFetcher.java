@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.annotation.request.RequestAttribute;
+import com.github.sourguice.request.Attribute;
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 
@@ -21,10 +22,38 @@ import com.google.inject.TypeLiteral;
  */
 public class RequestAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 
+	public static class RequestAttributeAccessor<T> implements Attribute<T> {
+
+		private HttpServletRequest req;
+
+		private String attribute;
+
+		public RequestAttributeAccessor(HttpServletRequest req, String attribute) {
+			super();
+			this.req = req;
+			this.attribute = attribute;
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override public @CheckForNull T get() {
+			return (T) req.getAttribute(attribute);
+		}
+
+		@Override public void set(T o) {
+			req.setAttribute(attribute, o);
+		}
+
+	}
+
 	/**
 	 * The annotations containing needed informations to fetch the argument
 	 */
 	private RequestAttribute infos;
+
+	/**
+	 * If the injection requires an {@link Attribute}, then this is true
+	 */
+	private boolean isAccessor = false;
 
 	/**
 	 * @see ArgumentFetcher#ArgumentFetcher(Type, int, Annotation[])
@@ -36,6 +65,8 @@ public class RequestAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 	public RequestAttributeArgumentFetcher(TypeLiteral<T> type, int pos, Annotation[] annotations, RequestAttribute infos) {
 		super(type, pos, annotations);
 		this.infos = infos;
+		if (type.getRawType().equals(Attribute.class))
+			isAccessor = true;
 	}
 
 	/**
@@ -44,6 +75,8 @@ public class RequestAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) {
+		if (isAccessor)
+			return (T) new RequestAttributeAccessor<>(req, infos.value());
 		return (T)req.getAttribute(infos.value());
 	}
 }

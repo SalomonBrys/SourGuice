@@ -6,9 +6,11 @@ import java.util.Map;
 
 import javax.annotation.CheckForNull;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.annotation.request.SessionAttribute;
+import com.github.sourguice.request.Attribute;
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 
@@ -21,10 +23,38 @@ import com.google.inject.TypeLiteral;
  */
 public class SessionAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 
+	public static class SessionAttributeAccessor<T> implements Attribute<T> {
+
+		private HttpSession session;
+
+		private String attribute;
+
+		public SessionAttributeAccessor(HttpSession session, String attribute) {
+			super();
+			this.session = session;
+			this.attribute = attribute;
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override public @CheckForNull T get() {
+			return (T) session.getAttribute(attribute);
+		}
+
+		@Override public void set(T o) {
+			session.setAttribute(attribute, o);
+		}
+
+	}
+
 	/**
 	 * The annotations containing needed informations to fetch the argument
 	 */
 	private SessionAttribute infos;
+
+	/**
+	 * If the injection requires an {@link Attribute}, then this is true
+	 */
+	private boolean isAccessor = false;
 
 	/**
 	 * @see ArgumentFetcher#ArgumentFetcher(Type, int, Annotation[])
@@ -36,6 +66,8 @@ public class SessionAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 	public SessionAttributeArgumentFetcher(TypeLiteral<T> type, int pos, Annotation[] annotations, SessionAttribute infos) {
 		super(type, pos, annotations);
 		this.infos = infos;
+		if (type.getRawType().equals(Attribute.class))
+			isAccessor = true;
 	}
 
 	/**
@@ -44,6 +76,8 @@ public class SessionAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) {
+		if (isAccessor)
+			return (T) new SessionAttributeAccessor<>(req.getSession(true), infos.value());
 		return (T)req.getSession(true).getAttribute(infos.value());
 	}
 }

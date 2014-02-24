@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.MatchResult;
 
-import javax.servlet.http.HttpSession;
-
 import org.eclipse.jetty.testing.HttpTester;
 import org.eclipse.jetty.testing.ServletTester;
 import org.testng.annotations.DataProvider;
@@ -20,6 +18,7 @@ import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.RequestParam;
 import com.github.sourguice.annotation.request.SessionAttribute;
 import com.github.sourguice.annotation.request.Writes;
+import com.github.sourguice.request.Attribute;
 import com.github.sourguice.throwable.invocation.NoSuchPathVariableException;
 import com.github.sourguice.utils.Arrays;
 import com.github.sourguice.value.RequestMethod;
@@ -52,8 +51,9 @@ public class InjectionTest extends TestBase {
         }
 
         @RequestMapping("/sessionset")
-        public void sessionset(HttpSession session) {
-        	session.setAttribute("var", "Salomon");
+        public void sessionset(@SessionAttribute("var") Attribute<String> var) {
+        	assert var != null;
+        	var.set("Salomon");
         }
 
         @RequestMapping("/sessionget")
