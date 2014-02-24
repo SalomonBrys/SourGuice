@@ -84,10 +84,16 @@ public class ConversionServiceImpl implements ConversionService {
 	 */
 	@Override
 	public @CheckForNull <T> Converter<T> getConverter(Class<T> clazz) {
+		// Maybe it has already been set, so we check
 		if (converters.containsKey(clazz))
 			return (Converter<T>)converters.get(clazz).getInstance();
 
+		// If it has not been set, we need to set it only once, so we wait for lock
 		synchronized (converters) {
+			// Maybe it has been set while we waited for lock, so we check again
+			if (converters.containsKey(clazz))
+				return (Converter<T>)converters.get(clazz).getInstance();
+
 			int closestDistance = Integer.MAX_VALUE;
 			Class<?> closestType = null;
 			for (Map.Entry<Class<?>, InstanceGetter<? extends Converter<?>>> entry : converters.entrySet()) {
