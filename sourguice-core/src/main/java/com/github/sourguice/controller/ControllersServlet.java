@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.nio.CharBuffer;
 import java.util.LinkedList;
 import java.util.regex.MatchResult;
-import java.util.regex.Pattern;
 
 import javax.annotation.CheckForNull;
 import javax.inject.Inject;
@@ -18,8 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.github.sourguice.annotation.controller.HttpError;
 import com.github.sourguice.annotation.controller.Redirects;
-import com.github.sourguice.annotation.controller.ViewSystem;
-import com.github.sourguice.annotation.controller.ViewSystem.ViewRendererEntry;
 import com.github.sourguice.annotation.request.Writes;
 import com.github.sourguice.call.impl.MvcCallerImpl;
 import com.github.sourguice.request.wrapper.NoJsessionidHttpRequest;
@@ -27,9 +24,6 @@ import com.github.sourguice.throwable.invocation.HandledException;
 import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException;
 import com.github.sourguice.utils.Annotations;
 import com.github.sourguice.utils.RequestScopeContainer;
-import com.github.sourguice.view.Model;
-import com.github.sourguice.view.ViewRenderer;
-import com.github.sourguice.view.ViewRendererService;
 import com.google.inject.Injector;
 
 /**
@@ -186,31 +180,9 @@ public final class ControllersServlet extends HttpServlet {
 					view = ret.toString();
 			}
 
-			ViewRenderer viewRenderer = null;
-
 			// If there is a view to display
-			if (view != null) {
-				ViewSystem viewSystem = infos.invocation.getController().getViewSystem();
-
-				if (viewSystem != null) {
-				// If a view directory were set, prefixes the view with it
-					if (!viewSystem.directory().isEmpty() && !view.startsWith("/"))
-						view = viewSystem.directory() + "/" + view;
-
-				// Gets the view renderer either from the controller class or from Guice
-					for (ViewRendererEntry entry : viewSystem.renderers())
-						if (Pattern.matches(entry.regex(), view)) {
-							viewRenderer = this.injector.getInstance(entry.renderer());
-							break ;
-						}
-				}
-				if (viewRenderer == null)
-					viewRenderer = this.injector.getInstance(ViewRendererService.class).getRenderer(view);
-
-				// Renders the view
-				assert this.injector != null;
-				viewRenderer.render(view, this.injector.getInstance(Model.class).asMap());
-			}
+			if (view != null)
+				infos.invocation.getController().renderView(view, injector);
 		}
 		catch (NoSuchRequestParameterException e) {
 			// If a parameter is missing from the request, sends a 400 error
