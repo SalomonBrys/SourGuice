@@ -1,5 +1,7 @@
 package sourguice.test;
 
+import static org.testng.Assert.assertEquals;
+
 import java.io.ByteArrayInputStream;
 import java.io.CharArrayReader;
 import java.io.InputStream;
@@ -66,8 +68,8 @@ public class WriteTest extends TestBase {
 
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 500;
-		assert response.getReason().equals("@Writes annotated method must NOT return null");
+		assertEquals(response.getStatus(), 500);
+		assertEquals(response.getReason(), "@Writes annotated method must NOT return null");
 	}
 
 
@@ -76,8 +78,8 @@ public class WriteTest extends TestBase {
 
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals("Salomon");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "Salomon");
 	}
 
 
@@ -86,8 +88,8 @@ public class WriteTest extends TestBase {
 
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals("Salomon");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "Salomon");
 	}
 
 }

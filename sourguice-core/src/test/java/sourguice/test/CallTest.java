@@ -1,5 +1,7 @@
 package sourguice.test;
 
+import static org.testng.Assert.*;
+
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
@@ -185,8 +187,8 @@ public class CallTest extends TestBase {
 
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals("[Salomon]:[Salomon]");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "[Salomon]:[Salomon]");
 	}
 
 	public void getCallBad() throws Exception {
@@ -194,8 +196,8 @@ public class CallTest extends TestBase {
 
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 500;
-		assert response.getReason().equals("No such method @Callable sourguice.test.CallTest.Controller.choucroute");
+		assertEquals(response.getStatus(), 500);
+		assertEquals(response.getReason(), "No such method @Callable sourguice.test.CallTest.Controller.choucroute");
 	}
 
 	public void getCallHandled() throws Exception {
@@ -203,8 +205,8 @@ public class CallTest extends TestBase {
 
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals("EXC!Salomon");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "EXC!Salomon");
 	}
 
 	public void getCallThrowHandled() throws Exception {
@@ -212,8 +214,8 @@ public class CallTest extends TestBase {
 
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals("EXC!");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "EXC!");
 	}
 
 	public void getCallThrowNotHandled() throws Exception {
@@ -221,8 +223,8 @@ public class CallTest extends TestBase {
 
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 500;
-		assert response.getReason().equals("Choucroute");
+		assertEquals(response.getStatus(), 500);
+		assertEquals(response.getReason(), "Choucroute");
 	}
 
 	public void getCallFetched() throws Exception {
@@ -230,7 +232,7 @@ public class CallTest extends TestBase {
 
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals("Salomon");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "Salomon");
 	}
 }

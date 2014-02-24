@@ -1,5 +1,7 @@
 package sourguice.test;
 
+import static org.testng.Assert.*;
+
 import org.eclipse.jetty.testing.HttpTester;
 import org.testng.annotations.Test;
 
@@ -80,14 +82,14 @@ public class CustomConvertorTest extends TestBase {
 
 	// ===================== TESTS =====================
 
-	
+
 	public void getName() throws Exception {
 		HttpTester request = makeRequest("GET", "/name?var=Salomon");
 
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals("Man:Salomon");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "Man:Salomon");
 	}
 
 }

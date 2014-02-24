@@ -1,5 +1,7 @@
 package sourguice.test;
 
+import static org.testng.Assert.*;
+
 import org.eclipse.jetty.testing.HttpTester;
 import org.testng.annotations.Test;
 
@@ -79,8 +81,8 @@ public class RedirectTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 302;
-        assert response.getHeader("location").equals("http://tester/redir1");
+		assertEquals(response.getStatus(), 302);
+		assertEquals(response.getHeader("location"), "http://tester/redir1");
     }
 
 
@@ -89,8 +91,8 @@ public class RedirectTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 302;
-        assert response.getHeader("location").equals("http://tester/redir2");
+		assertEquals(response.getStatus(), 302);
+		assertEquals(response.getHeader("location"), "http://tester/redir2");
     }
 
 
@@ -99,8 +101,8 @@ public class RedirectTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 302;
-        assert response.getHeader("location").equals("http://tester/redir3");
+		assertEquals(response.getStatus(), 302);
+		assertEquals(response.getHeader("location"), "http://tester/redir3");
     }
 
 
@@ -109,8 +111,8 @@ public class RedirectTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 302;
-        assert response.getHeader("location").equals("http://tester/redir4");
+		assertEquals(response.getStatus(), 302);
+		assertEquals(response.getHeader("location"), "http://tester/redir4");
     }
 
 
@@ -119,8 +121,8 @@ public class RedirectTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 302;
-        assert response.getHeader("location").equals("http://tester/redir5");
+		assertEquals(response.getStatus(), 302);
+		assertEquals(response.getHeader("location"), "http://tester/redir5");
     }
 
 
@@ -129,8 +131,8 @@ public class RedirectTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 302;
-        assert response.getHeader("location").equals("http://tester/go/to/hell");
+		assertEquals(response.getStatus(), 302);
+		assertEquals(response.getHeader("location"), "http://tester/go/to/hell");
     }
 
 
@@ -139,7 +141,7 @@ public class RedirectTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
+		assertEquals(response.getStatus(), 200);
     }
 
 }

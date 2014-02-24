@@ -1,5 +1,7 @@
 package sourguice.test;
 
+import static org.testng.Assert.*;
+
 import org.eclipse.jetty.testing.HttpTester;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -141,8 +143,8 @@ public class RequestMappingTest extends TestBase {
 		HttpTester request = makeRequest("GET", "/a/hello");
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals("Hello, world");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "Hello, world");
 	}
 
 
@@ -151,8 +153,8 @@ public class RequestMappingTest extends TestBase {
 		addPost(request, "txt", "hello the world");
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals("hello the world");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "hello the world");
 	}
 
 
@@ -160,7 +162,7 @@ public class RequestMappingTest extends TestBase {
 		HttpTester request = makeRequest("GET", "/a/not-existing");
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 404;
+		assertEquals(response.getStatus(), 404);
 	}
 
 
@@ -168,7 +170,7 @@ public class RequestMappingTest extends TestBase {
 		HttpTester request = makeRequest("POST", "/a/print");
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 400;
+		assertEquals(response.getStatus(), 400);
 	}
 
 
@@ -176,7 +178,7 @@ public class RequestMappingTest extends TestBase {
 		HttpTester request = makeRequest("GET", "/a/print");
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 404;
+		assertEquals(response.getStatus(), 404);
 	}
 
 	@Test(invocationCount = 3, dataProvider = "requestMethods")
@@ -185,7 +187,7 @@ public class RequestMappingTest extends TestBase {
 		HttpTester request = makeRequest(method, "/a/simple");
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
+		assertEquals(response.getStatus(), 200);
 	}
 
 
@@ -193,8 +195,8 @@ public class RequestMappingTest extends TestBase {
 		HttpTester request = makeRequest("GET", "/a/simple?var=Salomon");
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals("v:Salomon");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "v:Salomon");
 	}
 
 
@@ -203,8 +205,8 @@ public class RequestMappingTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
-        assert response.getContent().equals("v:Salomon");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "v:Salomon");
     }
 
 
@@ -214,8 +216,8 @@ public class RequestMappingTest extends TestBase {
 		request.addHeader("x-sj-test", "Salomon");
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals("h:Salomon");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "h:Salomon");
 	}
 
 
@@ -224,8 +226,8 @@ public class RequestMappingTest extends TestBase {
 		request.addHeader("content-type", "x-sj-test");
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals("Consumes");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "Consumes");
 	}
 
 
@@ -234,8 +236,8 @@ public class RequestMappingTest extends TestBase {
 		request.addHeader("accept", "x-sj-test,xml;");
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals("Produces");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "Produces");
 	}
 
 
@@ -243,8 +245,8 @@ public class RequestMappingTest extends TestBase {
 		HttpTester request = makeRequest("GET", "/b/match-one-two-three");
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals("get:one:two:three");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "get:one:two:three");
 	}
 
 }

@@ -1,5 +1,7 @@
 package sourguice.test;
 
+import static org.testng.Assert.*;
+
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -132,8 +134,8 @@ public class ViewTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
-        assert response.getContent().equals("a:annodir:Salomon");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "a:annodir:Salomon");
     }
 
 
@@ -142,8 +144,8 @@ public class ViewTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
-        assert response.getContent().equals("a:annoroot:Salomon");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "a:annoroot:Salomon");
     }
 
 
@@ -152,8 +154,8 @@ public class ViewTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
-        assert response.getContent().equals("a:return:Salomon");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "a:return:Salomon");
     }
 
 
@@ -162,8 +164,8 @@ public class ViewTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
-        assert response.getContent().equals("a:dirin:Salomon");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "a:dirin:Salomon");
     }
 
 
@@ -172,8 +174,8 @@ public class ViewTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
-        assert response.getContent().equals("d:anno:Salomon");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "d:anno:Salomon");
     }
 
 
@@ -182,8 +184,8 @@ public class ViewTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 500;
-        assert response.getReason().equals("sourguice.test.ViewTest.DefaultTestRenderer has no method annotated with @RenderFor(\"noview.view\")");
+		assertEquals(response.getStatus(), 500);
+		assertEquals(response.getReason(), "sourguice.test.ViewTest.DefaultTestRenderer has no method annotated with @RenderFor(\"noview.view\")");
     }
 
 }

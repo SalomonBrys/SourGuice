@@ -1,5 +1,7 @@
 package sourguice.test;
 
+import static org.testng.Assert.*;
+
 import java.io.IOException;
 
 import javax.servlet.Filter;
@@ -97,8 +99,8 @@ public class FilterTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
-        assert response.getContent().equals(":Salomon");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), ":Salomon");
     }
 
 
@@ -107,8 +109,8 @@ public class FilterTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
-        assert response.getContent().equals(":Salomon");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), ":Salomon");
     }
 
 }

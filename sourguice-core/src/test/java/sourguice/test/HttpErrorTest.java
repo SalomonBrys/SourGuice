@@ -1,5 +1,7 @@
 package sourguice.test;
 
+import static org.testng.Assert.*;
+
 import org.eclipse.jetty.testing.HttpTester;
 import org.testng.annotations.Test;
 
@@ -72,7 +74,7 @@ public class HttpErrorTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 403;
+		assertEquals(response.getStatus(), 403);
     }
 
 
@@ -81,7 +83,7 @@ public class HttpErrorTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 409;
+		assertEquals(response.getStatus(), 409);
     }
 
 
@@ -90,7 +92,7 @@ public class HttpErrorTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 401;
+		assertEquals(response.getStatus(), 401);
     }
 
 
@@ -99,7 +101,7 @@ public class HttpErrorTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 418;
+		assertEquals(response.getStatus(), 418);
     }
 
 
@@ -108,7 +110,7 @@ public class HttpErrorTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 477;
+		assertEquals(response.getStatus(), 477);
     }
 
 }

@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.testing.HttpTester;
 import org.eclipse.jetty.testing.ServletTester;
+import org.testng.TestNG;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
@@ -130,17 +131,23 @@ public abstract class TestBase {
 
 	abstract protected MvcControlerModule module();
 
-//	public static void main(String[] args) {
-//		TestNG testng = new TestNG();
-//		testng.setTestClasses(new Class<?>[] {
-//			FilterTest.class,
-//			HttpErrorTest.class,
-//			InjectionTest.class,
-//			RedirectTest.class,
-//			RequestMappingTest.class,
-//			ViewTest.class,
-//			WriteTest.class
-//		});
-//		testng.run();
-//	}
+	public static void main(String[] args) {
+		TestNG testng = new TestNG();
+		testng.setTestClasses(new Class<?>[] {
+			CallTest.class,
+			ConversionTest.class,
+			CustomConvertorTest.class,
+			ExceptionTest.class,
+			FilterTest.class,
+			HttpErrorTest.class,
+			InjectionTest.class,
+			JSPTest.class,
+			RedirectTest.class,
+			RequestMappingTest.class,
+			TestBase.class,
+			ViewTest.class,
+			WriteTest.class
+		});
+		testng.run();
+	}
 }

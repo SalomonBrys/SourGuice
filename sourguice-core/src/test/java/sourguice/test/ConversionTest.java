@@ -1,5 +1,7 @@
 package sourguice.test;
 
+import static org.testng.Assert.*;
+
 import org.eclipse.jetty.testing.HttpTester;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -139,8 +141,8 @@ public class ConversionTest extends TestBase {
 
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals(":true:true:true:true:true:false:false");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), ":true:true:true:true:true:false:false");
 	}
 
 
@@ -149,8 +151,8 @@ public class ConversionTest extends TestBase {
 
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent() == null;
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), null);
 	}
 
 	@Test(invocationCount = 3, dataProvider = "primitives")
@@ -160,8 +162,8 @@ public class ConversionTest extends TestBase {
 
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals(":" + v1 + ":" + v2);
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), ":" + v1 + ":" + v2);
 	}
 
 	@Test(invocationCount = 3, dataProvider = "primitives")
@@ -171,8 +173,8 @@ public class ConversionTest extends TestBase {
 
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals(":" + zero + ":null");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), ":" + zero + ":null");
 	}
 
 
@@ -181,8 +183,8 @@ public class ConversionTest extends TestBase {
 
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals(":Index");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), ":Index");
 	}
 
 
@@ -191,8 +193,8 @@ public class ConversionTest extends TestBase {
 
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals(":Index");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), ":Index");
 	}
 
 
@@ -201,8 +203,8 @@ public class ConversionTest extends TestBase {
 
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals(":null");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), ":null");
 	}
 
 
@@ -211,8 +213,8 @@ public class ConversionTest extends TestBase {
 
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 500;
-		assert response.getReason().equals("Array conversion does not support primitive types");
+		assertEquals(response.getStatus(), 500);
+		assertEquals(response.getReason(), "Array conversion does not support primitive types");
 	}
 
 
@@ -221,8 +223,8 @@ public class ConversionTest extends TestBase {
 
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 500;
-		assert response.getReason().equals("Array conversion does not support primitive types");
+		assertEquals(response.getStatus(), 500);
+		assertEquals(response.getReason(), "Array conversion does not support primitive types");
 	}
 
 
@@ -231,8 +233,8 @@ public class ConversionTest extends TestBase {
 
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 500;
-		assert response.getReason().equals("Could not find converter for sourguice.test.ConversionTest$Weird");
+		assertEquals(response.getStatus(), 500);
+		assertEquals(response.getReason(), "Could not find converter for sourguice.test.ConversionTest$Weird");
 	}
 
 
@@ -241,8 +243,8 @@ public class ConversionTest extends TestBase {
 
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals(":-21-42:-63-84");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), ":-21-42:-63-84");
 	}
 
 }

@@ -1,5 +1,7 @@
 package sourguice.test;
 
+import static org.testng.Assert.*;
+
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
@@ -205,8 +207,8 @@ public class InjectionTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
-        assert response.getContent().equals(":" + method);
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), ":" + method);
     }
 
 
@@ -215,8 +217,8 @@ public class InjectionTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
-        assert response.getContent().equals(":Salomon");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), ":Salomon");
     }
 
 
@@ -225,8 +227,8 @@ public class InjectionTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
-        assert response.getContent().equals(":true");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), ":true");
     }
 
 
@@ -240,7 +242,7 @@ public class InjectionTest extends TestBase {
 		        HttpTester request = makeRequest("GET", "/sessionset");
 		        HttpTester response = getResponse(tester, request);
 
-		        assert response.getStatus() == 200;
+				assertEquals(response.getStatus(), 200);
 
 		        String setCookie = response.getHeader("set-cookie");
 		        jsessionid = setCookie.substring(setCookie.indexOf('=') + 1, setCookie.indexOf(';'));
@@ -251,8 +253,8 @@ public class InjectionTest extends TestBase {
 		        request.setHeader("cookie", "jsessionid=" + jsessionid);
 		        HttpTester response = getResponse(tester, request);
 
-		        assert response.getStatus() == 200;
-		        assert response.getContent().equals(":Salomon");
+				assertEquals(response.getStatus(), 200);
+				assertEquals(response.getContent(), ":Salomon");
 	    	}
     	}
     	finally {
@@ -266,8 +268,8 @@ public class InjectionTest extends TestBase {
 
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
-        assert response.getContent().equals(":Choucroute");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), ":Choucroute");
     }
 
 
@@ -275,12 +277,12 @@ public class InjectionTest extends TestBase {
         HttpTester request = makeRequest("GET", "/list?var=one&var=two&var=three");
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
+		assertEquals(response.getStatus(), 200);
         String[] split = response.getContent().split(":");
-        assert split.length == 4;
-        assert Arrays.Contains(split, "one");
-        assert Arrays.Contains(split, "two");
-        assert Arrays.Contains(split, "three");
+        assertEquals(split.length, 4);
+        assertTrue(Arrays.Contains(split, "one"));
+        assertTrue(Arrays.Contains(split, "two"));
+        assertTrue(Arrays.Contains(split, "three"));
     }
 
 
@@ -288,12 +290,12 @@ public class InjectionTest extends TestBase {
         HttpTester request = makeRequest("GET", "/defaultlist");
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
+		assertEquals(response.getStatus(), 200);
         String[] split = response.getContent().split(":");
-        assert split.length == 4;
-        assert Arrays.Contains(split, "a");
-        assert Arrays.Contains(split, "b");
-        assert Arrays.Contains(split, "c");
+        assertEquals(split.length, 4);
+        assertTrue(Arrays.Contains(split, "a"));
+        assertTrue(Arrays.Contains(split, "b"));
+        assertTrue(Arrays.Contains(split, "c"));
     }
 
 
@@ -301,8 +303,8 @@ public class InjectionTest extends TestBase {
         HttpTester request = makeRequest("GET", "/defaultemptylist");
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
-        assert response.getContent().equals("ok");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "ok");
     }
 
 
@@ -310,8 +312,8 @@ public class InjectionTest extends TestBase {
         HttpTester request = makeRequest("GET", "/list");
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 400;
-        assert response.getReason().equals("Missing request parameters: var");
+		assertEquals(response.getStatus(), 400);
+        assertEquals(response.getReason(), "Missing request parameters: var");
     }
 
 
@@ -319,12 +321,12 @@ public class InjectionTest extends TestBase {
         HttpTester request = makeRequest("GET", "/map?var[a]=one&var[b]=two&var[c]=three&var[=choucroute");
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
+		assertEquals(response.getStatus(), 200);
         String[] split = response.getContent().split(":");
-        assert split.length == 4;
-        assert Arrays.Contains(split, "a=one");
-        assert Arrays.Contains(split, "b=two");
-        assert Arrays.Contains(split, "c=three");
+        assertEquals(split.length, 4);
+        assertTrue(Arrays.Contains(split, "a=one"));
+        assertTrue(Arrays.Contains(split, "b=two"));
+        assertTrue(Arrays.Contains(split, "c=three"));
     }
 
 
@@ -332,12 +334,12 @@ public class InjectionTest extends TestBase {
         HttpTester request = makeRequest("GET", "/map?var:a=one&var:b=two&var:c=three&nothing=choucroute");
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
+		assertEquals(response.getStatus(), 200);
         String[] split = response.getContent().split(":");
-        assert split.length == 4;
-        assert Arrays.Contains(split, "a=one");
-        assert Arrays.Contains(split, "b=two");
-        assert Arrays.Contains(split, "c=three");
+        assertEquals(split.length, 4);
+        assertTrue(Arrays.Contains(split, "a=one"));
+        assertTrue(Arrays.Contains(split, "b=two"));
+        assertTrue(Arrays.Contains(split, "c=three"));
     }
 
 
@@ -345,12 +347,12 @@ public class InjectionTest extends TestBase {
         HttpTester request = makeRequest("GET", "/defaultmap");
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
+		assertEquals(response.getStatus(), 200);
         String[] split = response.getContent().split(":");
-        assert split.length == 4;
-        assert Arrays.Contains(split, "a=one");
-        assert Arrays.Contains(split, "b=two");
-        assert Arrays.Contains(split, "c=three");
+        assertEquals(split.length, 4);
+        assertTrue(Arrays.Contains(split, "a=one"));
+        assertTrue(Arrays.Contains(split, "b=two"));
+        assertTrue(Arrays.Contains(split, "c=three"));
     }
 
 
@@ -358,8 +360,8 @@ public class InjectionTest extends TestBase {
         HttpTester request = makeRequest("GET", "/defaultemptymap");
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
-        assert response.getContent().equals("ok");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "ok");
     }
 
 
@@ -367,8 +369,8 @@ public class InjectionTest extends TestBase {
         HttpTester request = makeRequest("GET", "/map");
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 400;
-        assert response.getReason().equals("Missing request parameters: var");
+		assertEquals(response.getStatus(), 400);
+        assertEquals(response.getReason(), "Missing request parameters: var");
     }
 
 
@@ -376,12 +378,12 @@ public class InjectionTest extends TestBase {
         HttpTester request = makeRequest("GET", "/array?var=one&var=two&var=three");
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
+		assertEquals(response.getStatus(), 200);
         String[] split = response.getContent().split(":");
-        assert split.length == 4;
-        assert Arrays.Contains(split, "one");
-        assert Arrays.Contains(split, "two");
-        assert Arrays.Contains(split, "three");
+        assertEquals(split.length, 4);
+        assertTrue(Arrays.Contains(split, "one"));
+        assertTrue(Arrays.Contains(split, "two"));
+        assertTrue(Arrays.Contains(split, "three"));
     }
 
 
@@ -389,8 +391,8 @@ public class InjectionTest extends TestBase {
         HttpTester request = makeRequest("GET", "/defaultheader");
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
-        assert response.getContent().equals(":Coucou");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), ":Coucou");
     }
 
 
@@ -398,13 +400,13 @@ public class InjectionTest extends TestBase {
         HttpTester request = makeRequest("GET", "/noheader");
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 400;
-        assert response.getReason().equals("Missing header: x-choucroute");
+		assertEquals(response.getStatus(), 400);
+        assertEquals(response.getReason(), "Missing header: x-choucroute");
     }
 
 
     public void getBadPathVariable() {
-    	assert ControllerModule.exceptionCaught;
+    	assertTrue(ControllerModule.exceptionCaught);
     }
 
 
@@ -412,8 +414,8 @@ public class InjectionTest extends TestBase {
         HttpTester request = makeRequest("GET", "/printwriter");
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
-        assert response.getContent().equals("Salomon\n");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "Salomon\n");
     }
 
 
@@ -421,8 +423,8 @@ public class InjectionTest extends TestBase {
         HttpTester request = makeRequest("GET", "/matchresult-Salomon");
         HttpTester response = getResponse(request);
 
-        assert response.getStatus() == 200;
-        assert response.getContent().equals(":Salomon");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), ":Salomon");
     }
 }
 

@@ -1,5 +1,7 @@
 package sourguice.test;
 
+import static org.testng.Assert.*;
+
 import org.apache.jasper.servlet.JspServlet;
 import org.eclipse.jetty.testing.HttpTester;
 import org.eclipse.jetty.testing.ServletTester;
@@ -48,20 +50,23 @@ public class JSPTest extends TestBase {
         return new ControllerModule();
     }
 
-	@Override
+    // ===================== SERVLET CONFIG =====================
+
+    @Override
 	protected void addServletTesterFilter(ServletTester tester) {
 		tester.setResourceBase("./src/test/resources");
 		tester.addFilter(StaticIgnoreGuiceFilter.class, "/*", 0);
 		tester.addServlet(JspServlet.class, "*.jsp");
 	}
 
+    // ===================== TESTS =====================
 
 	public void testIndex() throws Exception {
 		HttpTester request = makeRequest("GET", "/Hello.jsp");
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals("Hello World!");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "Hello World!");
 	}
 
 
@@ -69,8 +74,8 @@ public class JSPTest extends TestBase {
 		HttpTester request = makeRequest("GET", "/hi");
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 200;
-		assert response.getContent().equals("Hi Salomon!");
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "Hi Salomon!");
 	}
 
 
@@ -78,8 +83,8 @@ public class JSPTest extends TestBase {
 		HttpTester request = makeRequest("GET", "/unknown");
 		HttpTester response = getResponse(request);
 
-		assert response.getStatus() == 404;
-		assert response.getReason().equals("/WEB-INF/unknown.jsp");
+		assertEquals(response.getStatus(), 404);
+		assertEquals(response.getReason(), "/WEB-INF/unknown.jsp");
 	}
 
 }
