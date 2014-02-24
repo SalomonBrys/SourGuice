@@ -2,7 +2,6 @@ package com.github.sourguice.controller;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.regex.MatchResult;
 
 import javax.annotation.CheckForNull;
 import javax.servlet.http.HttpServletRequest;
@@ -10,11 +9,9 @@ import javax.servlet.http.HttpServletRequest;
 import com.github.sourguice.MvcControlerModule;
 import com.github.sourguice.annotation.controller.Callable;
 import com.github.sourguice.annotation.controller.ViewSystem;
-import com.github.sourguice.annotation.controller.ViewSystem.ViewRendererEntry;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.View;
 import com.github.sourguice.utils.Annotations;
-import com.github.sourguice.view.ViewRenderer;
 
 /**
  * Handles a controller class.
@@ -30,7 +27,7 @@ public final class ControllerHandler<T> {
 	/**
 	 * The Class object of the controller class to handle
 	 */
-	InstanceGetter<T> ig;
+	private InstanceGetter<T> ig;
 
 	/**
 	 * List of available invocations for this controller
@@ -38,80 +35,9 @@ public final class ControllerHandler<T> {
 	private ArrayList<MvcInvocation> invocations = new ArrayList<>();
 
 	/**
-	 * Information of a specific invocation
-	 * Used to compare different invocation and to carry with the invocation, request matching intels
+	 * The view system, declared directly on the controller using {@link ViewSystem}
 	 */
-	public static class InvocationInfos {
-		/**
-		 * The concerned invocation
-		 */
-		public MvcInvocation invocation;
-
-		/**
-		 * Specialization indice for this method to match the request
-		 * The higher it is, the more it is specialized for the request
-		 */
-		public int confidence = 0;
-
-		/**
-		 * The match result after parsing the request URL
-		 */
-		public @CheckForNull MatchResult urlMatch = null;
-
-		/**
-		 * The view directory, declared directly on the controller using {@link ViewSystem}
-		 */
-		public @CheckForNull String viewDirectory = null;
-
-		/**
-		 * The default view delcared on the method using {@link View}
-		 */
-		public @CheckForNull String defaultView = null;
-
-		/**
-		 * The view renderer, declared directly on the controller using {@link ViewRenderer}
-		 */
-		public ViewRendererEntry[] viewRenderers = {};
-
-		/**
-		 * @param invocation The invocation on which calculates informations
-		 */
-		public InvocationInfos(MvcInvocation invocation) {
-			this.invocation = invocation;
-		}
-
-		/**
-		 * Compare a given InvocationInfos to this
-		 *
-		 * @param infos The InvocationInfos to compare to this
-		 * @return Wheter this invocation is better than the one given
-		 */
-		public boolean isBetterThan(@CheckForNull InvocationInfos infos) {
-			if (infos == null)
-				return true;
-			if (this.urlMatch != null && infos.urlMatch != null) {
-				if (this.urlMatch.groupCount() > infos.urlMatch.groupCount())
-					return true;
-				else if (this.urlMatch.groupCount() < infos.urlMatch.groupCount())
-					return false;
-			}
-
-			return this.confidence > infos.confidence;
-		}
-
-		/**
-		 * Calculates the best invocation between two given invocations
-		 *
-		 * @param left The first invocation to compare
-		 * @param right The second invocation to compare
-		 * @return The best invocation between both given (nulls are accepted)
-		 */
-		static public @CheckForNull InvocationInfos GetBest(@CheckForNull InvocationInfos left, @CheckForNull InvocationInfos right) {
-			if (left == null)
-				return right;
-			return left.isBetterThan(right) ? left : right;
-		}
-	}
+	private @CheckForNull ViewSystem viewSystem = null;
 
 	/**
 	 * @param clazz The controller class to handle
@@ -119,9 +45,11 @@ public final class ControllerHandler<T> {
 	public ControllerHandler(InstanceGetter<T> ig) {
 		this.ig = ig;
 
+		viewSystem = Annotations.GetOneTreeRecursive(ViewSystem.class, ig.getTypeLiteral().getRawType());
+
 		for (Method method : ig.getTypeLiteral().getRawType().getMethods())
 			if (Annotations.GetOneTreeRecursive(Callable.class, method) != null)
-				invocations.add(new MvcInvocation(Annotations.GetOneRecursive(RequestMapping.class, method.getAnnotations()), ig, method));
+				invocations.add(new MvcInvocation(this, Annotations.GetOneRecursive(RequestMapping.class, method.getAnnotations()), ig, method));
 	}
 
 	/**
@@ -130,22 +58,15 @@ public final class ControllerHandler<T> {
 	 * @param req The request to get invocation for
 	 * @return All infos opf the best invocation
 	 */
-	public @CheckForNull InvocationInfos getBestInvocation(HttpServletRequest req) {
+	public @CheckForNull ControllerInvocationInfos getBestInvocation(HttpServletRequest req) {
 		// Get the best invocation for the given request
-		InvocationInfos infos = null;
+		ControllerInvocationInfos infos = null;
 		for (MvcInvocation invocation : invocations)
-			infos = InvocationInfos.GetBest(infos, invocation.canServe(req));
+			infos = ControllerInvocationInfos.GetBest(infos, invocation.canServe(req));
 
 		//TODO: There should be no reflexivity at call-time !
 		// If found (not null) gather invocation informations from annotations
 		if (infos != null) {
-			ViewSystem vsAnno = Annotations.GetOneTreeRecursive(ViewSystem.class, ig.getTypeLiteral().getRawType());
-			if (vsAnno != null && !vsAnno.directory().isEmpty())
-				infos.viewDirectory = vsAnno.directory();
-
-			if (vsAnno != null)
-				infos.viewRenderers = vsAnno.renderers();
-
 			View vAnno = Annotations.GetOneTreeRecursive(View.class, infos.invocation.getMethod());
 			if (vAnno != null)
 				infos.defaultView = vAnno.value();
@@ -158,5 +79,13 @@ public final class ControllerHandler<T> {
 	 */
 	public ArrayList<MvcInvocation> getInvocations() {
 		return invocations;
+	}
+
+	protected InstanceGetter<T> getInstanceGetter() {
+		return ig;
+	}
+
+	public @CheckForNull ViewSystem getViewSystem() {
+		return viewSystem;
 	}
 }

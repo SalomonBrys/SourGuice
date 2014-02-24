@@ -25,7 +25,6 @@ import com.github.sourguice.annotation.request.RequestParam;
 import com.github.sourguice.annotation.request.SessionAttribute;
 import com.github.sourguice.call.CalltimeArgumentFetcher;
 import com.github.sourguice.call.impl.PathVariablesProvider;
-import com.github.sourguice.controller.ControllerHandler.InvocationInfos;
 import com.github.sourguice.controller.fetchers.ArgumentFetcher;
 import com.github.sourguice.controller.fetchers.InjectorArgumentFetcher;
 import com.github.sourguice.controller.fetchers.NullArgumentFetcher;
@@ -86,14 +85,17 @@ public final class MvcInvocation {
 	 */
 	HashMap<String, Integer> matchRef = new HashMap<>();
 
+	private ControllerHandler<?> controller;
+
 	/**
 	 * @param mapping The annotation that must be present on each invocation method
 	 * @param clazz The class on witch to call the method
 	 * @param method The method to call
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MvcInvocation(@CheckForNull RequestMapping mapping, InstanceGetter<?> ig, Method method) {
+	public MvcInvocation(ControllerHandler<?> controller, @CheckForNull RequestMapping mapping, InstanceGetter<?> ig, Method method) {
 		// Set properties
+		this.controller = controller;
 		this.mapping = mapping;
 		this.method = method;
 		this.ig = ig;
@@ -167,11 +169,11 @@ public final class MvcInvocation {
 	 * @param req The request
 	 * @return InvocationInfos with all infos (including confidence) if it can, null if it can't
 	 */
-	public @CheckForNull InvocationInfos canServe(HttpServletRequest req) {
+	public @CheckForNull ControllerInvocationInfos canServe(HttpServletRequest req) {
 		if (this.mapping == null)
 			return null;
 
-		InvocationInfos ret = new InvocationInfos(this);
+		ControllerInvocationInfos ret = new ControllerInvocationInfos(this);
 
 		// Checks if the URL declared in @RequestMapping matches. This is mandatory
 		for (Pattern pattern : patterns) {
@@ -303,5 +305,9 @@ public final class MvcInvocation {
 	 */
 	public Method getMethod() {
 		return method;
+	}
+
+	public ControllerHandler<?> getController() {
+		return controller;
 	}
 }
