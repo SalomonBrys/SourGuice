@@ -39,7 +39,9 @@ public class ConversionServiceImpl implements ConversionService {
 	 * @return The converter associated with the class
 	 */
 	public void register(Class<?> type, InstanceGetter<? extends Converter<?>> conv) {
-		converters.put(type, conv);
+		synchronized (converters) {
+			converters.put(type, conv);
+		}
 	}
 
 	/**
@@ -85,29 +87,34 @@ public class ConversionServiceImpl implements ConversionService {
 		if (converters.containsKey(clazz))
 			return (Converter<T>)converters.get(clazz).getInstance();
 
-		int closestDistance = Integer.MAX_VALUE;
-		Class<?> closestType = null;
-		for (Map.Entry<Class<?>, InstanceGetter<? extends Converter<?>>> entry : converters.entrySet()) {
-			if (clazz.isAssignableFrom(entry.getKey())) {
-				int distance = ClassUtilDistance(entry.getKey(), clazz, 0);
-				if (distance < closestDistance) {
-					closestDistance = distance;
-					closestType = entry.getKey();
+		synchronized (converters) {
+			int closestDistance = Integer.MAX_VALUE;
+			Class<?> closestType = null;
+			for (Map.Entry<Class<?>, InstanceGetter<? extends Converter<?>>> entry : converters.entrySet()) {
+				if (clazz.isAssignableFrom(entry.getKey())) {
+					int distance = ClassUtilDistance(entry.getKey(), clazz, 0);
+					if (distance < closestDistance) {
+						closestDistance = distance;
+						closestType = entry.getKey();
+					}
+				}
+				if (entry.getValue().getTypeLiteral().getRawType().isAnnotationPresent(ConverterCanConstructChild.class) && entry.getKey().isAssignableFrom(clazz)) {
+					int distance = ClassUtilDistance(clazz, entry.getKey(), 0);
+					if (distance < closestDistance) {
+						closestDistance = distance;
+						closestType = entry.getKey();
+					}
 				}
 			}
-			if (entry.getValue().getTypeLiteral().getRawType().isAnnotationPresent(ConverterCanConstructChild.class) && entry.getKey().isAssignableFrom(clazz)) {
-				int distance = ClassUtilDistance(clazz, entry.getKey(), 0);
-				if (distance < closestDistance) {
-					closestDistance = distance;
-					closestType = entry.getKey();
-				}
+
+			if (closestType != null) {
+				InstanceGetter<? extends Converter<?>> ig = converters.get(closestType);
+				converters.put(clazz, ig);
+				return (Converter<T>)ig.getInstance();
 			}
+
+			return null;
 		}
-
-		if (closestType != null)
-			return (Converter<T>)converters.get(closestType).getInstance();
-
-		return null;
 	}
 
 	/**
