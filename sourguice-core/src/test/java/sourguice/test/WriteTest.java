@@ -16,7 +16,7 @@ import com.github.sourguice.annotation.request.Writes;
 import com.google.inject.Singleton;
 
 @SuppressWarnings({"javadoc", "static-method"})
-@Test(invocationCount = 3)
+@Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
 public class WriteTest extends TestBase {
 
     // ===================== CONTROLLER =====================

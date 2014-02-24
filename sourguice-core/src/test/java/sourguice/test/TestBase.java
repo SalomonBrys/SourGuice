@@ -18,6 +18,9 @@ import com.google.inject.servlet.GuiceServletContextListener;
 @SuppressWarnings({"javadoc", "static-method"})
 public abstract class TestBase {
 
+	public static final int INVOCATION_COUNT = 3;
+	public static final int THREAD_POOL_SIZE = 1;
+
 	public static class StandardContextListener<T extends MvcControlerModule> extends GuiceServletContextListener {
 
 		T module;

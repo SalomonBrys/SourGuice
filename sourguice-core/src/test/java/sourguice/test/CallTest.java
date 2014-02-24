@@ -33,7 +33,7 @@ import com.github.sourguice.utils.Annotations;
 import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 
-@Test(invocationCount = 3)
+@Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
 @SuppressWarnings({"javadoc", "static-method"})
 public class CallTest extends TestBase {
 

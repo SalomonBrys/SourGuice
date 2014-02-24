@@ -12,7 +12,7 @@ import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 
 @SuppressWarnings({ "javadoc", "static-method" })
-@Test(invocationCount = 3)
+@Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
 public class CustomConvertorTest extends TestBase {
 
     // ===================== POJOS =====================
