@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.regex.MatchResult;
+import java.util.regex.Pattern;
 
 import javax.annotation.CheckForNull;
 import javax.servlet.ServletContext;
@@ -63,7 +64,7 @@ public abstract class MvcControlerModule extends ServletModule {
 
 		public <T extends Exception> void registerExceptionHandler(Class<? extends T> cls, InstanceGetter<? extends ExceptionHandler<T>> ig);
 
-		public void setRenderer(Class<? extends ViewRenderer> renderer);
+		public void registerViewRenderer(Pattern pattern, InstanceGetter<? extends ViewRenderer> renderer);
 	}
 
 	/**
@@ -255,8 +256,14 @@ public abstract class MvcControlerModule extends ServletModule {
 	 *
 	 * @return The default view renderer
 	 */
-	public void renderViewsWith(Class<? extends ViewRenderer> renderer) {
-		helper.setRenderer(renderer);
+	public BindBuilder<ViewRenderer> renderViews(final String regex, final String... regexs) {
+		return new BindBuilder<ViewRenderer>() {
+			@Override protected void register(InstanceGetter<? extends ViewRenderer> ig) {
+				helper.registerViewRenderer(Pattern.compile(regex), ig);
+				for (String r : regexs)
+					helper.registerViewRenderer(Pattern.compile(r), ig);
+			}
+		};
 	}
 
 	/**

@@ -5,7 +5,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Map;
 
 import com.github.sourguice.view.ViewRenderer;
 
@@ -19,13 +18,14 @@ import com.github.sourguice.view.ViewRenderer;
 @Documented
 public @interface ViewSystem {
 
-	public static final class NullVR implements ViewRenderer {
-		@Override public void render(String view, Map<String, Object> model) {/**/}
+	public static @interface ViewRendererEntry {
+		public String regex();
+		public Class<? extends ViewRenderer> renderer();
 	}
 
 	/**
 	 * @return The view directory without ending '/'
 	 */
 	public String directory() default "";
-	public Class<? extends ViewRenderer> renderer() default NullVR.class;
+	public ViewRendererEntry[] renderers() default {};
 }

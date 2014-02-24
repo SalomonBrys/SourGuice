@@ -2,6 +2,7 @@ package com.github.sourguice;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.annotation.CheckForNull;
 import javax.servlet.ServletContext;
@@ -41,8 +42,9 @@ import com.github.sourguice.throwable.service.exception.UnreachableExceptionHand
 import com.github.sourguice.utils.RequestScopeContainer;
 import com.github.sourguice.view.Model;
 import com.github.sourguice.view.ViewRenderer;
+import com.github.sourguice.view.ViewRendererService;
 import com.github.sourguice.view.def.JSPViewRenderer;
-import com.google.inject.TypeLiteral;
+import com.github.sourguice.view.impl.ViewRendererServiceImpl;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.servlet.RequestScoped;
 import com.google.inject.servlet.ServletScopes;
@@ -74,10 +76,6 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 	MvcControlerModule module;
 
 	/**
-	 * Default view renderer
-	 */
-	private Class<? extends ViewRenderer> renderer = JSPViewRenderer.class;
-
 	/**
 	 * Conversion service
 	 */
@@ -87,6 +85,11 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 	 * Exception service
 	 */
 	private ExceptionServiceImpl exceptionService = new ExceptionServiceImpl();
+
+	/**
+	 * ViewRenderer service
+	 */
+	private ViewRendererServiceImpl viewRendererService = new ViewRendererServiceImpl();
 
 	/**
 	 * Constructor, used by {@link MvcControlerModule}.
@@ -130,6 +133,9 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 			throw new RuntimeException(e);
 		}
 
+		// Registers default view renderers
+		module.renderViews(".*\\.jsp").with(JSPViewRenderer.class);
+
 		// Creates servlet map to be later filled by configureControllers()
 		servlets = new HashMap<>();
 
@@ -143,9 +149,9 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 		// Binds the services
 		module.binder().bind(ConversionService.class).toInstance(conversionService);
 		module.binder().bind(ExceptionService.class).toInstance(exceptionService);
+		module.binder().bind(ViewRendererService.class).toInstance(viewRendererService);
 
 		// Binds view related classes
-		module.binder().bind(ViewRenderer.class).to(this.renderer);
 		module.binder().bind(Model.class).in(ServletScopes.REQUEST);
 
 		// Binds method calling related classes
@@ -208,8 +214,8 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setRenderer(Class<? extends ViewRenderer> renderer) {
-		this.renderer = renderer;
+	public void registerViewRenderer(Pattern pattern, InstanceGetter<? extends ViewRenderer> renderer) {
+		viewRendererService.register(pattern, renderer);
 	}
 
 	@Override

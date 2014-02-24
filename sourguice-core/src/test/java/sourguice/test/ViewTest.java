@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 
 import com.github.sourguice.MvcControlerModule;
 import com.github.sourguice.annotation.controller.ViewSystem;
+import com.github.sourguice.annotation.controller.ViewSystem.ViewRendererEntry;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.View;
 import com.github.sourguice.view.Model;
@@ -61,7 +62,7 @@ public class ViewTest extends TestBase {
     // ===================== CONTROLLERS =====================
 
 	@Singleton
-    @ViewSystem(directory = "/views", renderer = AnnoTestRenderer.class)
+    @ViewSystem(directory = "/views", renderers = @ViewRendererEntry(regex = ".*", renderer = AnnoTestRenderer.class))
     public static class AController {
         @SuppressWarnings("serial")
 		@RequestMapping("/annodir")
@@ -113,7 +114,7 @@ public class ViewTest extends TestBase {
         protected void configureControllers() {
             control("/a/*").with(AController.class);
             control("/d/*").with(DController.class);
-            renderViewsWith(DefaultTestRenderer.class);
+            renderViews(".*").with(DefaultTestRenderer.class);
         }
     }
 

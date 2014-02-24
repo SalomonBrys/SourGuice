@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.nio.CharBuffer;
 import java.util.LinkedList;
 import java.util.regex.MatchResult;
+import java.util.regex.Pattern;
 
 import javax.annotation.CheckForNull;
 import javax.inject.Inject;
@@ -15,8 +16,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.github.sourguice.annotation.controller.Redirects;
 import com.github.sourguice.annotation.controller.HttpError;
+import com.github.sourguice.annotation.controller.Redirects;
+import com.github.sourguice.annotation.controller.ViewSystem.ViewRendererEntry;
 import com.github.sourguice.annotation.request.Writes;
 import com.github.sourguice.call.impl.MvcCallerImpl;
 import com.github.sourguice.controller.ControllerHandler.InvocationInfos;
@@ -27,6 +29,7 @@ import com.github.sourguice.utils.Annotations;
 import com.github.sourguice.utils.RequestScopeContainer;
 import com.github.sourguice.view.Model;
 import com.github.sourguice.view.ViewRenderer;
+import com.github.sourguice.view.ViewRendererService;
 import com.google.inject.Injector;
 
 /**
@@ -191,12 +194,16 @@ public final class ControllersServlet extends HttpServlet {
 
 				// Gets the view renderer either from the controller class or from Guice
 				ViewRenderer viewRenderer = null;
-				if (infos.viewRenderer != null)
-					viewRenderer = this.injector.getInstance(infos.viewRenderer);
-				else
-					viewRenderer = this.injector.getInstance(ViewRenderer.class);
+				for (ViewRendererEntry entry : infos.viewRenderers)
+					if (Pattern.matches(entry.regex(), view)) {
+						viewRenderer = this.injector.getInstance(entry.renderer());
+						break ;
+					}
+				if (viewRenderer == null)
+					viewRenderer = this.injector.getInstance(ViewRendererService.class).getRenderer(view);
 
 				// Renders the view
+				assert this.injector != null;
 				viewRenderer.render(view, this.injector.getInstance(Model.class).asMap());
 			}
 		}

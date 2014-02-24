@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.github.sourguice.MvcControlerModule;
 import com.github.sourguice.annotation.controller.Callable;
 import com.github.sourguice.annotation.controller.ViewSystem;
+import com.github.sourguice.annotation.controller.ViewSystem.ViewRendererEntry;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.View;
 import com.github.sourguice.utils.Annotations;
@@ -70,7 +71,7 @@ public final class ControllerHandler<T> {
 		/**
 		 * The view renderer, declared directly on the controller using {@link ViewRenderer}
 		 */
-		public @CheckForNull Class<? extends ViewRenderer> viewRenderer = null;
+		public ViewRendererEntry[] viewRenderers = {};
 
 		/**
 		 * @param invocation The invocation on which calculates informations
@@ -142,8 +143,8 @@ public final class ControllerHandler<T> {
 			if (vsAnno != null && !vsAnno.directory().isEmpty())
 				infos.viewDirectory = vsAnno.directory();
 
-			if (vsAnno != null && !vsAnno.renderer().equals(ViewSystem.NullVR.class))
-				infos.viewRenderer = vsAnno.renderer();
+			if (vsAnno != null)
+				infos.viewRenderers = vsAnno.renderers();
 
 			View vAnno = Annotations.GetOneTreeRecursive(View.class, infos.invocation.getMethod());
 			if (vAnno != null)
