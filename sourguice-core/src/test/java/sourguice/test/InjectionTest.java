@@ -8,6 +8,7 @@ import java.util.regex.MatchResult;
 import javax.servlet.http.HttpSession;
 
 import org.eclipse.jetty.testing.HttpTester;
+import org.eclipse.jetty.testing.ServletTester;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -232,23 +233,30 @@ public class InjectionTest extends TestBase {
     public void getSession() throws Exception {
     	String jsessionid;
 
-    	{
-	        HttpTester request = makeRequest("GET", "/sessionset");
-	        HttpTester response = getResponse(request);
+    	ServletTester tester = pollTester();
 
-	        assert response.getStatus() == 200;
+    	try {
+	    	{
+		        HttpTester request = makeRequest("GET", "/sessionset");
+		        HttpTester response = getResponse(tester, request);
 
-	        String setCookie = response.getHeader("set-cookie");
-	        jsessionid = setCookie.substring(setCookie.indexOf('=') + 1, setCookie.indexOf(';'));
+		        assert response.getStatus() == 200;
+
+		        String setCookie = response.getHeader("set-cookie");
+		        jsessionid = setCookie.substring(setCookie.indexOf('=') + 1, setCookie.indexOf(';'));
+	    	}
+
+	    	{
+		        HttpTester request = makeRequest("GET", "/sessionget");
+		        request.setHeader("cookie", "jsessionid=" + jsessionid);
+		        HttpTester response = getResponse(tester, request);
+
+		        assert response.getStatus() == 200;
+		        assert response.getContent().equals(":Salomon");
+	    	}
     	}
-
-    	{
-	        HttpTester request = makeRequest("GET", "/sessionget");
-	        request.setHeader("cookie", "jsessionid=" + jsessionid);
-	        HttpTester response = getResponse(request);
-
-	        assert response.getStatus() == 200;
-	        assert response.getContent().equals(":Salomon");
+    	finally {
+    		offerTester(tester);
     	}
     }
 

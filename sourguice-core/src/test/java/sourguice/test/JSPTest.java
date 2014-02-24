@@ -1,10 +1,8 @@
 package sourguice.test;
 
 import org.apache.jasper.servlet.JspServlet;
-import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.testing.HttpTester;
 import org.eclipse.jetty.testing.ServletTester;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.github.sourguice.MvcControlerModule;
@@ -50,18 +48,11 @@ public class JSPTest extends TestBase {
         return new ControllerModule();
     }
 
-	@BeforeClass
 	@Override
-	public void startupServletTester() throws Exception {
-		System.out.println(System.getProperty("user.dir"));
-		tester = new ServletTester();
-		tester.setContextPath("/");
+	protected void addServletTesterFilter(ServletTester tester) {
 		tester.setResourceBase("./src/test/resources");
-		tester.addEventListener(new StandardContextListener<>(module()));
 		tester.addFilter(StaticIgnoreGuiceFilter.class, "/*", 0);
-		tester.addServlet(DefaultServlet.class, "/");
 		tester.addServlet(JspServlet.class, "*.jsp");
-		tester.start();
 	}
 
 
