@@ -15,8 +15,8 @@ import com.github.sourguice.annotation.request.View;
 import com.github.sourguice.view.Model;
 import com.google.inject.Singleton;
 
-
 @SuppressWarnings({"javadoc", "static-method"})
+@Test(invocationCount = 3)
 public class JSPTest extends TestBase {
 
     // ===================== CONTROLLERS =====================
@@ -64,7 +64,7 @@ public class JSPTest extends TestBase {
 		tester.start();
 	}
 
-	@Test
+
 	public void testIndex() throws Exception {
 		HttpTester request = makeRequest("GET", "/Hello.jsp");
 		HttpTester response = getResponse(request);
@@ -73,7 +73,7 @@ public class JSPTest extends TestBase {
 		assert response.getContent().equals("Hello World!");
 	}
 
-	@Test
+
 	public void testHi() throws Exception {
 		HttpTester request = makeRequest("GET", "/hi");
 		HttpTester response = getResponse(request);
@@ -82,7 +82,7 @@ public class JSPTest extends TestBase {
 		assert response.getContent().equals("Hi Salomon!");
 	}
 
-	@Test
+
 	public void testUnknown() throws Exception {
 		HttpTester request = makeRequest("GET", "/unknown");
 		HttpTester response = getResponse(request);

@@ -6,7 +6,6 @@ import java.net.URLEncoder;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.testing.HttpTester;
 import org.eclipse.jetty.testing.ServletTester;
-import org.testng.TestNG;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
@@ -52,7 +51,7 @@ public abstract class TestBase {
 		tester.stop();
 	}
 
-	public HttpTester makeRequest(String method, String uri) {
+	protected HttpTester makeRequest(String method, String uri) {
 		HttpTester request = new HttpTester();
 		request.setMethod(method);
 		request.setURI(uri);
@@ -60,7 +59,7 @@ public abstract class TestBase {
 		return request;
 	}
 
-	public void addPost(HttpTester request, String param, String value) throws IOException {
+	protected void addPost(HttpTester request, String param, String value) throws IOException {
 		String post = URLEncoder.encode(param, "UTF-8") + "=" + URLEncoder.encode(value, "UTF-8");
 		String content = request.getContent();
 		if (content != null && !content.isEmpty())
@@ -72,7 +71,7 @@ public abstract class TestBase {
 		request.setHeader("content-length", String.valueOf(content.length()));
 	}
 
-	public HttpTester getResponse(HttpTester request, boolean debug) throws Exception {
+	protected HttpTester getResponse(HttpTester request, boolean debug) throws Exception {
 		HttpTester response = new HttpTester();
 
 		String reqTxt = request.generate();
@@ -95,23 +94,23 @@ public abstract class TestBase {
 		return response;
 	}
 
-	public HttpTester getResponse(HttpTester request) throws Exception {
+	protected HttpTester getResponse(HttpTester request) throws Exception {
 		return getResponse(request, false);
 	}
 
 	abstract protected MvcControlerModule module();
 
-	public static void main(String[] args) {
-		TestNG testng = new TestNG();
-		testng.setTestClasses(new Class<?>[] {
-			FilterTest.class,
-			HttpErrorTest.class,
-			InjectionTest.class,
-			RedirectTest.class,
-			RequestMappingTest.class,
-			ViewTest.class,
-			WriteTest.class
-		});
-		testng.run();
-	}
+//	public static void main(String[] args) {
+//		TestNG testng = new TestNG();
+//		testng.setTestClasses(new Class<?>[] {
+//			FilterTest.class,
+//			HttpErrorTest.class,
+//			InjectionTest.class,
+//			RedirectTest.class,
+//			RequestMappingTest.class,
+//			ViewTest.class,
+//			WriteTest.class
+//		});
+//		testng.run();
+//	}
 }

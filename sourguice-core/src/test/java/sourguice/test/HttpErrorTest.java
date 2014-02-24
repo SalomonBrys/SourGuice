@@ -11,6 +11,7 @@ import com.github.sourguice.throwable.controller.MvcResponseStatusCode;
 import com.google.inject.Singleton;
 
 @SuppressWarnings({"javadoc", "static-method"})
+@Test(invocationCount = 3)
 public class HttpErrorTest extends TestBase {
 
     // ===================== CONTROLLER =====================
@@ -65,7 +66,7 @@ public class HttpErrorTest extends TestBase {
 
     // ===================== TESTS =====================
 
-    @Test
+
     public void getForbidden() throws Exception {
         HttpTester request = makeRequest("GET", "/forbidden");
 
@@ -74,7 +75,7 @@ public class HttpErrorTest extends TestBase {
         assert response.getStatus() == 403;
     }
 
-    @Test
+
     public void getGone() throws Exception {
         HttpTester request = makeRequest("GET", "/gone");
 
@@ -83,7 +84,7 @@ public class HttpErrorTest extends TestBase {
         assert response.getStatus() == 409;
     }
 
-    @Test
+
     public void getUnauthorized() throws Exception {
         HttpTester request = makeRequest("GET", "/unauthorized");
 
@@ -92,7 +93,7 @@ public class HttpErrorTest extends TestBase {
         assert response.getStatus() == 401;
     }
 
-    @Test
+
     public void getTeapot() throws Exception {
         HttpTester request = makeRequest("GET", "/teapot");
 
@@ -101,7 +102,7 @@ public class HttpErrorTest extends TestBase {
         assert response.getStatus() == 418;
     }
 
-    @Test
+
     public void goToHell() throws Exception {
         HttpTester request = makeRequest("GET", "/gotohell");
 

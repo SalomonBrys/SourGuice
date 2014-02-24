@@ -11,6 +11,7 @@ import com.github.sourguice.throwable.controller.MvcResponseRedirect;
 import com.google.inject.Singleton;
 
 @SuppressWarnings({"javadoc", "static-method"})
+@Test(invocationCount = 3)
 public class RedirectTest extends TestBase {
 
     // ===================== CONTROLLER =====================
@@ -72,7 +73,7 @@ public class RedirectTest extends TestBase {
 
     // ===================== TESTS =====================
 
-    @Test
+
     public void getStatic() throws Exception {
         HttpTester request = makeRequest("GET", "/static");
 
@@ -82,7 +83,7 @@ public class RedirectTest extends TestBase {
         assert response.getHeader("location").equals("http://tester/redir1");
     }
 
-    @Test
+
     public void getDynamic() throws Exception {
         HttpTester request = makeRequest("GET", "/dynamic");
 
@@ -92,7 +93,7 @@ public class RedirectTest extends TestBase {
         assert response.getHeader("location").equals("http://tester/redir2");
     }
 
-    @Test
+
     public void getEnhancedStatic() throws Exception {
         HttpTester request = makeRequest("GET", "/enhancedstatic");
 
@@ -102,7 +103,7 @@ public class RedirectTest extends TestBase {
         assert response.getHeader("location").equals("http://tester/redir3");
     }
 
-    @Test
+
     public void getException() throws Exception {
         HttpTester request = makeRequest("GET", "/exception");
 
@@ -112,7 +113,7 @@ public class RedirectTest extends TestBase {
         assert response.getHeader("location").equals("http://tester/redir4");
     }
 
-    @Test
+
     public void getIgnored() throws Exception {
         HttpTester request = makeRequest("GET", "/ignored");
 
@@ -122,7 +123,7 @@ public class RedirectTest extends TestBase {
         assert response.getHeader("location").equals("http://tester/redir5");
     }
 
-    @Test
+
     public void getDefined() throws Exception {
         HttpTester request = makeRequest("GET", "/defined");
 
@@ -132,7 +133,7 @@ public class RedirectTest extends TestBase {
         assert response.getHeader("location").equals("http://tester/go/to/hell");
     }
 
-    @Test
+
     public void getNoRedirect() throws Exception {
         HttpTester request = makeRequest("GET", "/noredirect");
 

@@ -16,6 +16,7 @@ import com.github.sourguice.annotation.request.Writes;
 import com.google.inject.Singleton;
 
 @SuppressWarnings({"javadoc", "static-method"})
+@Test(invocationCount = 3)
 public class WriteTest extends TestBase {
 
     // ===================== CONTROLLER =====================
@@ -59,7 +60,7 @@ public class WriteTest extends TestBase {
 
     // ===================== TESTS =====================
 
-	@Test
+
 	public void getWriteFail() throws Exception {
 		HttpTester request = makeRequest("GET", "/writefail");
 
@@ -69,7 +70,7 @@ public class WriteTest extends TestBase {
 		assert response.getReason().equals("@Writes annotated method must NOT return null");
 	}
 
-	@Test
+
 	public void getWriteStream() throws Exception {
 		HttpTester request = makeRequest("GET", "/writestream");
 
@@ -79,7 +80,7 @@ public class WriteTest extends TestBase {
 		assert response.getContent().equals("Salomon");
 	}
 
-	@Test
+
 	public void getWriteReader() throws Exception {
 		HttpTester request = makeRequest("GET", "/writereader");
 

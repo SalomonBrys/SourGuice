@@ -11,6 +11,7 @@ import com.github.sourguice.annotation.request.Writes;
 import com.google.inject.Singleton;
 
 @SuppressWarnings({ "javadoc", "static-method" })
+@Test(invocationCount = 3)
 public class ConversionTest extends TestBase {
 
 	// ===================== POJOS =====================
@@ -119,7 +120,7 @@ public class ConversionTest extends TestBase {
 	// ===================== DATA PROVIDER =====================
 
 	@DataProvider(name = "primitives")
-	public Object[][] createPrimitives() {
+	protected Object[][] createPrimitives() {
 		return new Object[][] {
 			{ "short",  "42",    "63",    "0" },
 			{ "int",    "42",    "63",    "0" },
@@ -132,7 +133,7 @@ public class ConversionTest extends TestBase {
 
 	// ===================== TESTS =====================
 
-	@Test
+
 	public void getBoolean() throws Exception {
 		HttpTester request = makeRequest("GET", "/boolean?var=true,on,Y,yes,1,choucroute,0");
 
@@ -142,7 +143,7 @@ public class ConversionTest extends TestBase {
 		assert response.getContent().equals(":true:true:true:true:true:false:false");
 	}
 
-	@Test
+
 	public void getEmptyArray() throws Exception {
 		HttpTester request = makeRequest("GET", "/boolean?var=");
 
@@ -152,7 +153,7 @@ public class ConversionTest extends TestBase {
 		assert response.getContent() == null;
 	}
 
-	@Test(dataProvider = "primitives")
+	@Test(invocationCount = 3, dataProvider = "primitives")
 	@SuppressWarnings("unused")
 	public void getPrimitive(String name, String v1, String v2, String zero) throws Exception {
 		HttpTester request = makeRequest("GET", "/" + name + "?p=" + v1 + "&o=" + v2);
@@ -163,7 +164,7 @@ public class ConversionTest extends TestBase {
 		assert response.getContent().equals(":" + v1 + ":" + v2);
 	}
 
-	@Test(dataProvider = "primitives")
+	@Test(invocationCount = 3, dataProvider = "primitives")
 	@SuppressWarnings("unused")
 	public void getBadPrimitive(String name, String v1, String v2, String zero) throws Exception {
 		HttpTester request = makeRequest("GET", "/" + name + "?p=salut&o=coucou");
@@ -174,7 +175,7 @@ public class ConversionTest extends TestBase {
 		assert response.getContent().equals(":" + zero + ":null");
 	}
 
-	@Test
+
 	public void getEnum() throws Exception {
 		HttpTester request = makeRequest("GET", "/enum?var=Index");
 
@@ -184,7 +185,7 @@ public class ConversionTest extends TestBase {
 		assert response.getContent().equals(":Index");
 	}
 
-	@Test
+
 	public void getEnumNoArray() throws Exception {
 		HttpTester request = makeRequest("GET", "/enum?var=Index&var=Thumb");
 
@@ -194,7 +195,7 @@ public class ConversionTest extends TestBase {
 		assert response.getContent().equals(":Index");
 	}
 
-	@Test
+
 	public void getBadEnum() throws Exception {
 		HttpTester request = makeRequest("GET", "/enum?var=Choucroute");
 
@@ -204,7 +205,7 @@ public class ConversionTest extends TestBase {
 		assert response.getContent().equals(":null");
 	}
 
-	@Test
+
 	public void getPrimReqArray() throws Exception {
 		HttpTester request = makeRequest("GET", "/primarray?var=21&var=42");
 
@@ -214,7 +215,7 @@ public class ConversionTest extends TestBase {
 		assert response.getReason().equals("Array conversion does not support primitive types");
 	}
 
-	@Test
+
 	public void getPrimConvArray() throws Exception {
 		HttpTester request = makeRequest("GET", "/primarray?var=21,42");
 
@@ -224,7 +225,7 @@ public class ConversionTest extends TestBase {
 		assert response.getReason().equals("Array conversion does not support primitive types");
 	}
 
-	@Test
+
 	public void getNoConverter() throws Exception {
 		HttpTester request = makeRequest("GET", "/noconverter?var=coucou");
 
@@ -234,7 +235,7 @@ public class ConversionTest extends TestBase {
 		assert response.getReason().equals("Could not find converter for sourguice.test.ConversionTest$Weird");
 	}
 
-	@Test
+
 	public void getBigIntArray() throws Exception {
 		HttpTester request = makeRequest("GET", "/bigintarray?var=21,42&var=63,84");
 

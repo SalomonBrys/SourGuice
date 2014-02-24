@@ -24,6 +24,7 @@ import com.github.sourguice.utils.MVCCallIntercept;
 import com.google.inject.Singleton;
 
 @SuppressWarnings({"javadoc", "static-method"})
+@Test(invocationCount = 3)
 public class FilterTest extends TestBase {
 
     // ===================== INTERCEPTOR =====================
@@ -90,7 +91,7 @@ public class FilterTest extends TestBase {
 
     // ===================== TESTS =====================
 
-    @Test
+
     public void getIntercepted() throws Exception {
         HttpTester request = makeRequest("GET", "/intercepted");
 
@@ -100,7 +101,7 @@ public class FilterTest extends TestBase {
         assert response.getContent().equals(":Salomon");
     }
 
-    @Test
+
     public void getFiltered() throws Exception {
         HttpTester request = makeRequest("GET", "/filtered");
 

@@ -15,6 +15,7 @@ import com.github.sourguice.throwable.service.exception.UnreachableExceptionHand
 import com.google.inject.Singleton;
 
 @SuppressWarnings({"javadoc", "static-method"})
+@Test(invocationCount = 3)
 public class ExceptionTest extends TestBase {
 
     // ===================== CONTROLLER =====================
@@ -101,7 +102,7 @@ public class ExceptionTest extends TestBase {
 
     // ===================== TESTS =====================
 
-	@Test
+
 	public void getException() throws Exception {
 		HttpTester request = makeRequest("GET", "/exception");
 
@@ -111,12 +112,12 @@ public class ExceptionTest extends TestBase {
 		assert response.getContent().equals("Boom:Choucroute!");
 	}
 
-	@Test
+
 	public void getExceptionCaught() throws Exception {
 		assert ControllerModule.exceptionCaught;
 	}
 
-	@Test
+
 	public void getOther() throws Exception {
 		HttpTester request = makeRequest("GET", "/other");
 

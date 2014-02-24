@@ -33,6 +33,7 @@ import com.github.sourguice.utils.Annotations;
 import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 
+@Test(invocationCount = 3)
 @SuppressWarnings({"javadoc", "static-method"})
 public class CallTest extends TestBase {
 
@@ -179,7 +180,6 @@ public class CallTest extends TestBase {
 
     // ===================== TESTS =====================
 
-	@Test
 	public void getCallPrint() throws Exception {
 		HttpTester request = makeRequest("GET", "/callprint");
 
@@ -189,7 +189,6 @@ public class CallTest extends TestBase {
 		assert response.getContent().equals("[Salomon]:[Salomon]");
 	}
 
-	@Test
 	public void getCallBad() throws Exception {
 		HttpTester request = makeRequest("GET", "/callbad");
 
@@ -199,8 +198,6 @@ public class CallTest extends TestBase {
 		assert response.getReason().equals("No such method @Callable sourguice.test.CallTest.Controller.choucroute");
 	}
 
-
-	@Test
 	public void getCallHandled() throws Exception {
 		HttpTester request = makeRequest("GET", "/callhandled");
 
@@ -210,7 +207,6 @@ public class CallTest extends TestBase {
 		assert response.getContent().equals("EXC!Salomon");
 	}
 
-	@Test
 	public void getCallThrowHandled() throws Exception {
 		HttpTester request = makeRequest("GET", "/callthrowhandled");
 
@@ -220,7 +216,6 @@ public class CallTest extends TestBase {
 		assert response.getContent().equals("EXC!");
 	}
 
-	@Test
 	public void getCallThrowNotHandled() throws Exception {
 		HttpTester request = makeRequest("GET", "/callthrownothandled");
 
@@ -230,7 +225,6 @@ public class CallTest extends TestBase {
 		assert response.getReason().equals("Choucroute");
 	}
 
-	@Test
 	public void getCallFetched() throws Exception {
 		HttpTester request = makeRequest("GET", "/callfetched");
 

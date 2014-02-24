@@ -25,6 +25,7 @@ import com.github.sourguice.value.RequestMethod;
 import com.google.inject.Singleton;
 
 @SuppressWarnings({"javadoc", "static-method"})
+@Test(invocationCount = 3)
 public class InjectionTest extends TestBase {
 
     // ===================== CONTROLLERS =====================
@@ -184,7 +185,7 @@ public class InjectionTest extends TestBase {
     // ===================== DATA PROVIDER =====================
 
     @DataProvider(name = "requestMethods")
-    public Object[][] createRequestMethods() {
+    protected Object[][] createRequestMethods() {
         RequestMethod[] rms = RequestMethod.values();
         Object[][] ret = new Object[rms.length][];
         for (int i = 0; i < rms.length; ++i)
@@ -194,7 +195,7 @@ public class InjectionTest extends TestBase {
 
     // ===================== TESTS =====================
 
-    @Test(dataProvider = "requestMethods")
+    @Test(invocationCount = 3, dataProvider = "requestMethods")
     public void requestMethods(String method) throws Exception {
         if (method.equals("HEAD"))
             return ;
@@ -207,7 +208,7 @@ public class InjectionTest extends TestBase {
         assert response.getContent().equals(":" + method);
     }
 
-    @Test
+
     public void getPathVariableMap() throws Exception {
         HttpTester request = makeRequest("GET", "/pathvariablemap-Salomon");
 
@@ -217,7 +218,7 @@ public class InjectionTest extends TestBase {
         assert response.getContent().equals(":Salomon");
     }
 
-    @Test
+
     public void getEmptyPathVariableMap() throws Exception {
         HttpTester request = makeRequest("GET", "/emptypathvariablemap");
 
@@ -227,7 +228,7 @@ public class InjectionTest extends TestBase {
         assert response.getContent().equals(":true");
     }
 
-    @Test
+
     public void getSession() throws Exception {
     	String jsessionid;
 
@@ -251,7 +252,7 @@ public class InjectionTest extends TestBase {
     	}
     }
 
-    @Test
+
     public void getDefaultParam() throws Exception {
         HttpTester request = makeRequest("GET", "/defaultparam");
 
@@ -261,7 +262,7 @@ public class InjectionTest extends TestBase {
         assert response.getContent().equals(":Choucroute");
     }
 
-    @Test
+
     public void getList() throws Exception {
         HttpTester request = makeRequest("GET", "/list?var=one&var=two&var=three");
         HttpTester response = getResponse(request);
@@ -274,7 +275,7 @@ public class InjectionTest extends TestBase {
         assert Arrays.Contains(split, "three");
     }
 
-    @Test
+
     public void geDefaultList() throws Exception {
         HttpTester request = makeRequest("GET", "/defaultlist");
         HttpTester response = getResponse(request);
@@ -287,7 +288,7 @@ public class InjectionTest extends TestBase {
         assert Arrays.Contains(split, "c");
     }
 
-    @Test
+
     public void geDefaultEmptyList() throws Exception {
         HttpTester request = makeRequest("GET", "/defaultemptylist");
         HttpTester response = getResponse(request);
@@ -296,7 +297,7 @@ public class InjectionTest extends TestBase {
         assert response.getContent().equals("ok");
     }
 
-    @Test
+
     public void geEmptyListError() throws Exception {
         HttpTester request = makeRequest("GET", "/list");
         HttpTester response = getResponse(request);
@@ -305,7 +306,7 @@ public class InjectionTest extends TestBase {
         assert response.getReason().equals("Missing request parameters: var");
     }
 
-    @Test
+
     public void getMapBraces() throws Exception {
         HttpTester request = makeRequest("GET", "/map?var[a]=one&var[b]=two&var[c]=three&var[=choucroute");
         HttpTester response = getResponse(request);
@@ -318,7 +319,7 @@ public class InjectionTest extends TestBase {
         assert Arrays.Contains(split, "c=three");
     }
 
-    @Test
+
     public void getMapColon() throws Exception {
         HttpTester request = makeRequest("GET", "/map?var:a=one&var:b=two&var:c=three&nothing=choucroute");
         HttpTester response = getResponse(request);
@@ -331,7 +332,7 @@ public class InjectionTest extends TestBase {
         assert Arrays.Contains(split, "c=three");
     }
 
-    @Test
+
     public void getDefaultMap() throws Exception {
         HttpTester request = makeRequest("GET", "/defaultmap");
         HttpTester response = getResponse(request);
@@ -344,7 +345,7 @@ public class InjectionTest extends TestBase {
         assert Arrays.Contains(split, "c=three");
     }
 
-    @Test
+
     public void geDefaultEmptyMap() throws Exception {
         HttpTester request = makeRequest("GET", "/defaultemptymap");
         HttpTester response = getResponse(request);
@@ -353,7 +354,7 @@ public class InjectionTest extends TestBase {
         assert response.getContent().equals("ok");
     }
 
-    @Test
+
     public void geEmptyMapError() throws Exception {
         HttpTester request = makeRequest("GET", "/map");
         HttpTester response = getResponse(request);
@@ -362,7 +363,7 @@ public class InjectionTest extends TestBase {
         assert response.getReason().equals("Missing request parameters: var");
     }
 
-    @Test
+
     public void getArray() throws Exception {
         HttpTester request = makeRequest("GET", "/array?var=one&var=two&var=three");
         HttpTester response = getResponse(request);
@@ -375,7 +376,7 @@ public class InjectionTest extends TestBase {
         assert Arrays.Contains(split, "three");
     }
 
-    @Test
+
     public void getDefaultHeader() throws Exception {
         HttpTester request = makeRequest("GET", "/defaultheader");
         HttpTester response = getResponse(request);
@@ -384,7 +385,7 @@ public class InjectionTest extends TestBase {
         assert response.getContent().equals(":Coucou");
     }
 
-    @Test
+
     public void getNoHeader() throws Exception {
         HttpTester request = makeRequest("GET", "/noheader");
         HttpTester response = getResponse(request);
@@ -393,12 +394,12 @@ public class InjectionTest extends TestBase {
         assert response.getReason().equals("Missing header: x-choucroute");
     }
 
-    @Test
+
     public void getBadPathVariable() {
     	assert ControllerModule.exceptionCaught;
     }
 
-    @Test
+
     public void getPrintWriter() throws Exception {
         HttpTester request = makeRequest("GET", "/printwriter");
         HttpTester response = getResponse(request);
@@ -407,7 +408,7 @@ public class InjectionTest extends TestBase {
         assert response.getContent().equals("Salomon\n");
     }
 
-    @Test
+
     public void getMatchResult() throws Exception {
         HttpTester request = makeRequest("GET", "/matchresult-Salomon");
         HttpTester response = getResponse(request);

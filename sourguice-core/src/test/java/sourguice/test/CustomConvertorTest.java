@@ -12,6 +12,7 @@ import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 
 @SuppressWarnings({ "javadoc", "static-method" })
+@Test(invocationCount = 3)
 public class CustomConvertorTest extends TestBase {
 
     // ===================== POJOS =====================
@@ -79,7 +80,7 @@ public class CustomConvertorTest extends TestBase {
 
 	// ===================== TESTS =====================
 
-	@Test
+	
 	public void getName() throws Exception {
 		HttpTester request = makeRequest("GET", "/name?var=Salomon");
 

@@ -20,6 +20,7 @@ import com.github.sourguice.view.def.BasicViewRenderer;
 import com.google.inject.Singleton;
 
 @SuppressWarnings({"javadoc", "static-method"})
+@Test(invocationCount = 3)
 public class ViewTest extends TestBase {
 
     // ===================== RENDERERS =====================
@@ -125,7 +126,7 @@ public class ViewTest extends TestBase {
 
     // ===================== TESTS =====================
 
-    @Test
+
     public void getAAnnoDir() throws Exception {
         HttpTester request = makeRequest("GET", "/a/annodir");
 
@@ -135,7 +136,7 @@ public class ViewTest extends TestBase {
         assert response.getContent().equals("a:annodir:Salomon");
     }
 
-    @Test
+
     public void getAAnnoRoot() throws Exception {
         HttpTester request = makeRequest("GET", "/a/annoroot");
 
@@ -145,7 +146,7 @@ public class ViewTest extends TestBase {
         assert response.getContent().equals("a:annoroot:Salomon");
     }
 
-    @Test
+
     public void getAReturnView() throws Exception {
         HttpTester request = makeRequest("GET", "/a/returnview");
 
@@ -155,7 +156,7 @@ public class ViewTest extends TestBase {
         assert response.getContent().equals("a:return:Salomon");
     }
 
-    @Test
+
     public void getADirIn() throws Exception {
         HttpTester request = makeRequest("GET", "/a/dirin");
 
@@ -165,7 +166,7 @@ public class ViewTest extends TestBase {
         assert response.getContent().equals("a:dirin:Salomon");
     }
 
-    @Test
+
     public void getDAnno() throws Exception {
         HttpTester request = makeRequest("GET", "/d/anno");
 
@@ -175,7 +176,7 @@ public class ViewTest extends TestBase {
         assert response.getContent().equals("d:anno:Salomon");
     }
 
-    @Test
+
     public void getDNoView() throws Exception {
         HttpTester request = makeRequest("GET", "/d/noview");
 

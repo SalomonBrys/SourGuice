@@ -15,6 +15,7 @@ import com.github.sourguice.value.RequestMethod;
 import com.google.inject.Singleton;
 
 @SuppressWarnings({"javadoc", "static-method"})
+@Test(invocationCount = 3)
 public class RequestMappingTest extends TestBase {
 
 	// ===================== CONTROLLERS =====================
@@ -123,7 +124,7 @@ public class RequestMappingTest extends TestBase {
 	// ===================== DATA PROVIDER =====================
 
 	@DataProvider(name = "requestMethods")
-	public Object[][] createRequestMethods() {
+	protected Object[][] createRequestMethods() {
 		RequestMethod[] rms = RequestMethod.values();
 		Object[][] ret = new Object[rms.length][];
 		for (int i = 0; i < rms.length; ++i)
@@ -135,7 +136,7 @@ public class RequestMappingTest extends TestBase {
 
 	// ===================== TESTS =====================
 
-	@Test
+
 	public void getHello() throws Exception {
 		HttpTester request = makeRequest("GET", "/a/hello");
 		HttpTester response = getResponse(request);
@@ -144,7 +145,7 @@ public class RequestMappingTest extends TestBase {
 		assert response.getContent().equals("Hello, world");
 	}
 
-	@Test
+
 	public void getPrint() throws Exception {
 		HttpTester request = makeRequest("POST", "/a/print");
 		addPost(request, "txt", "hello the world");
@@ -154,7 +155,7 @@ public class RequestMappingTest extends TestBase {
 		assert response.getContent().equals("hello the world");
 	}
 
-	@Test
+
 	public void getExpect404() throws Exception {
 		HttpTester request = makeRequest("GET", "/a/not-existing");
 		HttpTester response = getResponse(request);
@@ -162,7 +163,7 @@ public class RequestMappingTest extends TestBase {
 		assert response.getStatus() == 404;
 	}
 
-	@Test
+
 	public void postMissingArgument() throws Exception {
 		HttpTester request = makeRequest("POST", "/a/print");
 		HttpTester response = getResponse(request);
@@ -170,7 +171,7 @@ public class RequestMappingTest extends TestBase {
 		assert response.getStatus() == 400;
 	}
 
-	@Test
+
 	public void getInvalidMethod() throws Exception {
 		HttpTester request = makeRequest("GET", "/a/print");
 		HttpTester response = getResponse(request);
@@ -178,7 +179,7 @@ public class RequestMappingTest extends TestBase {
 		assert response.getStatus() == 404;
 	}
 
-	@Test(dataProvider = "requestMethods")
+	@Test(invocationCount = 3, dataProvider = "requestMethods")
 	public void allSimple(String method) throws Exception {
 		if (method.equals("HEAD")) return ;
 		HttpTester request = makeRequest(method, "/a/simple");
@@ -187,7 +188,7 @@ public class RequestMappingTest extends TestBase {
 		assert response.getStatus() == 200;
 	}
 
-	@Test
+
 	public void getSimpleParam() throws Exception {
 		HttpTester request = makeRequest("GET", "/a/simple?var=Salomon");
 		HttpTester response = getResponse(request);
@@ -196,7 +197,7 @@ public class RequestMappingTest extends TestBase {
 		assert response.getContent().equals("v:Salomon");
 	}
 
-    @Test
+
     public void getSimpleParamSessionId() throws Exception {
         HttpTester request = makeRequest("GET", "/a/simple;jsessionid=abcdef?var=Salomon");
 
@@ -207,7 +208,7 @@ public class RequestMappingTest extends TestBase {
     }
 
 
-	@Test
+
 	public void getSimpleHeader() throws Exception {
 		HttpTester request = makeRequest("GET", "/a/simple");
 		request.addHeader("x-sj-test", "Salomon");
@@ -217,7 +218,7 @@ public class RequestMappingTest extends TestBase {
 		assert response.getContent().equals("h:Salomon");
 	}
 
-	@Test
+
 	public void getSimpleConsumes() throws Exception {
 		HttpTester request = makeRequest("GET", "/a/simple");
 		request.addHeader("content-type", "x-sj-test");
@@ -227,7 +228,7 @@ public class RequestMappingTest extends TestBase {
 		assert response.getContent().equals("Consumes");
 	}
 
-	@Test
+
 	public void getSimpleProduces() throws Exception {
 		HttpTester request = makeRequest("GET", "/a/simple");
 		request.addHeader("accept", "x-sj-test,xml;");
@@ -237,7 +238,7 @@ public class RequestMappingTest extends TestBase {
 		assert response.getContent().equals("Produces");
 	}
 
-	@Test
+
 	public void getMatch() throws Exception {
 		HttpTester request = makeRequest("GET", "/b/match-one-two-three");
 		HttpTester response = getResponse(request);
