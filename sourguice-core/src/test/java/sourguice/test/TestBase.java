@@ -2,8 +2,8 @@ package sourguice.test;
 
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.testing.HttpTester;
@@ -39,7 +39,7 @@ public abstract class TestBase {
 
 	}
 
-	private Queue<ServletTester> queue = new LinkedList<>();
+	protected Queue<ServletTester> queue = new ConcurrentLinkedQueue<>();
 
 	@BeforeClass
 	public void startupServletTester() throws Exception {
@@ -107,24 +107,16 @@ public abstract class TestBase {
 		return response;
 	}
 
-	protected synchronized ServletTester pollTester() {
-		return queue.poll();
-	}
-
-	protected synchronized void offerTester(ServletTester tester) {
-		queue.offer(tester);
-	}
-
 	protected HttpTester getResponse(HttpTester request, boolean debug) throws Exception {
 
-		ServletTester tester = pollTester();
+		ServletTester tester = queue.poll();
 
 		try {
 			HttpTester response = getResponse(tester, request, debug);
 			return response;
 		}
 		finally {
-			offerTester(tester);
+			queue.offer(tester);
 		}
 	}
 

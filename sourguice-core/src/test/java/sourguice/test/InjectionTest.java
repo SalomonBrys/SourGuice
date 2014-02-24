@@ -233,7 +233,7 @@ public class InjectionTest extends TestBase {
     public void getSession() throws Exception {
     	String jsessionid;
 
-    	ServletTester tester = pollTester();
+    	ServletTester tester = queue.poll();
 
     	try {
 	    	{
@@ -256,7 +256,7 @@ public class InjectionTest extends TestBase {
 	    	}
     	}
     	finally {
-    		offerTester(tester);
+    		queue.offer(tester);
     	}
     }
 
