@@ -1,10 +1,12 @@
 package sourguice.test;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 
 import org.apache.jasper.servlet.JspServlet;
 import org.eclipse.jetty.testing.HttpTester;
 import org.eclipse.jetty.testing.ServletTester;
+import org.testng.SkipException;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.github.sourguice.MvcControlerModule;
@@ -18,6 +20,24 @@ import com.google.inject.Singleton;
 @SuppressWarnings({"javadoc", "static-method"})
 @Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
 public class JSPTest extends TestBase {
+
+    // ===================== TRAVIS SKIP =====================
+
+	@SuppressWarnings("serial")
+	private static class TravisSkipException extends SkipException {
+		public TravisSkipException() {
+			super("Travis does not supports JSP compilation");
+			reduceStackTrace();
+		}
+	}
+
+	private boolean travisSkip = false;
+
+	@BeforeMethod
+	public void skipInTravis() {
+		String travis = System.getenv("TRAVIS");
+		this.travisSkip = travis != null && travis.equalsIgnoreCase("true");
+	}
 
     // ===================== CONTROLLERS =====================
 
@@ -62,6 +82,9 @@ public class JSPTest extends TestBase {
     // ===================== TESTS =====================
 
 	public void testIndex() throws Exception {
+		if (travisSkip)
+			throw new TravisSkipException();
+
 		HttpTester request = makeRequest("GET", "/Hello.jsp");
 		HttpTester response = getResponse(request);
 
@@ -71,6 +94,9 @@ public class JSPTest extends TestBase {
 
 
 	public void testHi() throws Exception {
+		if (travisSkip)
+			throw new TravisSkipException();
+
 		HttpTester request = makeRequest("GET", "/hi");
 		HttpTester response = getResponse(request);
 
@@ -80,6 +106,9 @@ public class JSPTest extends TestBase {
 
 
 	public void testUnknown() throws Exception {
+		if (travisSkip)
+			throw new TravisSkipException();
+
 		HttpTester request = makeRequest("GET", "/unknown");
 		HttpTester response = getResponse(request);
 
