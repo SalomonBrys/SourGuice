@@ -33,16 +33,16 @@ public abstract class TestBase {
 
 	public static class StandardContextListener<T extends MvcControlerModule> extends GuiceServletContextListener {
 
-		T module;
+		private Injector injector;
 
 		public StandardContextListener(T module) {
 			super();
-			this.module = module;
+			this.injector = Guice.createInjector(module);
 		}
 
 		@Override
 		protected Injector getInjector() {
-			return Guice.createInjector(module);
+			return injector;
 		}
 
 	}
