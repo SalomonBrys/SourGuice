@@ -86,7 +86,7 @@ public final class MvcInvocation {
 	/**
 	 * The reference of each path variable name and their position in the url regex
 	 */
-	HashMap<String, Integer> matchRef = new HashMap<>();
+	private HashMap<String, Integer> matchRef = new HashMap<>();
 
 	private ControllerHandler<?> controller;
 
