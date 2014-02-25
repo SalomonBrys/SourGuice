@@ -122,6 +122,7 @@ public class ExceptionTest extends TestBase {
 
 	public void getOther() throws Exception {
 		HttpTester request = makeRequest("GET", "/other");
+        request.addHeader("x-sj-exc", "sourguice.test.ExceptionTest.OtherException");
 
 		HttpTester response = getResponse(request);
 

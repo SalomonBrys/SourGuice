@@ -193,6 +193,7 @@ public class CallTest extends TestBase {
 
 	public void getCallBad() throws Exception {
 		HttpTester request = makeRequest("GET", "/callbad");
+        request.addHeader("x-sj-exc", "java.lang.NoSuchMethodException");
 
 		HttpTester response = getResponse(request);
 
@@ -220,6 +221,7 @@ public class CallTest extends TestBase {
 
 	public void getCallThrowNotHandled() throws Exception {
 		HttpTester request = makeRequest("GET", "/callthrownothandled");
+        request.addHeader("x-sj-exc", "java.lang.RuntimeException");
 
 		HttpTester response = getResponse(request);
 

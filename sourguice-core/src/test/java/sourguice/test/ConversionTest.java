@@ -210,6 +210,7 @@ public class ConversionTest extends TestBase {
 
 	public void getPrimReqArray() throws Exception {
 		HttpTester request = makeRequest("GET", "/primarray?var=21&var=42");
+        request.addHeader("x-sj-exc", "java.lang.RuntimeException");
 
 		HttpTester response = getResponse(request);
 
@@ -220,6 +221,7 @@ public class ConversionTest extends TestBase {
 
 	public void getPrimConvArray() throws Exception {
 		HttpTester request = makeRequest("GET", "/primarray?var=21,42");
+        request.addHeader("x-sj-exc", "java.lang.RuntimeException");
 
 		HttpTester response = getResponse(request);
 
@@ -230,6 +232,7 @@ public class ConversionTest extends TestBase {
 
 	public void getNoConverter() throws Exception {
 		HttpTester request = makeRequest("GET", "/noconverter?var=coucou");
+        request.addHeader("x-sj-exc", "com.github.sourguice.throwable.service.converter.NoConverterException");
 
 		HttpTester response = getResponse(request);
 

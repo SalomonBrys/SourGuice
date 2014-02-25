@@ -5,6 +5,13 @@ import java.net.URLEncoder;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.testing.HttpTester;
 import org.eclipse.jetty.testing.ServletTester;
@@ -56,8 +63,35 @@ public abstract class TestBase {
 		}
 	}
 
+	public static class TestGuiceFilter extends GuiceFilter {
+
+		static void handleException(ServletException e, HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
+			Throwable cause = e.getCause();
+			if (cause != null) {
+				String exc = req.getHeader("x-sj-exc");
+				if (exc != null && exc.equals(cause.getClass().getCanonicalName())) {
+					res.sendError(500, cause.getMessage());
+					return ;
+				}
+				System.err.println("UNEXPECTED SERVLET EXCEPTION: " + cause.getClass().getCanonicalName());
+				throw e;
+			}
+		}
+
+		@Override
+		public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+			try {
+				super.doFilter(req, res, chain);
+			}
+			catch (ServletException e) {
+				handleException(e, (HttpServletRequest)req, (HttpServletResponse)res);
+			}
+		}
+
+	}
+
 	protected void addServletTesterFilter(ServletTester tester) {
-		tester.addFilter(GuiceFilter.class, "/*", 0);
+		tester.addFilter(TestGuiceFilter.class, "/*", 0);
 	}
 
 	@AfterClass

@@ -65,6 +65,7 @@ public class WriteTest extends TestBase {
 
 	public void getWriteFail() throws Exception {
 		HttpTester request = makeRequest("GET", "/writefail");
+        request.addHeader("x-sj-exc", "java.lang.RuntimeException");
 
 		HttpTester response = getResponse(request);
 

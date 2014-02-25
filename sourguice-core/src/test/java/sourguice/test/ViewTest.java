@@ -181,6 +181,7 @@ public class ViewTest extends TestBase {
 
     public void getDNoView() throws Exception {
         HttpTester request = makeRequest("GET", "/d/noview");
+        request.addHeader("x-sj-exc", "com.github.sourguice.view.def.BasicViewRenderer.NoSuchBasicViewMethodException");
 
         HttpTester response = getResponse(request);
 
