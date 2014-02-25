@@ -87,8 +87,10 @@ public final class ControllersServlet extends HttpServlet {
 		if (req.getPathInfo() != null)
 			req = new NoJsessionidHttpRequest(req);
 
+		RequestScopeContainer requestScopeContainer = injector.getInstance(RequestScopeContainer.class);
+
 		// Stores the request into the RequestScoped Container so it can be later retrieved using @GuiceRequest
-		injector.getInstance(RequestScopeContainer.class).store(HttpServletRequest.class, req);
+		requestScopeContainer.store(HttpServletRequest.class, req);
 
 		// Gets the best invocation of all controller handlers
 		ControllerInvocationInfos infos = null;
@@ -104,7 +106,7 @@ public final class ControllersServlet extends HttpServlet {
 
 		assert infos.urlMatch != null;
 		// Stores the MatchResult into the RequestScoped Container so it can be later retrieved with guice injection
-		injector.getInstance(RequestScopeContainer.class).store(MatchResult.class, infos.urlMatch);
+		requestScopeContainer.store(MatchResult.class, infos.urlMatch);
 
 		try {
 			// Invoke the invocation using the MethodCaller registered in Guice
