@@ -2,6 +2,7 @@ package com.github.sourguice.controller;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.annotation.CheckForNull;
@@ -93,13 +94,27 @@ public class ControllerInterceptor implements MethodInterceptor {
 
 	}
 
+	private HashMap<Method, List<InterceptWith>> interceptWithCache = new HashMap<>();
+
 	/**
 	 * Constructs the {@link MethodInvocation} tree and launches the execution of the found interceptors.
 	 */
 	@Override
 	public Object invoke(MethodInvocation invocation) throws Throwable {
 
-		List<InterceptWith> interceptWithAnnos = Annotations.GetAllTreeRecursive(InterceptWith.class, invocation.getMethod());
+		// We first check if this has already been computed
+		List<InterceptWith> interceptWithAnnos = interceptWithCache.get(invocation.getMethod());
+		// If it has not been, then we need a lock
+		if (interceptWithAnnos == null)
+			synchronized (interceptWithCache) {
+				// Maybe it has been computed while we waited for the lock, so we check again
+				interceptWithAnnos = interceptWithCache.get(invocation.getMethod());
+				// It has not, so let's compute it!
+				if (interceptWithAnnos == null) {
+					interceptWithAnnos = Annotations.GetAllTreeRecursive(InterceptWith.class, invocation.getMethod());
+					interceptWithCache.put(invocation.getMethod(), interceptWithAnnos);
+				}
+			}
 
 		for (InterceptWith interceptWith : interceptWithAnnos)
 			for (Class<? extends MethodInterceptor> interceptor : interceptWith.value())
