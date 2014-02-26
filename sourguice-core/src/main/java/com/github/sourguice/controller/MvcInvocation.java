@@ -137,41 +137,41 @@ public final class MvcInvocation {
 
 			RequestParam requestParam = annos.getAnnotation(RequestParam.class);
 			if (requestParam != null) {
-				fetchers[n] = new RequestParamArgumentFetcher(parameterTypes.get(n), n, annotations[n], requestParam);
+				fetchers[n] = new RequestParamArgumentFetcher(parameterTypes.get(n), annotations[n], requestParam);
 				continue ;
 			}
 
 			PathVariable pathVariable = annos.getAnnotation(PathVariable.class);
 			if (pathVariable != null) {
-				fetchers[n] = new PathVariableArgumentFetcher(parameterTypes.get(n), n, annotations[n], pathVariable, matchRef, this.mapping != null && this.mapping.value().length > 0);
+				fetchers[n] = new PathVariableArgumentFetcher(parameterTypes.get(n), annotations[n], pathVariable, matchRef, this.mapping != null && this.mapping.value().length > 0);
 				continue ;
 			}
 
 			RequestAttribute requestAttribute = annos.getAnnotation(RequestAttribute.class);
 			if (requestAttribute != null) {
-				fetchers[n] = new RequestAttributeArgumentFetcher(parameterTypes.get(n), n, annotations[n], requestAttribute);
+				fetchers[n] = new RequestAttributeArgumentFetcher(parameterTypes.get(n), annotations[n], requestAttribute);
 				continue ;
 			}
 
 			SessionAttribute sessionAttribute = annos.getAnnotation(SessionAttribute.class);
 			if (sessionAttribute != null) {
-				fetchers[n] = new SessionAttributeArgumentFetcher(parameterTypes.get(n), n, annotations[n], sessionAttribute);
+				fetchers[n] = new SessionAttributeArgumentFetcher(parameterTypes.get(n), annotations[n], sessionAttribute);
 				continue ;
 			}
 
 			RequestHeader requestHeader = annos.getAnnotation(RequestHeader.class);
 			if (requestHeader != null) {
-				fetchers[n] = new RequestHeaderArgumentFetcher(parameterTypes.get(n), n, annotations[n], requestHeader);
+				fetchers[n] = new RequestHeaderArgumentFetcher(parameterTypes.get(n), annotations[n], requestHeader);
 				continue ;
 			}
 
 			InterceptParam interceptParam = annos.getAnnotation(InterceptParam.class);
 			if (interceptParam != null) {
-				fetchers[n] = new NullArgumentFetcher(parameterTypes.get(n), n, annotations[n]);
+				fetchers[n] = new NullArgumentFetcher(parameterTypes.get(n), annotations[n]);
 				continue ;
 			}
 
-			fetchers[n] = new InjectorArgumentFetcher(parameterTypes.get(n), n, annotations[n]);
+			fetchers[n] = new InjectorArgumentFetcher(parameterTypes.get(n), annotations[n]);
 		}
 	}
 

@@ -33,12 +33,6 @@ public abstract class ArgumentFetcher<T> {
 	protected TypeLiteral<T> type;
 
 	/**
-	 * The position of the method's argument to fetch
-	 * in the method void foo(int a, int b); a is in position 0 and b in position 1
-	 */
-	protected int pos;
-
-	/**
 	 * Annotations that were found on the method's argument
 	 */
 	protected Annotation[] annotations;
@@ -48,9 +42,8 @@ public abstract class ArgumentFetcher<T> {
 	 * @param pos The position of the method's argument to fetch
 	 * @param annotations Annotations that were found on the method's argument
 	 */
-	protected ArgumentFetcher(TypeLiteral<T> type, int pos, Annotation[] annotations) {
+	protected ArgumentFetcher(TypeLiteral<T> type, Annotation[] annotations) {
 		this.type = type;
-		this.pos = pos;
 		this.annotations = annotations;
 	}
 
@@ -70,8 +63,8 @@ public abstract class ArgumentFetcher<T> {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public @CheckForNull T get(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector, CalltimeArgumentFetcher<?>[] additionalFetchers) throws Throwable {
 		for (CalltimeArgumentFetcher f : additionalFetchers)
-			if (f.canGet(this.type, pos, annotations))
-				return (T)f.get(this.type, pos, annotations);
+			if (f.canGet(this.type, annotations))
+				return (T)f.get(this.type, annotations);
 
 		return getPrepared(req, pathVariables, injector);
 	}

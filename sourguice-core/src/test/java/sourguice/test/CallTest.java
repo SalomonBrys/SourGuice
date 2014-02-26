@@ -145,19 +145,19 @@ public class CallTest extends TestBase {
     }
 
     public static class TestArgumentFetcher implements CalltimeArgumentFetcher<String> {
-		@Override public boolean canGet(TypeLiteral<?> type, int pos, Annotation[] annos) {
+		@Override public boolean canGet(TypeLiteral<?> type, Annotation[] annos) {
 			return type.getRawType() == String.class && Annotations.fromArray(annos).isAnnotationPresent(TestArgument.class);
 		}
-		@Override public String get(TypeLiteral<?> type, int pos, Annotation[] annos) throws Throwable {
+		@Override public String get(TypeLiteral<?> type, Annotation[] annos) throws Throwable {
 			return "Salomon";
 		}
     }
 
     public static class NoArgumentFetcher implements CalltimeArgumentFetcher<String> {
-		@Override public boolean canGet(TypeLiteral<?> type, int pos, Annotation[] annos) {
+		@Override public boolean canGet(TypeLiteral<?> type, Annotation[] annos) {
 			return false;
 		}
-		@Override @CheckForNull public String get(TypeLiteral<?> type, int pos, Annotation[] annos) throws Throwable {
+		@Override @CheckForNull public String get(TypeLiteral<?> type, Annotation[] annos) throws Throwable {
 			return null;
 		}
     }

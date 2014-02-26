@@ -26,8 +26,8 @@ public class NullArgumentFetcher<T> extends ArgumentFetcher<T> {
 	/**
 	 * @see ArgumentFetcher#ArgumentFetcher(Type, int, Annotation[])
 	 */
-	public NullArgumentFetcher(TypeLiteral<T> type, int pos, Annotation[] annotations) {
-		super(type, pos, annotations);
+	public NullArgumentFetcher(TypeLiteral<T> type, Annotation[] annotations) {
+		super(type, annotations);
 	}
 
 	/**

@@ -42,8 +42,8 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 	 * @param annotations Annotations that were found on the method's argument
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 */
-	public RequestParamArgumentFetcher(TypeLiteral<T> type, int pos, Annotation[] annotations, RequestParam infos) {
-		super(type, pos, annotations);
+	public RequestParamArgumentFetcher(TypeLiteral<T> type, Annotation[] annotations, RequestParam infos) {
+		super(type, annotations);
 		this.infos = infos;
 	}
 

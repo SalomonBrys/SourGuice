@@ -62,8 +62,8 @@ public class RequestAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 	 * @param annotations Annotations that were found on the method's argument
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 */
-	public RequestAttributeArgumentFetcher(TypeLiteral<T> type, int pos, Annotation[] annotations, RequestAttribute infos) {
-		super(type, pos, annotations);
+	public RequestAttributeArgumentFetcher(TypeLiteral<T> type, Annotation[] annotations, RequestAttribute infos) {
+		super(type, annotations);
 		this.infos = infos;
 		if (type.getRawType().equals(Attribute.class))
 			isAccessor = true;

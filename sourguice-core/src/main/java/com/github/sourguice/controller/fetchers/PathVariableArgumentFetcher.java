@@ -39,8 +39,8 @@ public class PathVariableArgumentFetcher<T> extends ArgumentFetcher<T> {
 	 * @param ref The reference map that links path variable name to their index when a url matches
 	 * @param check Whether or not to check that ref contains the reference to the path variable
 	 */
-	public PathVariableArgumentFetcher(TypeLiteral<T> type, int pos, Annotation[] annotations, PathVariable infos, HashMap<String, Integer> ref, boolean check) {
-		super(type, pos, annotations);
+	public PathVariableArgumentFetcher(TypeLiteral<T> type, Annotation[] annotations, PathVariable infos, HashMap<String, Integer> ref, boolean check) {
+		super(type, annotations);
 		this.infos = infos;
 		if (check && !ref.containsKey(infos.value()))
 			throw new NoSuchPathVariableException(infos.value());

@@ -20,7 +20,7 @@ public interface CalltimeArgumentFetcher<T> {
 	 * @param annos All annotations attached to the method's argument to bind
 	 * @return Whether or not the needed argument of the method to be called is fetchable by this fetcher
 	 */
-	public boolean canGet(TypeLiteral<?> type, int pos, Annotation[] annos);
+	public boolean canGet(TypeLiteral<?> type, Annotation[] annos);
 
 	/**
 	 *
@@ -30,5 +30,5 @@ public interface CalltimeArgumentFetcher<T> {
 	 * @return The object to bind to the method's argument
 	 * @throws Throwable If anything went wrong while fetching
 	 */
-	public @CheckForNull T get(TypeLiteral<?> type, int pos, Annotation[] annos) throws Throwable;
+	public @CheckForNull T get(TypeLiteral<?> type, Annotation[] annos) throws Throwable;
 }

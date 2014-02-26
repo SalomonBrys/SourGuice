@@ -33,8 +33,8 @@ public class InjectorArgumentFetcher<T> extends ArgumentFetcher<T> {
 	/**
 	 * @see ArgumentFetcher#ArgumentFetcher(Type, int, Annotation[])
 	 */
-	public InjectorArgumentFetcher(TypeLiteral<T> type, int pos, Annotation[] annotations) {
-		super(type, pos, annotations);
+	public InjectorArgumentFetcher(TypeLiteral<T> type, Annotation[] annotations) {
+		super(type, annotations);
 
 		bindingAnnotation = Annotations.GetOneAnnotated(BindingAnnotation.class, annotations);
 		if (bindingAnnotation == null)
