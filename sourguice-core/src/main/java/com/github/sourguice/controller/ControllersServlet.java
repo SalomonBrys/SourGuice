@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.github.sourguice.annotation.controller.HttpError;
 import com.github.sourguice.annotation.controller.Redirects;
+import com.github.sourguice.annotation.request.Writes;
 import com.github.sourguice.call.impl.MvcCallerImpl;
 import com.github.sourguice.request.wrapper.NoJsessionidHttpRequest;
 import com.github.sourguice.throwable.invocation.HandledException;
@@ -149,14 +150,15 @@ public final class ControllersServlet extends HttpServlet {
 					}
 				}
 
-				if (infos.invocation.getWrites() != null) {
+				Writes writes = infos.invocation.getWrites();
+				if (writes != null) {
 					if (ret == null)
 						throw new RuntimeException("@Writes annotated method must NOT return null");
 					if (ret instanceof InputStream)
 						ret = new InputStreamReader((InputStream)ret);
 					if (ret instanceof Readable) {
 						Readable r = (Readable)ret;
-						CharBuffer cb = CharBuffer.allocate(infos.invocation.getWrites().bufferSize());
+						CharBuffer cb = CharBuffer.allocate(writes.bufferSize());
 						while (r.read(cb) >= 0) {
 							cb.flip();
 							res.getWriter().append(cb);
