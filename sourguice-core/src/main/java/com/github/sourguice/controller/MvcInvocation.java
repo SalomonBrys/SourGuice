@@ -82,7 +82,7 @@ public final class MvcInvocation {
 	 */
 	private InstanceGetter<?> ig;
 
-	private @CheckForNull String view;
+	private @CheckForNull View view;
 
 	private @CheckForNull Writes writes;
 
@@ -106,9 +106,7 @@ public final class MvcInvocation {
 		this.method = method;
 		this.ig = ig;
 
-		View viewAnno = Annotations.GetOneTreeRecursive(View.class, method);
-		if (viewAnno != null)
-			this.view = viewAnno.value();
+		this.view = Annotations.GetOneTreeRecursive(View.class, method);
 
 		this.writes = Annotations.GetOneTreeRecursive(Writes.class, method);
 
@@ -323,7 +321,7 @@ public final class MvcInvocation {
 		return controller;
 	}
 
-	public @CheckForNull String getView() {
+	public @CheckForNull View getView() {
 		return view;
 	}
 

@@ -15,6 +15,7 @@ import com.github.sourguice.annotation.controller.ViewRendered;
 import com.github.sourguice.annotation.controller.ViewRenderedWith;
 import com.github.sourguice.annotation.controller.ViewDirectory;
 import com.github.sourguice.annotation.request.RequestMapping;
+import com.github.sourguice.annotation.request.View;
 import com.github.sourguice.utils.Annotations;
 import com.github.sourguice.view.Model;
 import com.github.sourguice.view.NoViewRendererException;
@@ -89,9 +90,9 @@ public final class ControllerHandler<T> {
 		//TODO: There should be no reflexivity at call-time !
 		// If found (not null) gather invocation informations from annotations
 		if (infos != null) {
-			String view = infos.invocation.getView();
-			if (view != null)
-				infos.defaultView = view;
+			View vAnno = infos.invocation.getView();
+			if (vAnno != null)
+				infos.defaultView = vAnno.value();
 		}
 		return infos;
 	}
