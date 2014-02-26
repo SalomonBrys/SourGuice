@@ -11,8 +11,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.github.sourguice.MvcControlerModule;
 import com.github.sourguice.annotation.controller.Callable;
-import com.github.sourguice.annotation.controller.ViewSystem;
-import com.github.sourguice.annotation.controller.ViewSystem.ViewRendererEntry;
+import com.github.sourguice.annotation.controller.ViewRendered;
+import com.github.sourguice.annotation.controller.ViewRenderedWith;
+import com.github.sourguice.annotation.controller.ViewDirectory;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.utils.Annotations;
 import com.github.sourguice.view.Model;
@@ -43,10 +44,9 @@ public final class ControllerHandler<T> {
 	 */
 	private ArrayList<MvcInvocation> invocations = new ArrayList<>();
 
-	/**
-	 * The view system, declared directly on the controller using {@link ViewSystem}
-	 */
-	private @CheckForNull ViewSystem viewSystem = null;
+	private String viewDirectory = "";
+
+	private ViewRenderedWith[] viewRenderers = {};
 
 	private Map<String, InstanceGetter<? extends ViewRenderer>> rendererCache = new HashMap<>();
 
@@ -56,7 +56,18 @@ public final class ControllerHandler<T> {
 	public ControllerHandler(InstanceGetter<T> ig) {
 		this.ig = ig;
 
-		viewSystem = Annotations.GetOneTreeRecursive(ViewSystem.class, ig.getTypeLiteral().getRawType());
+		ViewDirectory vdAnno = Annotations.GetOneTreeRecursive(ViewDirectory.class, ig.getTypeLiteral().getRawType());
+		if (vdAnno != null)
+			viewDirectory = vdAnno.value();
+
+		ViewRendered rdAnno = Annotations.GetOneTreeRecursive(ViewRendered.class, ig.getTypeLiteral().getRawType());
+		if (rdAnno != null)
+			viewRenderers = rdAnno.value();
+		else {
+			ViewRenderedWith rdwAnno = Annotations.GetOneTreeRecursive(ViewRenderedWith.class, ig.getTypeLiteral().getRawType());
+			if (rdwAnno != null)
+				viewRenderers = new ViewRenderedWith[] { rdwAnno };
+		}
 
 		for (Method method : ig.getTypeLiteral().getRawType().getMethods())
 			if (Annotations.GetOneTreeRecursive(Callable.class, method) != null)
@@ -96,16 +107,11 @@ public final class ControllerHandler<T> {
 		return ig;
 	}
 
-	public @CheckForNull ViewSystem getViewSystem() {
-		return viewSystem;
-	}
-
 	public void renderView(String view, Injector injector) throws NoViewRendererException, Throwable {
 
-
-		if (viewSystem != null && !viewSystem.directory().isEmpty() && !view.startsWith("/"))
 		// If a view directory were set, prefixes the view with it
-			view = viewSystem.directory() + "/" + view;
+		if (!view.startsWith("/") && !viewDirectory.isEmpty())
+			view = viewDirectory + "/" + view;
 
 		// Maybe it has already been set, so we look for it
 		InstanceGetter<? extends ViewRenderer> renderer = rendererCache.get(view);
@@ -117,13 +123,12 @@ public final class ControllerHandler<T> {
 				renderer = rendererCache.get(view);
 				if (renderer == null) {
 					// Gets the view renderer either from the controller class or from Guice
-					if (viewSystem != null)
-						for (ViewRendererEntry entry : viewSystem.renderers())
-							if (Pattern.matches(entry.regex(), view)) {
-								renderer = new GuiceInstanceGetter<>(Key.get(entry.renderer()));
-								injector.injectMembers(renderer);
-								break ;
-							}
+					for (ViewRenderedWith rdw : viewRenderers)
+						if (Pattern.matches(rdw.regex(), view)) {
+							renderer = new GuiceInstanceGetter<>(Key.get(rdw.renderer()));
+							injector.injectMembers(renderer);
+							break ;
+						}
 					if (renderer == null)
 						renderer = injector.getInstance(ViewRendererService.class).getRenderer(view);
 					rendererCache.put(view, renderer);

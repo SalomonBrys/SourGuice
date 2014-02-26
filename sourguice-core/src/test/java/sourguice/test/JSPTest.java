@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 
 import com.github.sourguice.MvcControlerModule;
 import com.github.sourguice.StaticIgnoreGuiceFilter;
-import com.github.sourguice.annotation.controller.ViewSystem;
+import com.github.sourguice.annotation.controller.ViewDirectory;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.View;
 import com.github.sourguice.view.Model;
@@ -42,7 +42,7 @@ public class JSPTest extends TestBase {
     // ===================== CONTROLLERS =====================
 
     @Singleton
-    @ViewSystem(directory = "/WEB-INF")
+    @ViewDirectory("/WEB-INF")
     public static class Controller {
 		@View("Hi.jsp")
     	@RequestMapping("/hi")

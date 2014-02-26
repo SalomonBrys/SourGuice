@@ -1,6 +1,6 @@
 package sourguice.test;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -13,8 +13,8 @@ import org.eclipse.jetty.testing.HttpTester;
 import org.testng.annotations.Test;
 
 import com.github.sourguice.MvcControlerModule;
-import com.github.sourguice.annotation.controller.ViewSystem;
-import com.github.sourguice.annotation.controller.ViewSystem.ViewRendererEntry;
+import com.github.sourguice.annotation.controller.ViewRenderedWith;
+import com.github.sourguice.annotation.controller.ViewDirectory;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.View;
 import com.github.sourguice.view.Model;
@@ -65,7 +65,8 @@ public class ViewTest extends TestBase {
     // ===================== CONTROLLERS =====================
 
 	@Singleton
-    @ViewSystem(directory = "/views", renderers = @ViewRendererEntry(regex = ".*", renderer = AnnoTestRenderer.class))
+	@ViewDirectory("/views")
+	@ViewRenderedWith(regex = ".*", renderer = AnnoTestRenderer.class)
     public static class AController {
         @SuppressWarnings("serial")
 		@RequestMapping("/annodir")

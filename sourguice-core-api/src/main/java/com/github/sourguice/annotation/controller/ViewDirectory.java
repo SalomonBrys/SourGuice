@@ -6,8 +6,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.github.sourguice.view.ViewRenderer;
-
 /**
  * Specifies a view directory (prefix) that will be applied to all view path returned by this controller
  *
@@ -16,16 +14,11 @@ import com.github.sourguice.view.ViewRenderer;
 @Target({ElementType.TYPE, ElementType.PACKAGE, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface ViewSystem {
-
-	public static @interface ViewRendererEntry {
-		public String regex();
-		public Class<? extends ViewRenderer> renderer();
-	}
+public @interface ViewDirectory {
 
 	/**
 	 * @return The view directory without ending '/'
 	 */
-	public String directory() default "";
-	public ViewRendererEntry[] renderers() default {};
+	public String value() default "";
+
 }
