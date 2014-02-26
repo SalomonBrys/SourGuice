@@ -134,12 +134,11 @@ public final class MvcInvocation {
 			}
 
 		// Registers all fetchers
-		// Fetchers are configured in constructor so they are constrcted only once
+		// Fetchers are configured in constructor so they are constructed only once
 		// If no fetcher is suitable, then uses the guice fetcher
 		List<TypeLiteral<?>> parameterTypes = ig.getTypeLiteral().getParameterTypes(method);
 		Annotation[][] annotations = method.getParameterAnnotations();
 		fetchers = new ArgumentFetcher<?>[parameterTypes.size()];
-		// TODO: Make plugins able to hook here
 		for (int n = 0; n < parameterTypes.size(); ++n) {
 			AnnotatedElement annos = Annotations.fromArray(annotations[n]);
 

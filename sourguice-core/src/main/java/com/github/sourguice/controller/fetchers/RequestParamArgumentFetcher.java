@@ -140,7 +140,6 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 	@Override
 	@SuppressWarnings({ "unchecked" })
 	protected @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) throws NoSuchRequestParameterException {
-		// TODO: Handle Sets & concrete collection types
 		// If a List is requested, gets an array and converts it to list
 		if (collectionProvider != null) {
 			assert collectionComponentType != null;
