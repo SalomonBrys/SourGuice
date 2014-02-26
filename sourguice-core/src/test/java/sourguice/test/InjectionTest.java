@@ -1,10 +1,16 @@
 package sourguice.test;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.io.PrintWriter;
+import java.util.ArrayDeque;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.SortedSet;
 import java.util.regex.MatchResult;
 
 import org.eclipse.jetty.testing.HttpTester;
@@ -79,6 +85,42 @@ public class InjectionTest extends TestBase {
         	return ret;
         }
 
+        @RequestMapping("/queue")
+        @Writes
+        public String list(@RequestParam("var") Queue<String> var) {
+        	String ret = "";
+        	for (String v : var)
+        		ret += ":" + v;
+        	return ret;
+        }
+
+        @RequestMapping("/set")
+        @Writes
+        public String list(@RequestParam("var") Set<String> var) {
+        	String ret = "";
+        	for (String v : var)
+        		ret += ":" + v;
+        	return ret;
+        }
+
+        @RequestMapping("/sortedset")
+        @Writes
+        public String list(@RequestParam("var") SortedSet<String> var) {
+        	String ret = "";
+        	for (String v : var)
+        		ret += ":" + v;
+        	return ret;
+        }
+
+        @RequestMapping("/arraydeque")
+        @Writes
+        public String arraylist(@RequestParam("var") ArrayDeque<String> var) {
+        	String ret = "";
+        	for (String v : var)
+        		ret += ":" + v;
+        	return ret;
+        }
+
         @RequestMapping("/defaultlist")
         @Writes
         public String defaultlist(@RequestParam(value = "var", defaultValue = "a,b,c") List<String> var) {
@@ -99,6 +141,15 @@ public class InjectionTest extends TestBase {
         @RequestMapping("/map")
         @Writes
         public String map(@RequestParam("var") Map<String, String> var) {
+        	String ret = "";
+        	for (Map.Entry<String, String> v : var.entrySet())
+        		ret += ":" + v.getKey() + "=" + v.getValue();
+        	return ret;
+        }
+
+        @RequestMapping("/linkedmap")
+        @Writes
+        public String linkedmap(@RequestParam("var") LinkedHashMap<String, String> var) {
         	String ret = "";
         	for (Map.Entry<String, String> v : var.entrySet())
         		ret += ":" + v.getKey() + "=" + v.getValue();
@@ -285,6 +336,54 @@ public class InjectionTest extends TestBase {
         assertTrue(Arrays.Contains(split, "three"));
     }
 
+    public void getQueue() throws Exception {
+        HttpTester request = makeRequest("GET", "/queue?var=one&var=two&var=three");
+        HttpTester response = getResponse(request);
+
+		assertEquals(response.getStatus(), 200);
+        String[] split = response.getContent().split(":");
+        assertEquals(split.length, 4);
+        assertTrue(Arrays.Contains(split, "one"));
+        assertTrue(Arrays.Contains(split, "two"));
+        assertTrue(Arrays.Contains(split, "three"));
+    }
+
+    public void getSet() throws Exception {
+        HttpTester request = makeRequest("GET", "/set?var=one&var=two&var=three");
+        HttpTester response = getResponse(request);
+
+		assertEquals(response.getStatus(), 200);
+        String[] split = response.getContent().split(":");
+        assertEquals(split.length, 4);
+        assertTrue(Arrays.Contains(split, "one"));
+        assertTrue(Arrays.Contains(split, "two"));
+        assertTrue(Arrays.Contains(split, "three"));
+    }
+
+    public void getSortedSet() throws Exception {
+        HttpTester request = makeRequest("GET", "/sortedset?var=one&var=two&var=three");
+        HttpTester response = getResponse(request);
+
+		assertEquals(response.getStatus(), 200);
+        String[] split = response.getContent().split(":");
+        assertEquals(split.length, 4);
+        assertTrue(Arrays.Contains(split, "one"));
+        assertTrue(Arrays.Contains(split, "two"));
+        assertTrue(Arrays.Contains(split, "three"));
+    }
+
+    public void getArrayDeque() throws Exception {
+        HttpTester request = makeRequest("GET", "/arraydeque?var=one&var=two&var=three");
+        HttpTester response = getResponse(request);
+
+		assertEquals(response.getStatus(), 200);
+        String[] split = response.getContent().split(":");
+        assertEquals(split.length, 4);
+        assertTrue(Arrays.Contains(split, "one"));
+        assertTrue(Arrays.Contains(split, "two"));
+        assertTrue(Arrays.Contains(split, "three"));
+    }
+
 
     public void geDefaultList() throws Exception {
         HttpTester request = makeRequest("GET", "/defaultlist");
@@ -319,6 +418,19 @@ public class InjectionTest extends TestBase {
 
     public void getMapBraces() throws Exception {
         HttpTester request = makeRequest("GET", "/map?var[a]=one&var[b]=two&var[c]=three&var[=choucroute");
+        HttpTester response = getResponse(request);
+
+		assertEquals(response.getStatus(), 200);
+        String[] split = response.getContent().split(":");
+        assertEquals(split.length, 4);
+        assertTrue(Arrays.Contains(split, "a=one"));
+        assertTrue(Arrays.Contains(split, "b=two"));
+        assertTrue(Arrays.Contains(split, "c=three"));
+    }
+
+
+    public void getLinkedMapBraces() throws Exception {
+        HttpTester request = makeRequest("GET", "/linkedmap?var[a]=one&var[b]=two&var[c]=three&var[=choucroute");
         HttpTester response = getResponse(request);
 
 		assertEquals(response.getStatus(), 200);

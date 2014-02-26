@@ -66,30 +66,26 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 		try {
 			if (Collection.class.isAssignableFrom(rawType)) {
 				collectionComponentType = TypeLiteral.get(((ParameterizedType)type.getSupertype(Collection.class).getType()).getActualTypeArguments()[0]);
-				if (rawType.isInterface()) {
-					if (rawType.isAssignableFrom(ArrayList.class))
-						collectionProvider = new CollectionProvider<ArrayList<?>>() {
-							@Override public ArrayList<?> get(Collection<?> in) {
-								return new ArrayList<>(in);
-						}};
-					else if (rawType.isAssignableFrom(LinkedList.class))
-						collectionProvider = new CollectionProvider<LinkedList<?>>() {
-							@Override public LinkedList<?> get(Collection<?> in) {
-								return new LinkedList<>(in);
-						}};
-					else if (rawType.isAssignableFrom(HashSet.class))
-						collectionProvider = new CollectionProvider<HashSet<?>>() {
-							@Override public HashSet<?> get(Collection<?> in) {
-								return new HashSet<>(in);
-						}};
-					else if (rawType.isAssignableFrom(TreeSet.class))
-						collectionProvider = new CollectionProvider<TreeSet<?>>() {
-							@Override public TreeSet<?> get(Collection<?> in) {
-								return new TreeSet<>(in);
-						}};
-					else
-						throw new RuntimeException("Cannot find implementation of " + rawType);
-				}
+				if (rawType.isAssignableFrom(ArrayList.class))
+					collectionProvider = new CollectionProvider<ArrayList<?>>() {
+						@Override public ArrayList<?> get(Collection<?> in) {
+							return new ArrayList<>(in);
+					}};
+				else if (rawType.isAssignableFrom(LinkedList.class))
+					collectionProvider = new CollectionProvider<LinkedList<?>>() {
+						@Override public LinkedList<?> get(Collection<?> in) {
+							return new LinkedList<>(in);
+					}};
+				else if (rawType.isAssignableFrom(HashSet.class))
+					collectionProvider = new CollectionProvider<HashSet<?>>() {
+						@Override public HashSet<?> get(Collection<?> in) {
+							return new HashSet<>(in);
+					}};
+				else if (rawType.isAssignableFrom(TreeSet.class))
+					collectionProvider = new CollectionProvider<TreeSet<?>>() {
+						@Override public TreeSet<?> get(Collection<?> in) {
+							return new TreeSet<>(in);
+					}};
 				else {
 					final Constructor<?> constructor = rawType.getConstructor(Collection.class);
 					collectionProvider = new CollectionProvider<Collection<?>>() {
@@ -107,16 +103,12 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 				ParameterizedType mapType = (ParameterizedType) type.getSupertype(Map.class).getType();
 				mapKeyType = TypeLiteral.get(mapType.getActualTypeArguments()[0]);
 				mapValueType = TypeLiteral.get(mapType.getActualTypeArguments()[1]);
-				if (rawType.isInterface()) {
-					if (rawType.isAssignableFrom(HashMap.class))
-						mapProvider = new Provider<HashMap<Object, Object>>() {
-							@Override public HashMap<Object, Object> get() {
-								return new HashMap<>();
-							}
-						};
-					else
-						throw new RuntimeException("Cannot find implementation of " + rawType);
-				}
+				if (rawType.isAssignableFrom(HashMap.class))
+					mapProvider = new Provider<HashMap<Object, Object>>() {
+						@Override public HashMap<Object, Object> get() {
+							return new HashMap<>();
+						}
+					};
 				else {
 					final Constructor<?> constructor = rawType.getConstructor();
 					mapProvider = new Provider<Map<Object, Object>>() {
