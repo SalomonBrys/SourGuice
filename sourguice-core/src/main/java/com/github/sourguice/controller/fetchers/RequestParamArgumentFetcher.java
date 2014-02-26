@@ -11,7 +11,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -45,8 +44,11 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 		T get(Collection<?> in);
 	}
 	private @CheckForNull CollectionProvider<?> collectionProvider;
+	private @CheckForNull TypeLiteral<?> collectionComponentType;
 
 	private @CheckForNull Provider<? extends Map<Object, Object>> mapProvider;
+	private @CheckForNull TypeLiteral<?> mapKeyType;
+	private @CheckForNull TypeLiteral<?> mapValueType;
 
 	/**
 	 * @see ArgumentFetcher#ArgumentFetcher(Type, int, Annotation[])
@@ -63,6 +65,7 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 		Class<? super T> rawType = type.getRawType();
 		try {
 			if (Collection.class.isAssignableFrom(rawType)) {
+				collectionComponentType = TypeLiteral.get(((ParameterizedType)type.getSupertype(Collection.class).getType()).getActualTypeArguments()[0]);
 				if (rawType.isInterface()) {
 					if (rawType.isAssignableFrom(ArrayList.class))
 						collectionProvider = new CollectionProvider<ArrayList<?>>() {
@@ -101,6 +104,9 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 				}
 			}
 			else if (Map.class.isAssignableFrom(rawType)) {
+				ParameterizedType mapType = (ParameterizedType) type.getSupertype(Map.class).getType();
+				mapKeyType = TypeLiteral.get(mapType.getActualTypeArguments()[0]);
+				mapValueType = TypeLiteral.get(mapType.getActualTypeArguments()[1]);
 				if (rawType.isInterface()) {
 					if (rawType.isAssignableFrom(HashMap.class))
 						mapProvider = new Provider<HashMap<Object, Object>>() {
@@ -138,6 +144,7 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 		// TODO: Handle Sets & concrete collection types
 		// If a List is requested, gets an array and converts it to list
 		if (collectionProvider != null) {
+			assert collectionComponentType != null;
 			Object[] objs;
 			if (req.getParameterValues(this.infos.value()) == null || req.getParameterValues(this.infos.value()).length == 0) {
 				// If there are no value and not default value, throws the exception
@@ -149,27 +156,26 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 			}
 			else
 				// Gets converted array and returns it as list
-				objs = conversionService.convertArray(TypeLiteral.get(((ParameterizedType)type.getSupertype(List.class).getType()).getActualTypeArguments()[0]), req.getParameterValues(this.infos.value()));
+				objs = conversionService.convertArray(collectionComponentType, req.getParameterValues(this.infos.value()));
 			return (T) collectionProvider.get(Arrays.asList(objs));
 		}
 		// If a Map is requested, gets all name[key] or name:key request parameter and fills the map with converted values
 		if (mapProvider != null) {
+			assert mapKeyType != null;
+			assert mapValueType != null;
 			Map<Object, Object> ret = mapProvider.get();
 			Enumeration<String> names = req.getParameterNames();
-			ParameterizedType mapType = (ParameterizedType) type.getSupertype(Map.class).getType();
-			TypeLiteral<?> keyClass = TypeLiteral.get(mapType.getActualTypeArguments()[0]);
-			TypeLiteral<?> valueClass = TypeLiteral.get(mapType.getActualTypeArguments()[1]);
 			while (names.hasMoreElements()) {
 				String name = names.nextElement();
 				if (name.startsWith(infos.value() + ":"))
 					ret.put(
-						conversionService.convert(keyClass, name.substring(infos.value().length() + 1)),
-						conversionService.convert(valueClass, req.getParameter(name))
+						conversionService.convert(mapKeyType, name.substring(infos.value().length() + 1)),
+						conversionService.convert(mapValueType, req.getParameter(name))
 					);
 				else if (name.startsWith(infos.value() + "[") && name.endsWith("]"))
 					ret.put(
-						conversionService.convert(keyClass, name.substring(infos.value().length() + 1, name.length() - 1)),
-						conversionService.convert(valueClass, req.getParameter(name))
+						conversionService.convert(mapKeyType, name.substring(infos.value().length() + 1, name.length() - 1)),
+						conversionService.convert(mapValueType, req.getParameter(name))
 					);
 			}
 			if (ret.size() == 0) {
@@ -181,8 +187,8 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 						String[] split = obj.split("=", 2);
 						if (split.length == 2)
 							ret.put(
-								conversionService.convert(keyClass, split[0]),
-								conversionService.convert(valueClass, split[1])
+								conversionService.convert(mapKeyType, split[0]),
+								conversionService.convert(mapValueType, split[1])
 							);
 					}
 				}
