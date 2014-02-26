@@ -39,6 +39,7 @@ import com.github.sourguice.request.ForwardableRequestFactory;
 import com.github.sourguice.request.wrapper.GuiceForwardHttpRequest;
 import com.github.sourguice.throwable.controller.MvcResponseException;
 import com.github.sourguice.throwable.service.exception.UnreachableExceptionHandlerException;
+import com.github.sourguice.utils.MVCCallInterceptSetter;
 import com.github.sourguice.utils.RequestScopeContainer;
 import com.github.sourguice.view.Model;
 import com.github.sourguice.view.ViewRenderer;
@@ -161,6 +162,9 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 		// Creates a controllerHandler repository and registers it in guice
 		// We create it because we need to handle it directly in this method
 		module.binder().bind(ControllerHandlersRepository.class).toInstance(repository);
+
+		// Binds Intercept
+		module.binder().bind(MVCCallInterceptSetter.class);
 
 		// Binds interceptors
 		ControllerInterceptor interceptor = new ControllerInterceptor();

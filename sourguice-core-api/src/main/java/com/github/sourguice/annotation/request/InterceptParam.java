@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 import javax.annotation.CheckForNull;
 import javax.annotation.meta.TypeQualifierNickname;
 
-import com.github.sourguice.utils.MVCCallIntercept;
+import com.github.sourguice.utils.MVCCallInterceptSetter;
 
 /**
  * When this annotation is present on a parameter of a controller's method, it means that the value
@@ -17,7 +17,7 @@ import com.github.sourguice.utils.MVCCallIntercept;
  * Therefore, the MVC Caller will always set this parameter to false.
  * It is the responsibility of an interceptor that you would configure on the method to replace this
  * null value by the value of the parameter.
- * To do this, you can use the {@link MVCCallIntercept#Set(org.aopalliance.intercept.MethodInvocation, String, Object)} utility method
+ * To do this, you can use the {@link MVCCallInterceptSetter#Set(org.aopalliance.intercept.MethodInvocation, String, Object)} utility method
  * 
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */

@@ -1,9 +1,10 @@
 package sourguice.test;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -22,7 +23,7 @@ import com.github.sourguice.annotation.request.InterceptParam;
 import com.github.sourguice.annotation.request.RequestAttribute;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.Writes;
-import com.github.sourguice.utils.MVCCallIntercept;
+import com.github.sourguice.utils.MVCCallInterceptSetter;
 import com.google.inject.Singleton;
 
 @SuppressWarnings({"javadoc", "static-method"})
@@ -34,9 +35,17 @@ public class FilterTest extends TestBase {
 	@Singleton
 	public static class Interceptor implements MethodInterceptor {
 
+		private MVCCallInterceptSetter setter;
+
+		@Inject
+		public Interceptor(MVCCallInterceptSetter setter) {
+			super();
+			this.setter = setter;
+		}
+
 		@Override
 		public Object invoke(MethodInvocation invocation) throws Throwable {
-			MVCCallIntercept.Set(invocation, "var", "Salomon");
+			setter.set(invocation, "var", "Salomon");
 			return invocation.proceed();
 		}
 
