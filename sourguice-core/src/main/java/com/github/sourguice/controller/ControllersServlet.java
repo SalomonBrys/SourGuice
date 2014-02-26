@@ -115,10 +115,8 @@ public final class ControllersServlet extends HttpServlet {
 			// Sets the view to the default default view
 			String view = infos.defaultView;
 
-			//TODO: No reflexivity :)
-
 			if (view == null) {
-				HttpError sendsError = infos.invocation.getMethod().getAnnotation(HttpError.class);
+				HttpError sendsError = infos.invocation.getHttpError();
 				if (sendsError != null) {
 					int code = sendsError.value();
 					String message = sendsError.message();
@@ -135,7 +133,7 @@ public final class ControllersServlet extends HttpServlet {
 					return ;
 				}
 
-				Redirects redirectsTo = infos.invocation.getMethod().getAnnotation(Redirects.class);
+				Redirects redirectsTo = infos.invocation.getRedirects();
 				if (redirectsTo != null) {
 					String to = redirectsTo.value();
 					if (ret != null) {

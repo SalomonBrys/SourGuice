@@ -15,6 +15,8 @@ import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.servlet.http.HttpServletRequest;
 
+import com.github.sourguice.annotation.controller.HttpError;
+import com.github.sourguice.annotation.controller.Redirects;
 import com.github.sourguice.annotation.request.InterceptParam;
 import com.github.sourguice.annotation.request.PathVariable;
 import com.github.sourguice.annotation.request.PathVariablesMap;
@@ -86,6 +88,10 @@ public final class MvcInvocation {
 
 	private @CheckForNull Writes writes;
 
+	private @CheckForNull HttpError httpError;
+
+	private @CheckForNull Redirects redirects;
+
 	/**
 	 * The reference of each path variable name and their position in the url regex
 	 */
@@ -109,6 +115,10 @@ public final class MvcInvocation {
 		this.view = Annotations.GetOneTreeRecursive(View.class, method);
 
 		this.writes = Annotations.GetOneTreeRecursive(Writes.class, method);
+
+		this.httpError = Annotations.GetOneRecursive(HttpError.class, method.getAnnotations());
+
+		this.redirects = Annotations.GetOneRecursive(Redirects.class, method.getAnnotations());
 
 		// Transform URL like "/foo-{bar}" into /foo-[^/]+ and registers "bar" as match 1
 		if (this.mapping != null)
@@ -327,5 +337,13 @@ public final class MvcInvocation {
 
 	public @CheckForNull Writes getWrites() {
 		return writes;
+	}
+
+	public @CheckForNull HttpError getHttpError() {
+		return httpError;
+	}
+
+	public @CheckForNull Redirects getRedirects() {
+		return redirects;
 	}
 }
