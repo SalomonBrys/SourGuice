@@ -9,7 +9,7 @@ notifications:
     on_start: false     # default: false
 
   email:
-    recipients
+    recipients:
       - salomon.brys@gmail.com
     on_success: change  # options: [always|never|change] default: change
     on_failure: always  # options: [always|never|change] default: always
