@@ -11,10 +11,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 import javax.servlet.http.HttpServletResponse;
 
 import com.github.sourguice.view.ViewRenderer;
-import com.google.inject.servlet.RequestScoped;
 
 /**
  * Very simple view renderer.
@@ -31,7 +32,7 @@ import com.google.inject.servlet.RequestScoped;
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
-@RequestScoped
+@Singleton
 public abstract class BasicViewRenderer implements ViewRenderer {
 
 	/**
@@ -74,17 +75,14 @@ public abstract class BasicViewRenderer implements ViewRenderer {
 	 */
 	private Map<String, Method> map = new HashMap<>();
 
-	/**
-	 * The current HTTP Response
-	 */
-	private HttpServletResponse res;
+	private Provider<HttpServletResponse> responseProvider;
 
 	/**
 	 * @param res The response on which to write the views
 	 */
 	@Inject
-	public BasicViewRenderer(HttpServletResponse res) {
-		this.res = res;
+	public BasicViewRenderer(Provider<HttpServletResponse> responseProvider) {
+		this.responseProvider = responseProvider;
 
 		// Gets all annotated method and "remembers" them
 		for (Method method : this.getClass().getMethods())
@@ -98,7 +96,7 @@ public abstract class BasicViewRenderer implements ViewRenderer {
 	@Override
 	public final void render(String view, Map<String, Object> model) throws NoSuchBasicViewMethodException, Throwable {
 		if (map.containsKey(view)) {
-			try (PrintWriter out = res.getWriter()) {
+			try (PrintWriter out = responseProvider.get().getWriter()) {
 				map.get(view).invoke(this, out, model);
 				out.flush();
 			}

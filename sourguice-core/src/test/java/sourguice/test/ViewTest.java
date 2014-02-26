@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.testing.HttpTester;
@@ -27,9 +28,10 @@ public class ViewTest extends TestBase {
 
     // ===================== RENDERERS =====================
 
+	@Singleton
 	public static class DefaultTestRenderer extends BasicViewRenderer {
 		@Inject
-		public DefaultTestRenderer(HttpServletResponse res) { super(res); }
+		public DefaultTestRenderer(Provider<HttpServletResponse> responseProvider) { super(responseProvider); }
 
 		@RenderFor("anno.view")
 		public void annodir(PrintWriter writer, Map<String, Object> model) {
@@ -37,9 +39,10 @@ public class ViewTest extends TestBase {
 		}
 	}
 
+	@Singleton
 	public static class AnnoTestRenderer extends BasicViewRenderer {
 		@Inject
-		public AnnoTestRenderer(HttpServletResponse res) { super(res); }
+		public AnnoTestRenderer(Provider<HttpServletResponse> responseProvider) { super(responseProvider); }
 
 		@RenderFor("/views/annodir.view")
 		public void annodir(PrintWriter writer, Map<String, Object> model) {
