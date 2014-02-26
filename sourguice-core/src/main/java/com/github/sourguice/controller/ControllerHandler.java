@@ -87,7 +87,6 @@ public final class ControllerHandler<T> {
 		for (MvcInvocation invocation : invocations)
 			infos = ControllerInvocationInfos.GetBest(infos, invocation.canServe(req));
 
-		//TODO: There should be no reflexivity at call-time !
 		// If found (not null) gather invocation informations from annotations
 		if (infos != null) {
 			View vAnno = infos.invocation.getView();

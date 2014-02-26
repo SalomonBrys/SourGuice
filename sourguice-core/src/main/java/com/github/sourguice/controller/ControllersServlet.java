@@ -109,7 +109,6 @@ public final class ControllersServlet extends HttpServlet {
 
 		try {
 			// Invoke the invocation using the MethodCaller registered in Guice
-			// TODO: ThrownWhenHandled should definitively be FALSE !
 			Object ret = injector.getInstance(MvcCallerImpl.class).call(infos.invocation, infos.urlMatch, true);
 
 			// Sets the view to the default default view
