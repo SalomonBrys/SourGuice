@@ -28,7 +28,7 @@ public class InjectorArgumentFetcher<T> extends ArgumentFetcher<T> {
 	/**
 	 * A Guice {@link BindingAnnotation}, if there is one
 	 */
-	@CheckForNull Annotation bindingAnnotation;
+	private Key<T> key;
 
 	/**
 	 * @see ArgumentFetcher#ArgumentFetcher(Type, int, Annotation[])
@@ -36,9 +36,14 @@ public class InjectorArgumentFetcher<T> extends ArgumentFetcher<T> {
 	public InjectorArgumentFetcher(TypeLiteral<T> type, Annotation[] annotations) {
 		super(type, annotations);
 
-		bindingAnnotation = Annotations.GetOneAnnotated(BindingAnnotation.class, annotations);
+		Annotation bindingAnnotation = Annotations.GetOneAnnotated(BindingAnnotation.class, annotations);
 		if (bindingAnnotation == null)
 			bindingAnnotation = Annotations.fromArray(annotations).getAnnotation(Named.class);
+
+		if (bindingAnnotation != null)
+			key = Key.get(type, bindingAnnotation);
+		else
+			key = Key.get(type);
 	}
 
 	/**
@@ -46,8 +51,6 @@ public class InjectorArgumentFetcher<T> extends ArgumentFetcher<T> {
 	 */
 	@Override
 	protected @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) {
-		if (bindingAnnotation != null)
-			return injector.getInstance(Key.get(this.type, bindingAnnotation));
-		return injector.getInstance(Key.get(this.type));
+		return injector.getInstance(key);
 	}
 }

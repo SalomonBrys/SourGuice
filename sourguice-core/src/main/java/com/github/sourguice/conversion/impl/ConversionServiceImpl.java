@@ -152,8 +152,7 @@ public class ConversionServiceImpl implements ConversionService {
 	 * @throws NoConverterException When no converter is found for the specific type (RuntimeException)
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
-	public @CheckForNull Object convert(TypeLiteral<?> toType, Object from) throws NoConverterException {
+	public @CheckForNull <T> T convert(TypeLiteral<T> toType, Object from) throws NoConverterException {
 		if (from.getClass().isArray() && !toType.getRawType().isArray()) {
 			while (from.getClass().isArray())
 				if (((Object[])from).length > 0)
@@ -163,13 +162,13 @@ public class ConversionServiceImpl implements ConversionService {
 					return null;
 		}
 		if (from.getClass().equals(String.class)) {
-			Converter conv = this.getConverter(toType.getRawType());
+			Converter<T> conv = (Converter<T>) this.getConverter(toType.getRawType());
 			if (conv == null && toType.getRawType().isArray()) {
-				Converter compConv = this.getConverter(toType.getRawType().getComponentType());
+				Converter<T> compConv = (Converter<T>) this.getConverter(toType.getRawType().getComponentType());
 				if (compConv != null) {
 					GivenInstanceGetter<? extends Converter<?>> ig = new GivenInstanceGetter<>(new ArrayConverter<>(compConv));
 					register(toType.getRawType(), ig);
-					conv = ig.getInstance();
+					conv = (Converter<T>) ig.getInstance();
 				}
 			}
 			if (conv == null)
@@ -177,7 +176,7 @@ public class ConversionServiceImpl implements ConversionService {
 			return conv.get(toType, (String)from);
 		}
 		if (from.getClass().isArray()) {
-			return this.convertArray(TypeLiteral.get(toType.getRawType().getComponentType()), (Object[])from);
+			return (T) this.convertArray(TypeLiteral.get(toType.getRawType().getComponentType()), (Object[])from);
 		}
 		/* This should never happen in a servlet environment and therefore cannot be tested in one */
 		throw new RuntimeException("Only String, array of String, array of array of string, etc. are allowed");

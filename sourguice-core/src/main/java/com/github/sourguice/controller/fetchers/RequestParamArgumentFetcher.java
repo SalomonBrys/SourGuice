@@ -140,7 +140,6 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 	@Override
 	@SuppressWarnings({ "unchecked" })
 	protected @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) throws NoSuchRequestParameterException {
-		ConversionService conversionService = injector.getInstance(ConversionService.class);
 		// TODO: Handle Sets & concrete collection types
 		// If a List is requested, gets an array and converts it to list
 		if (collectionProvider != null) {
@@ -156,7 +155,7 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 			}
 			else
 				// Gets converted array and returns it as list
-				objs = conversionService.convertArray(collectionComponentType, req.getParameterValues(this.infos.value()));
+				objs = injector.getInstance(ConversionService.class).convertArray(collectionComponentType, req.getParameterValues(this.infos.value()));
 			return (T) collectionProvider.get(Arrays.asList(objs));
 		}
 		// If a Map is requested, gets all name[key] or name:key request parameter and fills the map with converted values
@@ -165,6 +164,7 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 			assert mapValueType != null;
 			Map<Object, Object> ret = mapProvider.get();
 			Enumeration<String> names = req.getParameterNames();
+			ConversionService conversionService = injector.getInstance(ConversionService.class);
 			while (names.hasMoreElements()) {
 				String name = names.nextElement();
 				if (name.startsWith(infos.value() + ":"))
@@ -199,12 +199,12 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 		// If the parameter does not exists, returns the default value or, if there are none, throw an exception
 		if (req.getParameter(this.infos.value()) == null) {
 			if (!this.infos.defaultValue().equals(ValueConstants.DEFAULT_NONE))
-				return (T) conversionService.convert(type, infos.defaultValue());
+				return convert(injector, infos.defaultValue());
 			throw new NoSuchRequestParameterException(infos.value(), "request parameters");
 		}
 		// Returns the converted parameter value
 		if (req.getParameterValues(this.infos.value()).length == 1)
-			return (T) conversionService.convert(type, req.getParameter(infos.value()));
-		return (T) conversionService.convert(type, req.getParameterValues(infos.value()));
+			return convert(injector, req.getParameter(infos.value()));
+		return convert(injector, req.getParameterValues(infos.value()));
 	}
 }

@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import com.github.sourguice.annotation.request.PathVariable;
 import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.annotation.request.RequestHeader;
-import com.github.sourguice.conversion.ConversionService;
 import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException;
 import com.github.sourguice.value.ValueConstants;
 import com.google.inject.Injector;
@@ -45,14 +44,13 @@ public class RequestHeaderArgumentFetcher<T> extends ArgumentFetcher<T> {
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	protected @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) throws NoSuchRequestParameterException {
 		if (req.getHeader(infos.value()) == null) {
 			if (!this.infos.defaultValue().equals(ValueConstants.DEFAULT_NONE))
-				return (T) injector.getInstance(ConversionService.class).convert(this.type, this.infos.defaultValue());
+				return convert(injector, this.infos.defaultValue());
 			throw new NoSuchRequestParameterException(this.infos.value(), "header");
 		}
-		return (T) injector.getInstance(ConversionService.class).convert(this.type, req.getHeader(infos.value()));
+		return convert(injector, req.getHeader(infos.value()));
 	}
 }

@@ -30,12 +30,12 @@ public abstract class ArgumentFetcher<T> {
 	/**
 	 * The type of the argument to fetch
 	 */
-	protected TypeLiteral<T> type;
+	private TypeLiteral<T> type;
 
 	/**
 	 * Annotations that were found on the method's argument
 	 */
-	protected Annotation[] annotations;
+	private Annotation[] annotations;
 
 	/**
 	 * @param type The type of the argument to fetch
@@ -81,4 +81,7 @@ public abstract class ArgumentFetcher<T> {
 	 */
 	protected abstract @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) throws Throwable;
 
+	protected @CheckForNull T convert(Injector injector, Object value) {
+		return injector.getInstance(ConversionService.class).convert(this.type, value);
+	}
 }

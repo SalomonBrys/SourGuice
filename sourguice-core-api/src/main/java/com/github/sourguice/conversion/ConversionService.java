@@ -45,6 +45,6 @@ public interface ConversionService {
 	 * @throws NoConverterException When no converter is found for the specific type (RuntimeException)
 	 */
 	public @CheckForNull
-	abstract Object convert(TypeLiteral<?> toClazz, Object from) throws NoConverterException;
+	abstract <T> T convert(TypeLiteral<T> toClazz, Object from) throws NoConverterException;
 
 }

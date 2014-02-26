@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.github.sourguice.annotation.request.PathVariable;
 import com.github.sourguice.annotation.request.PathVariablesMap;
-import com.github.sourguice.conversion.ConversionService;
 import com.github.sourguice.throwable.invocation.NoSuchPathVariableException;
 import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException;
 import com.google.inject.Injector;
@@ -49,7 +48,6 @@ public class PathVariableArgumentFetcher<T> extends ArgumentFetcher<T> {
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	protected @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) throws NoSuchRequestParameterException {
 		if (pathVariables == null || pathVariables.get(infos.value()) == null)
@@ -57,6 +55,6 @@ public class PathVariableArgumentFetcher<T> extends ArgumentFetcher<T> {
 			//   1- Existence of the pathvariable key has been checked in constructor
 			//   2- If we are here, it means that the URL has matched the regex with the corresponding key
 			throw new NoSuchRequestParameterException(this.infos.value(), "path variables");
-		return (T) injector.getInstance(ConversionService.class).convert(this.type, pathVariables.get(infos.value()));
+		return convert(injector, pathVariables.get(infos.value()));
 	}
 }
