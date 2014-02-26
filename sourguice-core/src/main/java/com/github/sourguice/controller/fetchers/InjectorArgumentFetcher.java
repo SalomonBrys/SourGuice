@@ -44,11 +44,10 @@ public class InjectorArgumentFetcher<T> extends ArgumentFetcher<T> {
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	protected @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) {
 		if (bindingAnnotation != null)
-			return (T)injector.getInstance(Key.get(this.type.getRawType(), bindingAnnotation));
-		return (T)injector.getInstance(Key.get(this.type.getRawType()));
+			return injector.getInstance(Key.get(this.type, bindingAnnotation));
+		return injector.getInstance(Key.get(this.type));
 	}
 }

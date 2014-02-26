@@ -46,6 +46,7 @@ import com.github.sourguice.view.ViewRenderer;
 import com.github.sourguice.view.ViewRendererService;
 import com.github.sourguice.view.def.JSPViewRenderer;
 import com.github.sourguice.view.impl.ViewRendererServiceImpl;
+import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.servlet.RequestScoped;
 import com.google.inject.servlet.ServletScopes;
@@ -157,7 +158,7 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 
 		// Binds method calling related classes
 		module.binder().bind(MvcCaller.class).to(MvcCallerImpl.class).in(RequestScoped.class);
-		module.binder().bind(Map.class).annotatedWith(PathVariablesMap.class).toProvider(PathVariablesProvider.class).in(RequestScoped.class);
+		module.binder().bind(new TypeLiteral<Map<String, String>>() {/**/}).annotatedWith(PathVariablesMap.class).toProvider(PathVariablesProvider.class).in(RequestScoped.class);
 
 		// Creates a controllerHandler repository and registers it in guice
 		// We create it because we need to handle it directly in this method
