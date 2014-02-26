@@ -17,12 +17,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.github.sourguice.annotation.controller.HttpError;
 import com.github.sourguice.annotation.controller.Redirects;
-import com.github.sourguice.annotation.request.Writes;
 import com.github.sourguice.call.impl.MvcCallerImpl;
 import com.github.sourguice.request.wrapper.NoJsessionidHttpRequest;
 import com.github.sourguice.throwable.invocation.HandledException;
 import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException;
-import com.github.sourguice.utils.Annotations;
 import com.github.sourguice.utils.RequestScopeContainer;
 import com.google.inject.Injector;
 
@@ -151,15 +149,14 @@ public final class ControllersServlet extends HttpServlet {
 					}
 				}
 
-				Writes writes = Annotations.GetOneTreeRecursive(Writes.class, infos.invocation.getMethod());
-				if (writes != null) {
+				if (infos.invocation.getWrites() != null) {
 					if (ret == null)
 						throw new RuntimeException("@Writes annotated method must NOT return null");
 					if (ret instanceof InputStream)
 						ret = new InputStreamReader((InputStream)ret);
 					if (ret instanceof Readable) {
 						Readable r = (Readable)ret;
-						CharBuffer cb = CharBuffer.allocate(writes.bufferSize());
+						CharBuffer cb = CharBuffer.allocate(infos.invocation.getWrites().bufferSize());
 						while (r.read(cb) >= 0) {
 							cb.flip();
 							res.getWriter().append(cb);

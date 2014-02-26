@@ -24,6 +24,7 @@ import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.RequestParam;
 import com.github.sourguice.annotation.request.SessionAttribute;
 import com.github.sourguice.annotation.request.View;
+import com.github.sourguice.annotation.request.Writes;
 import com.github.sourguice.call.CalltimeArgumentFetcher;
 import com.github.sourguice.call.impl.PathVariablesProvider;
 import com.github.sourguice.controller.fetchers.ArgumentFetcher;
@@ -83,6 +84,8 @@ public final class MvcInvocation {
 
 	private @CheckForNull String view;
 
+	private @CheckForNull Writes writes;
+
 	/**
 	 * The reference of each path variable name and their position in the url regex
 	 */
@@ -106,6 +109,8 @@ public final class MvcInvocation {
 		View viewAnno = Annotations.GetOneTreeRecursive(View.class, method);
 		if (viewAnno != null)
 			this.view = viewAnno.value();
+
+		this.writes = Annotations.GetOneTreeRecursive(Writes.class, method);
 
 		// Transform URL like "/foo-{bar}" into /foo-[^/]+ and registers "bar" as match 1
 		if (this.mapping != null)
@@ -320,5 +325,9 @@ public final class MvcInvocation {
 
 	public @CheckForNull String getView() {
 		return view;
+	}
+
+	public @CheckForNull Writes getWrites() {
+		return writes;
 	}
 }
