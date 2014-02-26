@@ -1,16 +1,22 @@
 package com.github.sourguice.controller.fetchers;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import javax.annotation.CheckForNull;
+import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
 
 import com.github.sourguice.annotation.request.PathVariablesMap;
@@ -35,6 +41,13 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 	 */
 	private RequestParam infos;
 
+	private static interface CollectionProvider<T extends Collection<?>> {
+		T get(Collection<?> in);
+	}
+	private @CheckForNull CollectionProvider<?> collectionProvider;
+
+	private @CheckForNull Provider<? extends Map<Object, Object>> mapProvider;
+
 	/**
 	 * @see ArgumentFetcher#ArgumentFetcher(Type, int, Annotation[])
 	 * @param type The type of the argument to fetch
@@ -42,9 +55,77 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 	 * @param annotations Annotations that were found on the method's argument
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 */
+	@SuppressWarnings("unchecked")
 	public RequestParamArgumentFetcher(TypeLiteral<T> type, Annotation[] annotations, RequestParam infos) {
 		super(type, annotations);
 		this.infos = infos;
+
+		Class<? super T> rawType = type.getRawType();
+		try {
+			if (Collection.class.isAssignableFrom(rawType)) {
+				if (rawType.isInterface()) {
+					if (rawType.isAssignableFrom(ArrayList.class))
+						collectionProvider = new CollectionProvider<ArrayList<?>>() {
+							@Override public ArrayList<?> get(Collection<?> in) {
+								return new ArrayList<>(in);
+						}};
+					else if (rawType.isAssignableFrom(LinkedList.class))
+						collectionProvider = new CollectionProvider<LinkedList<?>>() {
+							@Override public LinkedList<?> get(Collection<?> in) {
+								return new LinkedList<>(in);
+						}};
+					else if (rawType.isAssignableFrom(HashSet.class))
+						collectionProvider = new CollectionProvider<HashSet<?>>() {
+							@Override public HashSet<?> get(Collection<?> in) {
+								return new HashSet<>(in);
+						}};
+					else if (rawType.isAssignableFrom(TreeSet.class))
+						collectionProvider = new CollectionProvider<TreeSet<?>>() {
+							@Override public TreeSet<?> get(Collection<?> in) {
+								return new TreeSet<>(in);
+						}};
+					else
+						throw new RuntimeException("Cannot find implementation of " + rawType);
+				}
+				else {
+					final Constructor<?> constructor = rawType.getConstructor(Collection.class);
+					collectionProvider = new CollectionProvider<Collection<?>>() {
+						@Override public Collection<?> get(Collection<?> in) {
+							try {
+								return (Collection<?>) constructor.newInstance(in);
+							}
+							catch (Exception e) {
+								throw new RuntimeException(e);
+							}
+					}};
+				}
+			}
+			else if (Map.class.isAssignableFrom(rawType)) {
+				if (rawType.isInterface()) {
+					if (rawType.isAssignableFrom(HashMap.class))
+						mapProvider = new Provider<HashMap<Object, Object>>() {
+							@Override public HashMap<Object, Object> get() {
+								return new HashMap<>();
+							}
+						};
+					else
+						throw new RuntimeException("Cannot find implementation of " + rawType);
+				}
+				else {
+					final Constructor<?> constructor = rawType.getConstructor();
+					mapProvider = new Provider<Map<Object, Object>>() {
+						@Override public Map<Object, Object> get() {
+							try {
+								return (Map<Object, Object>) constructor.newInstance();
+							}
+							catch (Exception e) {
+								throw new RuntimeException(e);
+							}
+					}};
+				}
+			}
+		}
+		catch (NoSuchMethodException e) { throw new RuntimeException(e); }
 	}
 
 	/**
@@ -56,24 +137,24 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 		ConversionService conversionService = injector.getInstance(ConversionService.class);
 		// TODO: Handle Sets & concrete collection types
 		// If a List is requested, gets an array and converts it to list
-		if (type.getRawType().equals(List.class)) {
+		if (collectionProvider != null) {
 			Object[] objs;
 			if (req.getParameterValues(this.infos.value()) == null || req.getParameterValues(this.infos.value()).length == 0) {
 				// If there are no value and not default value, throws the exception
 				if (this.infos.defaultValue().equals(ValueConstants.DEFAULT_NONE))
 					throw new NoSuchRequestParameterException(this.infos.value(), "request parameters");
 				if (this.infos.defaultValue().isEmpty())
-					return (T) new ArrayList<>();
+					return (T) collectionProvider.get(new ArrayList<>());
 				objs = this.infos.defaultValue().split(",");
 			}
 			else
 				// Gets converted array and returns it as list
 				objs = conversionService.convertArray(TypeLiteral.get(((ParameterizedType)type.getSupertype(List.class).getType()).getActualTypeArguments()[0]), req.getParameterValues(this.infos.value()));
-			return (T)Arrays.asList(objs);
+			return (T) collectionProvider.get(Arrays.asList(objs));
 		}
 		// If a Map is requested, gets all name[key] or name:key request parameter and fills the map with converted values
-		if (type.getRawType().equals(Map.class)) {
-			Map<Object, Object> ret = new HashMap<>();
+		if (mapProvider != null) {
+			Map<Object, Object> ret = mapProvider.get();
 			Enumeration<String> names = req.getParameterNames();
 			ParameterizedType mapType = (ParameterizedType) type.getSupertype(Map.class).getType();
 			TypeLiteral<?> keyClass = TypeLiteral.get(mapType.getActualTypeArguments()[0]);
