@@ -23,13 +23,24 @@ import com.google.inject.TypeLiteral;
  */
 public class SessionAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 
+	/**
+	 * The annotations containing needed informations to fetch the argument
+	 */
+	private final SessionAttribute infos;
+
+	/**
+	 * If the injection requires an {@link Attribute}, then this is true
+	 */
+	private boolean isAccessor = false;
+
+
 	public static class SessionAttributeAccessor<T> implements Attribute<T> {
 
-		private HttpSession session;
+		private final HttpSession session;
 
-		private String attribute;
+		private final String attribute;
 
-		public SessionAttributeAccessor(HttpSession session, String attribute) {
+		public SessionAttributeAccessor(final HttpSession session, final String attribute) {
 			super();
 			this.session = session;
 			this.attribute = attribute;
@@ -37,24 +48,14 @@ public class SessionAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 
 		@SuppressWarnings("unchecked")
 		@Override public @CheckForNull T get() {
-			return (T) session.getAttribute(attribute);
+			return (T) this.session.getAttribute(this.attribute);
 		}
 
-		@Override public void set(T o) {
-			session.setAttribute(attribute, o);
+		@Override public void set(final T value) {
+			this.session.setAttribute(this.attribute, value);
 		}
 
 	}
-
-	/**
-	 * The annotations containing needed informations to fetch the argument
-	 */
-	private SessionAttribute infos;
-
-	/**
-	 * If the injection requires an {@link Attribute}, then this is true
-	 */
-	private boolean isAccessor = false;
 
 	/**
 	 * @see ArgumentFetcher#ArgumentFetcher(Type, int, Annotation[])
@@ -63,11 +64,12 @@ public class SessionAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 	 * @param annotations Annotations that were found on the method's argument
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 */
-	public SessionAttributeArgumentFetcher(TypeLiteral<T> type, Annotation[] annotations, SessionAttribute infos) {
+	public SessionAttributeArgumentFetcher(final TypeLiteral<T> type, final Annotation[] annotations, final SessionAttribute infos) {
 		super(type, annotations);
 		this.infos = infos;
-		if (type.getRawType().equals(Attribute.class))
-			isAccessor = true;
+		if (type.getRawType().equals(Attribute.class)) {
+			this.isAccessor = true;
+		}
 	}
 
 	/**
@@ -75,9 +77,10 @@ public class SessionAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	protected @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) {
-		if (isAccessor)
-			return (T) new SessionAttributeAccessor<>(req.getSession(true), infos.value());
-		return (T)req.getSession(true).getAttribute(infos.value());
+	protected @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) {
+		if (this.isAccessor) {
+			return (T) new SessionAttributeAccessor<>(req.getSession(true), this.infos.value());
+		}
+		return (T)req.getSession(true).getAttribute(this.infos.value());
 	}
 }

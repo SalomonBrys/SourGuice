@@ -15,7 +15,7 @@ public class StringConverter implements Converter<String> {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override @CheckForNull public String get(TypeLiteral<? extends String> type, String arg) {
+	@Override @CheckForNull public String get(final TypeLiteral<? extends String> type, final String arg) {
 		return arg;
 	}
 }

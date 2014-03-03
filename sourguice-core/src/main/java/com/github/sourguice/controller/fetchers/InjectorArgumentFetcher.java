@@ -33,24 +33,27 @@ public class InjectorArgumentFetcher<T> extends ArgumentFetcher<T> {
 	/**
 	 * @see ArgumentFetcher#ArgumentFetcher(Type, int, Annotation[])
 	 */
-	public InjectorArgumentFetcher(TypeLiteral<T> type, Annotation[] annotations) {
+	public InjectorArgumentFetcher(final TypeLiteral<T> type, final Annotation[] annotations) {
 		super(type, annotations);
 
 		Annotation bindingAnnotation = Annotations.GetOneAnnotated(BindingAnnotation.class, annotations);
-		if (bindingAnnotation == null)
+		if (bindingAnnotation == null) {
 			bindingAnnotation = Annotations.fromArray(annotations).getAnnotation(Named.class);
+		}
 
-		if (bindingAnnotation != null)
-			key = Key.get(type, bindingAnnotation);
-		else
-			key = Key.get(type);
+		if (bindingAnnotation != null) {
+			this.key = Key.get(type, bindingAnnotation);
+		}
+		else {
+			this.key = Key.get(type);
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) {
-		return injector.getInstance(key);
+	protected @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) {
+		return injector.getInstance(this.key);
 	}
 }

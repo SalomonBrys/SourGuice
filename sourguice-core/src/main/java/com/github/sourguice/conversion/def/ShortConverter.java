@@ -16,13 +16,15 @@ public class ShortConverter implements Converter<Short> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public @CheckForNull Short get(TypeLiteral<? extends Short> type, String arg) {
+	@SuppressWarnings("PMD.AvoidUsingShortType")
+	public @CheckForNull Short get(final TypeLiteral<? extends Short> type, final String arg) {
 		try {
 			return Short.valueOf(arg);
 		}
 		catch (NumberFormatException e) {
-			if (type.getRawType().isPrimitive())
-				return new Short((short)0);
+			if (type.getRawType().isPrimitive()) {
+				return Short.valueOf((short)0);
+			}
 			return null;
 		}
 	}

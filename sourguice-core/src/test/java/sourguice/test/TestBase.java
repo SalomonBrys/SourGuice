@@ -25,7 +25,7 @@ import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceFilter;
 import com.google.inject.servlet.GuiceServletContextListener;
 
-@SuppressWarnings({"javadoc", "static-method"})
+@SuppressWarnings({"javadoc", "static-method", "PMD"})
 public abstract class TestBase {
 
 	public static final int INVOCATION_COUNT = 3;
@@ -42,7 +42,7 @@ public abstract class TestBase {
 
 		@Override
 		protected Injector getInjector() {
-			return injector;
+			return this.injector;
 		}
 
 	}
@@ -59,7 +59,7 @@ public abstract class TestBase {
 			tester.addServlet(DefaultServlet.class, "/");
 			addServletTesterFilter(tester);
 			tester.start();
-			queue.add(tester);
+			this.queue.add(tester);
 		}
 	}
 
@@ -96,7 +96,7 @@ public abstract class TestBase {
 
 	@AfterClass
 	public void teardownServletTester() throws Exception {
-		for (ServletTester tester : queue)
+		for (ServletTester tester : this.queue)
 			tester.stop();
 	}
 
@@ -144,14 +144,14 @@ public abstract class TestBase {
 
 	protected HttpTester getResponse(HttpTester request, boolean debug) throws Exception {
 
-		ServletTester tester = queue.poll();
+		ServletTester tester = this.queue.poll();
 
 		try {
 			HttpTester response = getResponse(tester, request, debug);
 			return response;
 		}
 		finally {
-			queue.offer(tester);
+			this.queue.offer(tester);
 		}
 	}
 

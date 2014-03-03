@@ -26,7 +26,7 @@ public class NullArgumentFetcher<T> extends ArgumentFetcher<T> {
 	/**
 	 * @see ArgumentFetcher#ArgumentFetcher(Type, int, Annotation[])
 	 */
-	public NullArgumentFetcher(TypeLiteral<T> type, Annotation[] annotations) {
+	public NullArgumentFetcher(final TypeLiteral<T> type, final Annotation[] annotations) {
 		super(type, annotations);
 	}
 
@@ -34,7 +34,7 @@ public class NullArgumentFetcher<T> extends ArgumentFetcher<T> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) {
+	protected @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) {
 		return null;
 	}
 }

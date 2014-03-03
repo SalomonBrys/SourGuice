@@ -38,17 +38,56 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 	/**
 	 * The annotations containing needed informations to fetch the argument
 	 */
-	private RequestParam infos;
+	private final RequestParam infos;
 
-	private static interface CollectionProvider<T extends Collection<?>> {
-		T get(Collection<?> in);
-	}
 	private @CheckForNull CollectionProvider<?> collectionProvider;
 	private @CheckForNull TypeLiteral<?> collectionComponentType;
 
 	private @CheckForNull Provider<? extends Map<Object, Object>> mapProvider;
 	private @CheckForNull TypeLiteral<?> mapKeyType;
 	private @CheckForNull TypeLiteral<?> mapValueType;
+
+	private static interface CollectionProvider<T extends Collection<?>> {
+		T get(Collection<?> inCol);
+	}
+
+	@SuppressWarnings({"PMD.LooseCoupling", "PMD.CyclomaticComplexity"})
+	private static CollectionProvider<?> inferCollectionProvider(final Class<?> rawType) throws NoSuchMethodException {
+		if (rawType.isAssignableFrom(ArrayList.class)) {
+			return new CollectionProvider<ArrayList<?>>() {
+				@Override public ArrayList<?> get(final Collection<?> inCol) {
+					return new ArrayList<>(inCol);
+			}};
+		}
+		else if (rawType.isAssignableFrom(LinkedList.class)) {
+			return new CollectionProvider<LinkedList<?>>() {
+				@Override public LinkedList<?> get(final Collection<?> inCol) {
+					return new LinkedList<>(inCol);
+			}};
+		}
+		else if (rawType.isAssignableFrom(HashSet.class)) {
+			return new CollectionProvider<HashSet<?>>() {
+				@Override public HashSet<?> get(final Collection<?> inCol) {
+					return new HashSet<>(inCol);
+			}};
+		}
+		else if (rawType.isAssignableFrom(TreeSet.class)) {
+			return new CollectionProvider<TreeSet<?>>() {
+				@Override public TreeSet<?> get(final Collection<?> inCol) {
+					return new TreeSet<>(inCol);
+			}};
+		}
+		final Constructor<?> constructor = rawType.getConstructor(Collection.class);
+		return new CollectionProvider<Collection<?>>() {
+			@Override public Collection<?> get(final Collection<?> inCol) {
+				try {
+					return (Collection<?>) constructor.newInstance(inCol);
+				}
+				catch (Exception e) {
+					throw new UnsupportedOperationException(e);
+				}
+		}};
+	}
 
 	/**
 	 * @see ArgumentFetcher#ArgumentFetcher(Type, int, Annotation[])
@@ -57,145 +96,142 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 	 * @param annotations Annotations that were found on the method's argument
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 */
-	@SuppressWarnings("unchecked")
-	public RequestParamArgumentFetcher(TypeLiteral<T> type, Annotation[] annotations, RequestParam infos) {
+	@SuppressWarnings({"unchecked", "PMD.AvoidThrowingRawExceptionTypes"})
+	public RequestParamArgumentFetcher(final TypeLiteral<T> type, final Annotation[] annotations, final RequestParam infos) {
 		super(type, annotations);
 		this.infos = infos;
 
-		Class<? super T> rawType = type.getRawType();
+		final Class<? super T> rawType = type.getRawType();
 		try {
 			if (Collection.class.isAssignableFrom(rawType)) {
-				collectionComponentType = TypeLiteral.get(((ParameterizedType)type.getSupertype(Collection.class).getType()).getActualTypeArguments()[0]);
-				if (rawType.isAssignableFrom(ArrayList.class))
-					collectionProvider = new CollectionProvider<ArrayList<?>>() {
-						@Override public ArrayList<?> get(Collection<?> in) {
-							return new ArrayList<>(in);
-					}};
-				else if (rawType.isAssignableFrom(LinkedList.class))
-					collectionProvider = new CollectionProvider<LinkedList<?>>() {
-						@Override public LinkedList<?> get(Collection<?> in) {
-							return new LinkedList<>(in);
-					}};
-				else if (rawType.isAssignableFrom(HashSet.class))
-					collectionProvider = new CollectionProvider<HashSet<?>>() {
-						@Override public HashSet<?> get(Collection<?> in) {
-							return new HashSet<>(in);
-					}};
-				else if (rawType.isAssignableFrom(TreeSet.class))
-					collectionProvider = new CollectionProvider<TreeSet<?>>() {
-						@Override public TreeSet<?> get(Collection<?> in) {
-							return new TreeSet<>(in);
-					}};
-				else {
-					final Constructor<?> constructor = rawType.getConstructor(Collection.class);
-					collectionProvider = new CollectionProvider<Collection<?>>() {
-						@Override public Collection<?> get(Collection<?> in) {
-							try {
-								return (Collection<?>) constructor.newInstance(in);
-							}
-							catch (Exception e) {
-								throw new RuntimeException(e);
-							}
-					}};
-				}
+				this.collectionComponentType = TypeLiteral.get(((ParameterizedType)type.getSupertype(Collection.class).getType()).getActualTypeArguments()[0]);
+				this.collectionProvider = inferCollectionProvider(rawType);
 			}
 			else if (Map.class.isAssignableFrom(rawType)) {
-				ParameterizedType mapType = (ParameterizedType) type.getSupertype(Map.class).getType();
-				mapKeyType = TypeLiteral.get(mapType.getActualTypeArguments()[0]);
-				mapValueType = TypeLiteral.get(mapType.getActualTypeArguments()[1]);
-				if (rawType.isAssignableFrom(HashMap.class))
-					mapProvider = new Provider<HashMap<Object, Object>>() {
+				final ParameterizedType mapType = (ParameterizedType) type.getSupertype(Map.class).getType();
+				this.mapKeyType = TypeLiteral.get(mapType.getActualTypeArguments()[0]);
+				this.mapValueType = TypeLiteral.get(mapType.getActualTypeArguments()[1]);
+				if (rawType.isAssignableFrom(HashMap.class)) {
+					this.mapProvider = new Provider<HashMap<Object, Object>>() {
 						@Override public HashMap<Object, Object> get() {
 							return new HashMap<>();
 						}
 					};
+				}
 				else {
 					final Constructor<?> constructor = rawType.getConstructor();
-					mapProvider = new Provider<Map<Object, Object>>() {
+					this.mapProvider = new Provider<Map<Object, Object>>() {
 						@Override public Map<Object, Object> get() {
 							try {
 								return (Map<Object, Object>) constructor.newInstance();
 							}
-							catch (Exception e) {
+							catch (ReflectiveOperationException e) {
 								throw new RuntimeException(e);
 							}
 					}};
 				}
 			}
 		}
-		catch (NoSuchMethodException e) { throw new RuntimeException(e); }
+		catch (NoSuchMethodException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private @CheckForNull T getPreparedCollection(final HttpServletRequest req, final Injector injector) throws NoSuchRequestParameterException {
+		assert this.collectionComponentType != null;
+		assert this.collectionProvider != null;
+		Object[] objs;
+		if (req.getParameterValues(this.infos.value()) == null || req.getParameterValues(this.infos.value()).length == 0) {
+			// If there are no value and not default value, throws the exception
+			if (this.infos.defaultValue().equals(ValueConstants.DEFAULT_NONE)) {
+				throw new NoSuchRequestParameterException(this.infos.value(), "request parameters");
+			}
+			if (this.infos.defaultValue().isEmpty()) {
+				return (T) this.collectionProvider.get(new ArrayList<>());
+			}
+			objs = this.infos.defaultValue().split(",");
+		}
+		else {
+			// Gets converted array and returns it as list
+			objs = injector.getInstance(ConversionService.class).convertArray(this.collectionComponentType, req.getParameterValues(this.infos.value()));
+		}
+		return (T) this.collectionProvider.get(Arrays.asList(objs));
+	}
+
+	private void fillMapWithDefaults(final Map<Object, Object> ret, final ConversionService conversionService) {
+		if (!this.infos.defaultValue().isEmpty()) {
+			final String[] objs = this.infos.defaultValue().split(",");
+			for (final String obj : objs) {
+				final String[] split = obj.split("=", 2);
+				if (split.length == 2) {
+					assert this.mapKeyType != null;
+					assert this.mapValueType != null;
+					ret.put(
+						conversionService.convert(this.mapKeyType, split[0]),
+						conversionService.convert(this.mapValueType, split[1])
+					);
+				}
+			}
+		}
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	private T getPreparedMap(final HttpServletRequest req, final Injector injector) throws NoSuchRequestParameterException {
+		assert this.mapKeyType != null;
+		assert this.mapValueType != null;
+		assert this.mapProvider != null;
+		final Map<Object, Object> ret = this.mapProvider.get();
+		final Enumeration<String> names = req.getParameterNames();
+		final ConversionService conversionService = injector.getInstance(ConversionService.class);
+		while (names.hasMoreElements()) {
+			final String name = names.nextElement();
+			if (name.startsWith(this.infos.value() + ":")) {
+				ret.put(
+					conversionService.convert(this.mapKeyType, name.substring(this.infos.value().length() + 1)),
+					conversionService.convert(this.mapValueType, req.getParameter(name))
+				);
+			}
+			else if (name.startsWith(this.infos.value() + "[") && name.endsWith("]")) {
+				ret.put(
+					conversionService.convert(this.mapKeyType, name.substring(this.infos.value().length() + 1, name.length() - 1)),
+					conversionService.convert(this.mapValueType, req.getParameter(name))
+				);
+			}
+		}
+		if (ret.isEmpty()) {
+			if (this.infos.defaultValue().equals(ValueConstants.DEFAULT_NONE)) {
+				throw new NoSuchRequestParameterException(this.infos.value(), "request parameters");
+			}
+			fillMapWithDefaults(ret, conversionService);
+		}
+		return (T)ret;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	@SuppressWarnings({ "unchecked" })
-	protected @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) throws NoSuchRequestParameterException {
+	protected @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) throws NoSuchRequestParameterException {
 		// If a List is requested, gets an array and converts it to list
-		if (collectionProvider != null) {
-			assert collectionComponentType != null;
-			Object[] objs;
-			if (req.getParameterValues(this.infos.value()) == null || req.getParameterValues(this.infos.value()).length == 0) {
-				// If there are no value and not default value, throws the exception
-				if (this.infos.defaultValue().equals(ValueConstants.DEFAULT_NONE))
-					throw new NoSuchRequestParameterException(this.infos.value(), "request parameters");
-				if (this.infos.defaultValue().isEmpty())
-					return (T) collectionProvider.get(new ArrayList<>());
-				objs = this.infos.defaultValue().split(",");
-			}
-			else
-				// Gets converted array and returns it as list
-				objs = injector.getInstance(ConversionService.class).convertArray(collectionComponentType, req.getParameterValues(this.infos.value()));
-			return (T) collectionProvider.get(Arrays.asList(objs));
+		if (this.collectionProvider != null) {
+			return getPreparedCollection(req, injector);
 		}
 		// If a Map is requested, gets all name[key] or name:key request parameter and fills the map with converted values
-		if (mapProvider != null) {
-			assert mapKeyType != null;
-			assert mapValueType != null;
-			Map<Object, Object> ret = mapProvider.get();
-			Enumeration<String> names = req.getParameterNames();
-			ConversionService conversionService = injector.getInstance(ConversionService.class);
-			while (names.hasMoreElements()) {
-				String name = names.nextElement();
-				if (name.startsWith(infos.value() + ":"))
-					ret.put(
-						conversionService.convert(mapKeyType, name.substring(infos.value().length() + 1)),
-						conversionService.convert(mapValueType, req.getParameter(name))
-					);
-				else if (name.startsWith(infos.value() + "[") && name.endsWith("]"))
-					ret.put(
-						conversionService.convert(mapKeyType, name.substring(infos.value().length() + 1, name.length() - 1)),
-						conversionService.convert(mapValueType, req.getParameter(name))
-					);
-			}
-			if (ret.size() == 0) {
-				if (this.infos.defaultValue().equals(ValueConstants.DEFAULT_NONE))
-					throw new NoSuchRequestParameterException(this.infos.value(), "request parameters");
-				if (!this.infos.defaultValue().isEmpty()) {
-					String[] objs = this.infos.defaultValue().split(",");
-					for (String obj : objs) {
-						String[] split = obj.split("=", 2);
-						if (split.length == 2)
-							ret.put(
-								conversionService.convert(mapKeyType, split[0]),
-								conversionService.convert(mapValueType, split[1])
-							);
-					}
-				}
-
-			}
-			return (T)ret;
+		if (this.mapProvider != null) {
+			return getPreparedMap(req, injector);
 		}
 		// If the parameter does not exists, returns the default value or, if there are none, throw an exception
 		if (req.getParameter(this.infos.value()) == null) {
-			if (!this.infos.defaultValue().equals(ValueConstants.DEFAULT_NONE))
-				return convert(injector, infos.defaultValue());
-			throw new NoSuchRequestParameterException(infos.value(), "request parameters");
+			if (!this.infos.defaultValue().equals(ValueConstants.DEFAULT_NONE)) {
+				return convert(injector, this.infos.defaultValue());
+			}
+			throw new NoSuchRequestParameterException(this.infos.value(), "request parameters");
 		}
 		// Returns the converted parameter value
-		if (req.getParameterValues(this.infos.value()).length == 1)
-			return convert(injector, req.getParameter(infos.value()));
-		return convert(injector, req.getParameterValues(infos.value()));
+		if (req.getParameterValues(this.infos.value()).length == 1) {
+			return convert(injector, req.getParameter(this.infos.value()));
+		}
+		return convert(injector, req.getParameterValues(this.infos.value()));
 	}
 }

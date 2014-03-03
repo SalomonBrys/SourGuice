@@ -2,7 +2,6 @@ package com.github.sourguice.controller.fetchers;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.CheckForNull;
@@ -27,7 +26,7 @@ public class PathVariableArgumentFetcher<T> extends ArgumentFetcher<T> {
 	/**
 	 * The annotations containing needed informations to fetch the argument
 	 */
-	private PathVariable infos;
+	private final PathVariable infos;
 
 	/**
 	 * @see ArgumentFetcher#ArgumentFetcher(Type, int, Annotation[])
@@ -38,23 +37,25 @@ public class PathVariableArgumentFetcher<T> extends ArgumentFetcher<T> {
 	 * @param ref The reference map that links path variable name to their index when a url matches
 	 * @param check Whether or not to check that ref contains the reference to the path variable
 	 */
-	public PathVariableArgumentFetcher(TypeLiteral<T> type, Annotation[] annotations, PathVariable infos, HashMap<String, Integer> ref, boolean check) {
+	public PathVariableArgumentFetcher(final TypeLiteral<T> type, final Annotation[] annotations, final PathVariable infos, final Map<String, Integer> ref, final boolean check) {
 		super(type, annotations);
 		this.infos = infos;
-		if (check && !ref.containsKey(infos.value()))
+		if (check && !ref.containsKey(infos.value())) {
 			throw new NoSuchPathVariableException(infos.value());
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) throws NoSuchRequestParameterException {
-		if (pathVariables == null || pathVariables.get(infos.value()) == null)
+	protected @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) throws NoSuchRequestParameterException {
+		if (pathVariables == null || pathVariables.get(this.infos.value()) == null) {
 			// This should never happen (I can't see a way to test it) since
 			//   1- Existence of the pathvariable key has been checked in constructor
 			//   2- If we are here, it means that the URL has matched the regex with the corresponding key
 			throw new NoSuchRequestParameterException(this.infos.value(), "path variables");
-		return convert(injector, pathVariables.get(infos.value()));
+		}
+		return convert(injector, pathVariables.get(this.infos.value()));
 	}
 }

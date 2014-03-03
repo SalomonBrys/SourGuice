@@ -16,13 +16,14 @@ public class DoubleConverter implements Converter<Double> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public @CheckForNull Double get(TypeLiteral<? extends Double> type, String arg) {
+	public @CheckForNull Double get(final TypeLiteral<? extends Double> type, final String arg) {
 		try {
 			return Double.valueOf(arg);
 		}
 		catch (NumberFormatException e) {
-			if (type.getRawType().isPrimitive())
+			if (type.getRawType().isPrimitive()) {
 				return Double.valueOf(0);
+			}
 			return null;
 		}
 	}

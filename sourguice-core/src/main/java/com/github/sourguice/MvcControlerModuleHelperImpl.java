@@ -64,40 +64,40 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 	 * The purpose of this is to ensure that a path is handled by one controller,
 	 * even if this path has been registered multiple times
 	 */
-	private @CheckForNull HashMap<String, ControllersServlet> servlets = null;
+	private @CheckForNull Map<String, ControllersServlet> servlets = null;
 
 	/**
 	 * Contains all ControllerHandlers
 	 * This is to make sure that there will be one and only one ControllerHandler for each controller class
 	 */
-	private ControllerHandlersRepository repository = new ControllerHandlersRepository();
+	private final ControllerHandlersRepository repository = new ControllerHandlersRepository();
 
 	/**
 	 * The actual module that ws subclassed to bind controllers
 	 */
-	MvcControlerModule module;
+	protected MvcControlerModule module;
 
 	/**
 	/**
 	 * Conversion service
 	 */
-	private ConversionServiceImpl conversionService = new ConversionServiceImpl();
+	private final ConversionServiceImpl conversionService = new ConversionServiceImpl();
 
 	/**
 	 * Exception service
 	 */
-	private ExceptionServiceImpl exceptionService = new ExceptionServiceImpl();
+	private final ExceptionServiceImpl exceptionService = new ExceptionServiceImpl();
 
 	/**
 	 * ViewRenderer service
 	 */
-	private ViewRendererServiceImpl viewRendererService = new ViewRendererServiceImpl();
+	private final ViewRendererServiceImpl rendererService = new ViewRendererServiceImpl();
 
 	/**
 	 * Constructor, used by {@link MvcControlerModule}.
 	 * @param module The module itself, so this helper will access to Guice binding methods
 	 */
-	public MvcControlerModuleHelperImpl(MvcControlerModule module) {
+	public MvcControlerModuleHelperImpl(final MvcControlerModule module) {
 		super();
 		this.module = module;
 	}
@@ -106,7 +106,7 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ForwardableRequestFactory getForwardableRequestFactory(@GuiceRequest HttpServletRequest req, ServletContext context) {
+	public ForwardableRequestFactory getForwardableRequestFactory(final @GuiceRequest HttpServletRequest req, final ServletContext context) {
 		return new GuiceForwardHttpRequest(req, context);
 	}
 
@@ -114,77 +114,77 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 	 * {@inheritDoc}
 	 */
 	@Override
+	@SuppressWarnings({"PMD.AvoidUsingShortType", "PMD.AvoidThrowingRawExceptionTypes"})
 	public final void configureServlets() {
 
 		// Registers default converters
-		module.convertTo(boolean.class, Boolean.class).withInstance(new BooleanConverter());
-		module.convertTo(short.class, Short.class).withInstance(new ShortConverter());
-		module.convertTo(int.class, Integer.class).withInstance(new IntegerConverter());
-		module.convertTo(long.class, Long.class).withInstance(new LongConverter());
-		module.convertTo(float.class, Float.class).withInstance(new FloatConverter());
-		module.convertTo(double.class, Double.class).withInstance(new DoubleConverter());
-		module.convertTo(Enum.class).withInstance(new EnumConverter());
-		module.convertTo(String.class).withInstance(new StringConverter());
+		this.module.convertTo(boolean.class, Boolean.class).withInstance(new BooleanConverter());
+		this.module.convertTo(short.class, Short.class).withInstance(new ShortConverter());
+		this.module.convertTo(int.class, Integer.class).withInstance(new IntegerConverter());
+		this.module.convertTo(long.class, Long.class).withInstance(new LongConverter());
+		this.module.convertTo(float.class, Float.class).withInstance(new FloatConverter());
+		this.module.convertTo(double.class, Double.class).withInstance(new DoubleConverter());
+		this.module.convertTo(Enum.class).withInstance(new EnumConverter());
+		this.module.convertTo(String.class).withInstance(new StringConverter());
 
 		// Registers default exception handlers
 		try {
-			module.handleException(MvcResponseException.class).withInstance(new MVCResponseExceptionHandler());
+			this.module.handleException(MvcResponseException.class).withInstance(new MVCResponseExceptionHandler());
 		}
 		catch (UnreachableExceptionHandlerException e) {
-			// THIS SHOULD NEVER HAPPEN
 			throw new RuntimeException(e);
 		}
 
 		// Registers default view renderers
-		module.renderViews(".*\\.jsp").with(JSPViewRenderer.class);
+		this.module.renderViews(".*\\.jsp").with(JSPViewRenderer.class);
 
 		// Creates servlet map to be later filled by configureControllers()
-		servlets = new HashMap<>();
+		this.servlets = new HashMap<>();
 
 		// Asks for controller registration by subclass
 		// This will fill the servlets map
-		module.configureControllers();
+		this.module.configureControllers();
 
 		// Binds RequestScope container that will contains RequestScope objects that cannot be directly integrated into Guice
-		module.binder().bind(RequestScopeContainer.class);
+		this.module.binder().bind(RequestScopeContainer.class);
 
 		// Binds the services
-		module.binder().bind(ConversionService.class).toInstance(conversionService);
-		module.binder().bind(ExceptionService.class).toInstance(exceptionService);
-		module.binder().bind(ViewRendererService.class).toInstance(viewRendererService);
+		this.module.binder().bind(ConversionService.class).toInstance(this.conversionService);
+		this.module.binder().bind(ExceptionService.class).toInstance(this.exceptionService);
+		this.module.binder().bind(ViewRendererService.class).toInstance(this.rendererService);
 
 		// Binds view related classes
-		module.binder().bind(Model.class).in(ServletScopes.REQUEST);
+		this.module.binder().bind(Model.class).in(ServletScopes.REQUEST);
 
 		// Binds method calling related classes
-		module.binder().bind(MvcCaller.class).to(MvcCallerImpl.class).in(RequestScoped.class);
-		module.binder().bind(new TypeLiteral<Map<String, String>>() {/**/}).annotatedWith(PathVariablesMap.class).toProvider(PathVariablesProvider.class).in(RequestScoped.class);
+		this.module.binder().bind(MvcCaller.class).to(MvcCallerImpl.class).in(RequestScoped.class);
+		this.module.binder().bind(new TypeLiteral<Map<String, String>>() {/**/}).annotatedWith(PathVariablesMap.class).toProvider(PathVariablesProvider.class).in(RequestScoped.class);
 
 		// Creates a controllerHandler repository and registers it in guice
 		// We create it because we need to handle it directly in this method
-		module.binder().bind(ControllerHandlersRepository.class).toInstance(repository);
+		this.module.binder().bind(ControllerHandlersRepository.class).toInstance(this.repository);
 
 		// Binds Intercept
-		module.binder().bind(MVCCallInterceptSetter.class);
+		this.module.binder().bind(MVCCallInterceptSetter.class);
 
 		// Binds interceptors
-		ControllerInterceptor interceptor = new ControllerInterceptor();
-		module.binder().requestInjection(interceptor);
-		module.binder().bindInterceptor(Matchers.any(), new InterceptWithMatcher(), interceptor);
-		module.binder().bindInterceptor(new InterceptWithMatcher(), Matchers.any(), interceptor);
+		final ControllerInterceptor interceptor = new ControllerInterceptor();
+		this.module.binder().requestInjection(interceptor);
+		this.module.binder().bindInterceptor(Matchers.any(), new InterceptWithMatcher(), interceptor);
+		this.module.binder().bindInterceptor(new InterceptWithMatcher(), Matchers.any(), interceptor);
 
-		assert servlets != null;
-		Map<String, ControllersServlet> allServlets = servlets;
+		assert this.servlets != null;
+		final Map<String, ControllersServlet> allServlets = this.servlets;
 		// Loops through all registered patterns and their corresponding ControllerHandler.
 		// Registers each couple in Guice.
-		for (String pattern : allServlets.keySet()) {
-			ControllersServlet servlet = allServlets.get(pattern);
-			module.binder().requestInjection(servlet);
-			module._serve(pattern).with(servlet);
+		for (final String pattern : allServlets.keySet()) {
+			final ControllersServlet servlet = allServlets.get(pattern);
+			this.module.binder().requestInjection(servlet);
+			this.module._serve(pattern).with(servlet);
 		}
 
 		// Sets null to the servlets variable so any further call to control().with() will raise a NullPointerException
-		servlets = null;
+		this.servlets = null;
 	}
 
 	/**
@@ -195,42 +195,43 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 	 * @param pattern The pattern on which to register to controller
 	 */
 	@Override
-	public void registerControl(final String pattern, InstanceGetter<?> ig) {
+	public void registerControl(final String pattern, final InstanceGetter<?> controller) {
 		// Registers all filters that are declared by the @FilterThrough annotation of this class and of all its parents
-		Map<String, String> initParams = new HashMap<>();
+		final Map<String, String> initParams = new HashMap<>();
 		initParams.put("pattern", pattern);
 
 		// Creates a controller servlet for this pattern or gets it if this pattern has already been registered
 		ControllersServlet servlet;
-		assert servlets != null;
-		if (servlets.containsKey(pattern))
-			servlet = servlets.get(pattern);
+		assert this.servlets != null;
+		if (this.servlets.containsKey(pattern)) {
+			servlet = this.servlets.get(pattern);
+		}
 		else {
 			servlet = new ControllersServlet();
-			servlets.put(pattern, servlet);
+			this.servlets.put(pattern, servlet);
 		}
 
 		// Registers a controller handler into the controller servlet
 		// The handler is retrived from the repository to avoid creating two handlers for the same controller class
-		servlet.addController(repository.get(ig));
+		servlet.addController(this.repository.get(controller));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void registerViewRenderer(Pattern pattern, InstanceGetter<? extends ViewRenderer> renderer) {
-		viewRendererService.register(pattern, renderer);
+	public void registerViewRenderer(final Pattern pattern, final InstanceGetter<? extends ViewRenderer> renderer) {
+		this.rendererService.register(pattern, renderer);
 	}
 
 	@Override
-	public void registerConverter(Class<?> type, InstanceGetter<? extends Converter<?>> ig) {
-		conversionService.register(type, ig);
+	public void registerConverter(final Class<?> type, final InstanceGetter<? extends Converter<?>> converter) {
+		this.conversionService.register(type, converter);
 	}
 
 	@Override
-	public <T extends Exception> void registerExceptionHandler(Class<? extends T> cls, InstanceGetter<? extends ExceptionHandler<T>> ig) {
-		exceptionService.register(cls, ig);
+	public <T extends Exception> void registerExceptionHandler(final Class<? extends T> cls, final InstanceGetter<? extends ExceptionHandler<T>> handler) {
+		this.exceptionService.register(cls, handler);
 	}
 
 }

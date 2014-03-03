@@ -21,7 +21,7 @@ public class MVCResponseExceptionHandler implements ExceptionHandler<MvcResponse
 	 * Executes the treatment to the HttpResponse and declare the exception as handled
 	 */
 	@Override
-	public boolean handle(MvcResponseException exception, HttpServletRequest req, HttpServletResponse res) throws IOException {
+	public boolean handle(final MvcResponseException exception, final HttpServletRequest req, final HttpServletResponse res) throws IOException {
 		exception.execute(res);
 		return true;
 	}

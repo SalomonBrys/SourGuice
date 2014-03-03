@@ -22,13 +22,24 @@ import com.google.inject.TypeLiteral;
  */
 public class RequestAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 
+	/**
+	 * The annotations containing needed informations to fetch the argument
+	 */
+	private final RequestAttribute infos;
+
+	/**
+	 * If the injection requires an {@link Attribute}, then this is true
+	 */
+	private boolean isAccessor = false;
+
+
 	public static class RequestAttributeAccessor<T> implements Attribute<T> {
 
-		private HttpServletRequest req;
+		private final HttpServletRequest req;
 
-		private String attribute;
+		private final String attribute;
 
-		public RequestAttributeAccessor(HttpServletRequest req, String attribute) {
+		public RequestAttributeAccessor(final HttpServletRequest req, final String attribute) {
 			super();
 			this.req = req;
 			this.attribute = attribute;
@@ -36,24 +47,14 @@ public class RequestAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 
 		@SuppressWarnings("unchecked")
 		@Override public @CheckForNull T get() {
-			return (T) req.getAttribute(attribute);
+			return (T) this.req.getAttribute(this.attribute);
 		}
 
-		@Override public void set(T o) {
-			req.setAttribute(attribute, o);
+		@Override public void set(final T value) {
+			this.req.setAttribute(this.attribute, value);
 		}
 
 	}
-
-	/**
-	 * The annotations containing needed informations to fetch the argument
-	 */
-	private RequestAttribute infos;
-
-	/**
-	 * If the injection requires an {@link Attribute}, then this is true
-	 */
-	private boolean isAccessor = false;
 
 	/**
 	 * @see ArgumentFetcher#ArgumentFetcher(Type, int, Annotation[])
@@ -62,11 +63,12 @@ public class RequestAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 	 * @param annotations Annotations that were found on the method's argument
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 */
-	public RequestAttributeArgumentFetcher(TypeLiteral<T> type, Annotation[] annotations, RequestAttribute infos) {
+	public RequestAttributeArgumentFetcher(final TypeLiteral<T> type, final Annotation[] annotations, final RequestAttribute infos) {
 		super(type, annotations);
 		this.infos = infos;
-		if (type.getRawType().equals(Attribute.class))
-			isAccessor = true;
+		if (type.getRawType().equals(Attribute.class)) {
+			this.isAccessor = true;
+		}
 	}
 
 	/**
@@ -74,9 +76,10 @@ public class RequestAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	protected @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) {
-		if (isAccessor)
-			return (T) new RequestAttributeAccessor<>(req, infos.value());
-		return (T)req.getAttribute(infos.value());
+	protected @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) {
+		if (this.isAccessor) {
+			return (T) new RequestAttributeAccessor<>(req, this.infos.value());
+		}
+		return (T)req.getAttribute(this.infos.value());
 	}
 }

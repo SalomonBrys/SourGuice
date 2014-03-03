@@ -25,39 +25,40 @@ public final class PathVariablesProvider implements Provider<Map<String, String>
 	 * The stack of URIPathVariables
 	 * At the top of the stack is the path variable corresponding to the "current" call
 	 */
-	Stack<Map<String, String>> pathVariables = new Stack<>();
+	private final Stack<Map<String, String>> pathVariables = new Stack<>();
 
 	/**
 	 * Pushes a new URIPathVariables (which should correspond to the begining of a call)
 	 *
 	 * @param vars The URIPathVariables to push
 	 */
-	public void push(@PathVariablesMap Map<String, String> vars) {
-		pathVariables.push(vars);
+	public void push(final @PathVariablesMap Map<String, String> vars) {
+		this.pathVariables.push(vars);
 	}
 
 	/**
 	 * Pops the "current" URIPathVariables (which should correspond to the end of a call)
 	 */
 	public void pop() {
-		pathVariables.pop();
+		this.pathVariables.pop();
 	}
 
 	/**
 	 * @param map The map to coerce
 	 * @return The exact same map as given, except with \@PathVariablesMap type qualifier
 	 */
-	public static @PathVariablesMap Map<String, String> _coercePathVariablesMap(Map<String, String> map) { return map; }
+	private static @PathVariablesMap Map<String, String> coercePathVariablesMap(final Map<String, String> map) { return map; }
 
 	/**
 	 * Guice provider method : gets the current URIPathVariables
 	 */
 	@Override
 	public @PathVariablesMap Map<String, String> get() {
-		if (pathVariables.isEmpty())
+		if (this.pathVariables.isEmpty()) {
 			/* This should never happen and cannot be tested */
-			return _coercePathVariablesMap(new HashMap<String, String>());
-		return _coercePathVariablesMap(pathVariables.peek());
+			return coercePathVariablesMap(new HashMap<String, String>());
+		}
+		return coercePathVariablesMap(this.pathVariables.peek());
 	}
 
 	/**
@@ -70,11 +71,13 @@ public final class PathVariablesProvider implements Provider<Map<String, String>
 	 * @return The path variables map
 	 */
 	@PathVariablesMap
-	public static Map<String, String> fromMatch(MatchResult match, Map<String, Integer> ref) {
-		@PathVariablesMap Map<String, String> map = new HashMap<>();
-		for (String key : ref.keySet())
-			if (match.groupCount() >= ref.get(key).intValue())
+	public static Map<String, String> fromMatch(final MatchResult match, final Map<String, Integer> ref) {
+		final @PathVariablesMap Map<String, String> map = new HashMap<>();
+		for (final String key : ref.keySet()) {
+			if (match.groupCount() >= ref.get(key).intValue()) {
 				map.put(key, match.group(ref.get(key).intValue()));
-		return _coercePathVariablesMap(map);
+			}
+		}
+		return coercePathVariablesMap(map);
 	}
 }

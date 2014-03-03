@@ -17,7 +17,7 @@ import com.github.sourguice.annotation.request.View;
 import com.github.sourguice.view.Model;
 import com.google.inject.Singleton;
 
-@SuppressWarnings({"javadoc", "static-method"})
+@SuppressWarnings({"javadoc", "static-method", "PMD"})
 @Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
 public class JSPTest extends TestBase {
 
@@ -82,7 +82,7 @@ public class JSPTest extends TestBase {
     // ===================== TESTS =====================
 
 	public void testIndex() throws Exception {
-		if (travisSkip)
+		if (this.travisSkip)
 			throw new TravisSkipException();
 
 		HttpTester request = makeRequest("GET", "/Hello.jsp");
@@ -94,7 +94,7 @@ public class JSPTest extends TestBase {
 
 
 	public void testHi() throws Exception {
-		if (travisSkip)
+		if (this.travisSkip)
 			throw new TravisSkipException();
 
 		HttpTester request = makeRequest("GET", "/hi");
@@ -106,7 +106,7 @@ public class JSPTest extends TestBase {
 
 
 	public void testUnknown() throws Exception {
-		if (travisSkip)
+		if (this.travisSkip)
 			throw new TravisSkipException();
 
 		HttpTester request = makeRequest("GET", "/unknown");

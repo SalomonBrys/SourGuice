@@ -36,7 +36,7 @@ public class ControllerInvocationInfos {
 	 * @param invocation The invocation on which calculates informations
 	 * @param controllerHandler The handler of the controller that contains this invocation
 	 */
-	public ControllerInvocationInfos(MvcInvocation invocation) {
+	public ControllerInvocationInfos(final MvcInvocation invocation) {
 		this.invocation = invocation;
 	}
 
@@ -46,14 +46,17 @@ public class ControllerInvocationInfos {
 	 * @param infos The InvocationInfos to compare to this
 	 * @return Wheter this invocation is better than the one given
 	 */
-	public boolean isBetterThan(@CheckForNull ControllerInvocationInfos infos) {
-		if (infos == null)
+	public boolean isBetterThan(final @CheckForNull ControllerInvocationInfos infos) {
+		if (infos == null) {
 			return true;
+		}
 		if (this.urlMatch != null && infos.urlMatch != null) {
-			if (this.urlMatch.groupCount() > infos.urlMatch.groupCount())
+			if (this.urlMatch.groupCount() > infos.urlMatch.groupCount()) {
 				return true;
-			else if (this.urlMatch.groupCount() < infos.urlMatch.groupCount())
+			}
+			else if (this.urlMatch.groupCount() < infos.urlMatch.groupCount()) {
 				return false;
+			}
 		}
 
 		return this.confidence > infos.confidence;
@@ -66,9 +69,10 @@ public class ControllerInvocationInfos {
 	 * @param right The second invocation to compare
 	 * @return The best invocation between both given (nulls are accepted)
 	 */
-	static public @CheckForNull ControllerInvocationInfos GetBest(@CheckForNull ControllerInvocationInfos left, @CheckForNull ControllerInvocationInfos right) {
-		if (left == null)
+	static public @CheckForNull ControllerInvocationInfos getBest(final @CheckForNull ControllerInvocationInfos left, final @CheckForNull ControllerInvocationInfos right) {
+		if (left == null) {
 			return right;
+		}
 		return left.isBetterThan(right) ? left : right;
 	}
 }

@@ -11,14 +11,14 @@ import com.github.sourguice.view.ViewRendererService;
 
 public class ViewRendererServiceImpl implements ViewRendererService {
 
-	private Map<Pattern, InstanceGetter<? extends ViewRenderer>> renderers = new HashMap<>();
+	private final Map<Pattern, InstanceGetter<? extends ViewRenderer>> renderers = new HashMap<>();
 
-	public void register(Pattern pattern, InstanceGetter<? extends ViewRenderer> renderer) {
-		renderers.put(pattern, renderer);
+	public void register(final Pattern pattern, final InstanceGetter<? extends ViewRenderer> renderer) {
+		this.renderers.put(pattern, renderer);
 	}
 
-	@Override public InstanceGetter<? extends ViewRenderer> getRenderer(String viewName) throws NoViewRendererException {
-		for (Map.Entry<Pattern, InstanceGetter<? extends ViewRenderer>> entry : renderers.entrySet()) {
+	@Override public InstanceGetter<? extends ViewRenderer> getRenderer(final String viewName) throws NoViewRendererException {
+		for (final Map.Entry<Pattern, InstanceGetter<? extends ViewRenderer>> entry : this.renderers.entrySet()) {
 			if (entry.getKey().matcher(viewName).matches()) {
 				return entry.getValue();
 			}

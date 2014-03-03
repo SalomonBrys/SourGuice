@@ -32,7 +32,7 @@ import com.github.sourguice.utils.Arrays;
 import com.github.sourguice.value.RequestMethod;
 import com.google.inject.Singleton;
 
-@SuppressWarnings({"javadoc", "static-method"})
+@SuppressWarnings({"javadoc", "static-method", "PMD"})
 @Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
 public class InjectionTest extends TestBase {
 
@@ -286,7 +286,7 @@ public class InjectionTest extends TestBase {
     public void getSession() throws Exception {
     	String jsessionid;
 
-    	ServletTester tester = queue.poll();
+    	ServletTester tester = this.queue.poll();
 
     	try {
 	    	{
@@ -309,7 +309,7 @@ public class InjectionTest extends TestBase {
 	    	}
     	}
     	finally {
-    		queue.offer(tester);
+    		this.queue.offer(tester);
     	}
     }
 

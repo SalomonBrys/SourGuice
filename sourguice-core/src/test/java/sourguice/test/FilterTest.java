@@ -26,7 +26,7 @@ import com.github.sourguice.annotation.request.Writes;
 import com.github.sourguice.utils.MVCCallInterceptSetter;
 import com.google.inject.Singleton;
 
-@SuppressWarnings({"javadoc", "static-method"})
+@SuppressWarnings({"javadoc", "static-method", "PMD"})
 @Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
 public class FilterTest extends TestBase {
 
@@ -45,7 +45,7 @@ public class FilterTest extends TestBase {
 
 		@Override
 		public Object invoke(MethodInvocation invocation) throws Throwable {
-			setter.set(invocation, "var", "Salomon");
+			this.setter.set(invocation, "var", "Salomon");
 			return invocation.proceed();
 		}
 

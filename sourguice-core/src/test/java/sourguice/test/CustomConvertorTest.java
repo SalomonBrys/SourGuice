@@ -13,7 +13,7 @@ import com.github.sourguice.conversion.Converter;
 import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 
-@SuppressWarnings({ "javadoc", "static-method" })
+@SuppressWarnings({ "javadoc", "static-method", "PMD" })
 @Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
 public class CustomConvertorTest extends TestBase {
 
@@ -26,13 +26,13 @@ public class CustomConvertorTest extends TestBase {
 	public static class Man implements HasAName {
 		public String name;
 		public Man(String name) { this.name = name; }
-		@Override public String getName() { return name; }
+		@Override public String getName() { return this.name; }
 	}
 
 	public static class Woman implements HasAName {
 		public String name;
 		public Woman(String name) { this.name = name; }
-		@Override public String getName() { return name; }
+		@Override public String getName() { return this.name; }
 	}
 
 	public static class Child extends Woman {

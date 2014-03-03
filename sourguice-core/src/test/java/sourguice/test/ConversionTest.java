@@ -12,7 +12,7 @@ import com.github.sourguice.annotation.request.RequestParam;
 import com.github.sourguice.annotation.request.Writes;
 import com.google.inject.Singleton;
 
-@SuppressWarnings({ "javadoc", "static-method" })
+@SuppressWarnings({ "javadoc", "static-method", "PMD" })
 @Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
 public class ConversionTest extends TestBase {
 
@@ -210,7 +210,7 @@ public class ConversionTest extends TestBase {
 
 	public void getPrimReqArray() throws Exception {
 		HttpTester request = makeRequest("GET", "/primarray?var=21&var=42");
-        request.addHeader("x-sj-exc", "java.lang.RuntimeException");
+        request.addHeader("x-sj-exc", "com.github.sourguice.throwable.service.converter.CannotConvertToPrimitiveException");
 
 		HttpTester response = getResponse(request);
 
@@ -221,7 +221,7 @@ public class ConversionTest extends TestBase {
 
 	public void getPrimConvArray() throws Exception {
 		HttpTester request = makeRequest("GET", "/primarray?var=21,42");
-        request.addHeader("x-sj-exc", "java.lang.RuntimeException");
+        request.addHeader("x-sj-exc", "com.github.sourguice.throwable.service.converter.CannotConvertToPrimitiveException");
 
 		HttpTester response = getResponse(request);
 

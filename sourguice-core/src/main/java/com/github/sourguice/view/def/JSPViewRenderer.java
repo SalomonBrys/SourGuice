@@ -25,19 +25,19 @@ public class JSPViewRenderer implements ViewRenderer {
 	/**
 	 * The current HTTP Response
 	 */
-	private HttpServletResponse res;
+	private final HttpServletResponse res;
 
 	/**
 	 * Will be used to forward request
 	 */
-	private ForwardableRequestFactory fact;
+	private final ForwardableRequestFactory fact;
 
 	/**
 	 * @param res The current HTTP Response
 	 * @param fact Factory that will be used to make request forwarding
 	 */
 	@Inject
-	public JSPViewRenderer(HttpServletResponse res, ForwardableRequestFactory fact) {
+	public JSPViewRenderer(final HttpServletResponse res, final ForwardableRequestFactory fact) {
 		this.res = res;
 		this.fact = fact;
 	}
@@ -49,23 +49,25 @@ public class JSPViewRenderer implements ViewRenderer {
 	 */
 	@Override
 	@OverridingMethodsMustInvokeSuper
-	public void render(String view, @CheckForNull Map<String, Object> model) throws IOException, ServletException {
+	public void render(final String view, final @CheckForNull Map<String, Object> model) throws IOException, ServletException {
 
-		HttpServletRequest req = fact.to(view);
+		final HttpServletRequest req = this.fact.to(view);
 
-		if (model != null)
-			for (String key : model.keySet())
+		if (model != null) {
+			for (final String key : model.keySet()) {
 				req.setAttribute(key, model.get(key));
+			}
+		}
 
-		RequestDispatcher dispatcher = req.getRequestDispatcher(view);
+		final RequestDispatcher dispatcher = req.getRequestDispatcher(view);
 
 		// Cannot be tested
 		if (dispatcher == null) {
-			res.sendError(404, view);
+			this.res.sendError(404, view);
 			return ;
 		}
 
-		req.getRequestDispatcher(view).forward(req, res);
+		req.getRequestDispatcher(view).forward(req, this.res);
 	}
 
 }

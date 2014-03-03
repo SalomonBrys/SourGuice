@@ -18,20 +18,25 @@ public class BooleanConverter implements Converter<Boolean> {
 	/**
 	 * Pattern of a floating point number
 	 */
-	static private final Pattern number = Pattern.compile("[0-9]*\\.?[0-9]+");
+	static private final Pattern NUMBER = Pattern.compile("[0-9]*\\.?[0-9]+");
 
 	/**
 	 * Pattern of a zero
 	 */
-	static private final Pattern zero = Pattern.compile("0?\\.?0+");
+	static private final Pattern ZERO = Pattern.compile("0?\\.?0+");
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public @CheckForNull Boolean get(TypeLiteral<? extends Boolean> clazz, String arg) {
-		if (arg.equalsIgnoreCase("true") || arg.equalsIgnoreCase("on") || arg.equalsIgnoreCase("Y") || arg.equalsIgnoreCase("yes") || (number.matcher(arg).matches() && !zero.matcher(arg).matches()))
-			return new Boolean(true);
-		return new Boolean(false);
+	public @CheckForNull Boolean get(final TypeLiteral<? extends Boolean> clazz, final String arg) {
+		if (	arg.equalsIgnoreCase("true")
+			||	arg.equalsIgnoreCase("on")
+			||	arg.equalsIgnoreCase("Y")
+			||	arg.equalsIgnoreCase("yes")
+			||	NUMBER.matcher(arg).matches() && !ZERO.matcher(arg).matches()) {
+			return Boolean.TRUE;
+		}
+		return Boolean.FALSE;
 	}
 }

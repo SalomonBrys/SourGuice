@@ -16,13 +16,14 @@ public class FloatConverter implements Converter<Float> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public @CheckForNull Float get(TypeLiteral<? extends Float> type, String arg) {
+	public @CheckForNull Float get(final TypeLiteral<? extends Float> type, final String arg) {
 		try {
 			return Float.valueOf(arg);
 		}
 		catch (NumberFormatException e) {
-			if (type.getRawType().isPrimitive())
+			if (type.getRawType().isPrimitive()) {
 				return Float.valueOf(0);
+			}
 			return null;
 		}
 	}

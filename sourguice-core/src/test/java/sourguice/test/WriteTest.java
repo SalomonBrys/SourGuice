@@ -7,8 +7,6 @@ import java.io.CharArrayReader;
 import java.io.InputStream;
 import java.io.Reader;
 
-import javax.annotation.Nullable;
-
 import org.eclipse.jetty.testing.HttpTester;
 import org.testng.annotations.Test;
 
@@ -17,7 +15,9 @@ import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.Writes;
 import com.google.inject.Singleton;
 
-@SuppressWarnings({"javadoc", "static-method"})
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+@SuppressWarnings({"javadoc", "static-method", "PMD"})
 @Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
 public class WriteTest extends TestBase {
 
@@ -28,7 +28,8 @@ public class WriteTest extends TestBase {
 
 		@RequestMapping(value = "/writefail")
 		@Writes
-		public @Nullable String writefail() {
+		@SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION")
+		public String writefail() {
 			return null;
 		}
 
@@ -65,7 +66,7 @@ public class WriteTest extends TestBase {
 
 	public void getWriteFail() throws Exception {
 		HttpTester request = makeRequest("GET", "/writefail");
-        request.addHeader("x-sj-exc", "java.lang.RuntimeException");
+        request.addHeader("x-sj-exc", "java.lang.UnsupportedOperationException");
 
 		HttpTester response = getResponse(request);
 

@@ -16,13 +16,14 @@ public class LongConverter implements Converter<Long> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public @CheckForNull Long get(TypeLiteral<? extends Long> type, String arg) {
+	public @CheckForNull Long get(final TypeLiteral<? extends Long> type, final String arg) {
 		try {
 			return Long.valueOf(arg);
 		}
 		catch (NumberFormatException e) {
-			if (type.getRawType().isPrimitive())
+			if (type.getRawType().isPrimitive()) {
 				return Long.valueOf(0);
+			}
 			return null;
 		}
 	}

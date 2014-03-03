@@ -4,6 +4,7 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.CheckForNull;
 
@@ -33,7 +34,9 @@ public class ControllerInterceptor implements MethodInterceptor {
 	/**
 	 * Injector used to fetch actual Interceptors
 	 */
-	@Inject @CheckForNull Injector injector;
+	@Inject protected @CheckForNull Injector injector;
+
+	private final Map<Method, List<InterceptWith>> interceptCache = new HashMap<>();
 
 	/**
 	 * Wrapper around {@link MethodInvocation} to allow the invocation to be intercepted
@@ -46,18 +49,18 @@ public class ControllerInterceptor implements MethodInterceptor {
 		/**
 		 * The original MethodInvocation
 		 */
-		MethodInvocation invocation;
+		private final MethodInvocation invocation;
 
 		/**
 		 * The class of the interceptor. An instance will be asked to guice when proceeding
 		 */
-		Class<? extends MethodInterceptor> interceptorClass;
+		private final Class<? extends MethodInterceptor> interceptorClass;
 
 		/**
 		 * @param invocation The original MethodInvocation
 		 * @param interceptor The class of the interceptor. An instance will be asked to guice when proceeding
 		 */
-		InterceptorInvocation(MethodInvocation invocation, Class<? extends MethodInterceptor> interceptor) {
+		InterceptorInvocation(final MethodInvocation invocation, final Class<? extends MethodInterceptor> interceptor) {
 			super();
 			this.invocation = invocation;
 			this.interceptorClass = interceptor;
@@ -66,35 +69,33 @@ public class ControllerInterceptor implements MethodInterceptor {
 		/**
 		 * Wrapper proxy
 		 */
-		@Override public AccessibleObject getStaticPart() { return invocation.getStaticPart(); }
+		@Override public AccessibleObject getStaticPart() { return this.invocation.getStaticPart(); }
 
 		/**
 		 * Wrapper proxy
 		 */
-		@Override public Object getThis() { return invocation.getThis(); }
+		@Override public Object getThis() { return this.invocation.getThis(); }
 
 		/**
 		 * Wrapper proxy
 		 */
-		@Override public Object[] getArguments() { return invocation.getArguments(); }
+		@Override public Object[] getArguments() { return this.invocation.getArguments(); }
 
 		/**
 		 * Wrapper proxy
 		 */
-		@Override public Method getMethod() { return invocation.getMethod(); }
+		@Override public Method getMethod() { return this.invocation.getMethod(); }
 
 		/**
 		 * Will delay the actual invocation to the guice fetched MethodInterceptor
 		 */
 		@Override
 		public Object proceed() throws Throwable {
-			assert injector != null;
-			return injector.getInstance(interceptorClass).invoke(invocation);
+			assert ControllerInterceptor.this.injector != null;
+			return ControllerInterceptor.this.injector.getInstance(this.interceptorClass).invoke(this.invocation);
 		}
 
 	}
-
-	private HashMap<Method, List<InterceptWith>> interceptWithCache = new HashMap<>();
 
 	/**
 	 * Constructs the {@link MethodInvocation} tree and launches the execution of the found interceptors.
@@ -103,22 +104,25 @@ public class ControllerInterceptor implements MethodInterceptor {
 	public Object invoke(MethodInvocation invocation) throws Throwable {
 
 		// We first check if this has already been computed
-		List<InterceptWith> interceptWithAnnos = interceptWithCache.get(invocation.getMethod());
+		List<InterceptWith> interceptAnnos = this.interceptCache.get(invocation.getMethod());
 		// If it has not been, then we need a lock
-		if (interceptWithAnnos == null)
-			synchronized (interceptWithCache) {
+		if (interceptAnnos == null) {
+			synchronized (this.interceptCache) {
 				// Maybe it has been computed while we waited for the lock, so we check again
-				interceptWithAnnos = interceptWithCache.get(invocation.getMethod());
+				interceptAnnos = this.interceptCache.get(invocation.getMethod());
 				// It has not, so let's compute it!
-				if (interceptWithAnnos == null) {
-					interceptWithAnnos = Annotations.GetAllTreeRecursive(InterceptWith.class, invocation.getMethod());
-					interceptWithCache.put(invocation.getMethod(), interceptWithAnnos);
+				if (interceptAnnos == null) {
+					interceptAnnos = Annotations.GetAllTreeRecursive(InterceptWith.class, invocation.getMethod());
+					this.interceptCache.put(invocation.getMethod(), interceptAnnos);
 				}
 			}
+		}
 
-		for (InterceptWith interceptWith : interceptWithAnnos)
-			for (Class<? extends MethodInterceptor> interceptor : interceptWith.value())
+		for (final InterceptWith interceptWith : interceptAnnos) {
+			for (final Class<? extends MethodInterceptor> interceptor : interceptWith.value()) {
 				invocation = new InterceptorInvocation(invocation, interceptor);
+			}
+		}
 
 		return invocation.proceed();
 	}

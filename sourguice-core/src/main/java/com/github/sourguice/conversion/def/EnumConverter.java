@@ -20,9 +20,9 @@ public class EnumConverter implements Converter<Enum> {
 	 */
 	@Override
 	@SuppressWarnings({ "unchecked", "cast" })
-	public @CheckForNull Enum get(TypeLiteral<? extends Enum> type, String arg) {
+	public @CheckForNull Enum get(final TypeLiteral<? extends Enum> type, final String arg) {
 		try {
-			return (Enum) Enum.valueOf((Class<? extends Enum>)type.getRawType(), arg);
+			return (Enum) Enum.valueOf((Class<? extends Enum>) type.getRawType(), arg);
 		}
 		catch (IllegalArgumentException e) {
 			return null;

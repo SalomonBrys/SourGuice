@@ -16,7 +16,7 @@ import com.github.sourguice.exception.ExceptionHandler;
 import com.github.sourguice.throwable.service.exception.UnreachableExceptionHandlerException;
 import com.google.inject.Singleton;
 
-@SuppressWarnings({"javadoc", "static-method"})
+@SuppressWarnings({"javadoc", "static-method", "PMD"})
 @Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
 public class ExceptionTest extends TestBase {
 

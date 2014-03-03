@@ -13,7 +13,9 @@ import com.github.sourguice.controller.InstanceGetter;
 import com.github.sourguice.conversion.ConversionService;
 import com.github.sourguice.conversion.Converter;
 import com.github.sourguice.conversion.def.ArrayConverter;
+import com.github.sourguice.throwable.service.converter.CannotConvertToPrimitiveException;
 import com.github.sourguice.throwable.service.converter.NoConverterException;
+import com.github.sourguice.throwable.service.converter.NotAStringException;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -29,7 +31,7 @@ public class ConversionServiceImpl implements ConversionService {
 	/**
 	 * Map of registered convertable classes and their associated converter
 	 */
-	private HashMap<Class<?>, InstanceGetter<? extends Converter<?>>> converters = new HashMap<>();
+	private final Map<Class<?>, InstanceGetter<? extends Converter<?>>> converters = new HashMap<>();
 
 	/**
 	 * Register a converter to be associated with the given type
@@ -38,9 +40,9 @@ public class ConversionServiceImpl implements ConversionService {
 	 * @param type The type to associate the converter with
 	 * @return The converter associated with the class
 	 */
-	public void register(Class<?> type, InstanceGetter<? extends Converter<?>> conv) {
-		synchronized (converters) {
-			converters.put(type, conv);
+	public void register(final Class<?> type, final InstanceGetter<? extends Converter<?>> conv) {
+		synchronized (this.converters) {
+			this.converters.put(type, conv);
 		}
 	}
 
@@ -51,26 +53,51 @@ public class ConversionServiceImpl implements ConversionService {
 	 *
 	 * @param child The child class
 	 * @param parent The parent class
-	 * @param n The recursive level of the search
+	 * @param level The recursive level of the search
 	 * @return The distance between child and parent
 	 */
-	static private int ClassUtilDistance(Class<?> child, Class<?> parent, int n) {
-		if (child.equals(parent))
-			return n;
+	static private int classUtilDistance(final Class<?> child, final Class<?> parent, final int level) {
+		if (child.equals(parent)) {
+			return level;
+		}
 
 		int distance = Integer.MAX_VALUE;
 
 		if (child.getSuperclass() != null) {
-			int nSuper = ClassUtilDistance(child.getSuperclass(), parent, n + 1);
-			if (nSuper < distance)
-				distance = nSuper;
+			final int superDistance = classUtilDistance(child.getSuperclass(), parent, level + 1);
+			if (superDistance < distance) {
+				distance = superDistance;
+			}
 		}
-		for (Class<?> intf : child.getInterfaces()) {
-			int nSuper = ClassUtilDistance(intf, parent, n + 1);
-			if (nSuper < distance)
-				distance = nSuper;
+		for (final Class<?> intf : child.getInterfaces()) {
+			final int superDistance = classUtilDistance(intf, parent, level + 1);
+			if (superDistance < distance) {
+				distance = superDistance;
+			}
 		}
 		return distance;
+	}
+
+	private @CheckForNull Class<?> getClosestType(final Class<?> cls) {
+		int closestDistance = Integer.MAX_VALUE;
+		Class<?> closestType = null;
+		for (final Map.Entry<Class<?>, InstanceGetter<? extends Converter<?>>> entry : this.converters.entrySet()) {
+			if (cls.isAssignableFrom(entry.getKey())) {
+				final int distance = classUtilDistance(entry.getKey(), cls, 0);
+				if (distance < closestDistance) {
+					closestDistance = distance;
+					closestType = entry.getKey();
+				}
+			}
+			if (entry.getValue().getTypeLiteral().getRawType().isAnnotationPresent(ConverterCanConstructChild.class) && entry.getKey().isAssignableFrom(cls)) {
+				final int distance = classUtilDistance(cls, entry.getKey(), 0);
+				if (distance < closestDistance) {
+					closestDistance = distance;
+					closestType = entry.getKey();
+				}
+			}
+		}
+		return closestType;
 	}
 
 	/**
@@ -79,44 +106,29 @@ public class ConversionServiceImpl implements ConversionService {
 	 * If not, tries to find the converter that can convert to a subclass of this class (and gets the closest).
 	 * If none is found, returns null
 	 *
-	 * @param clazz the class to convert to
+	 * @param cls the class to convert to
 	 * @return the converter to use or null if none were found
 	 */
 	@Override
-	public @CheckForNull <T> Converter<T> getConverter(Class<T> clazz) {
+	public @CheckForNull <T> Converter<T> getConverter(final Class<T> cls) {
 		// Maybe it has already been set, so we check
-		if (converters.containsKey(clazz))
-			return (Converter<T>)converters.get(clazz).getInstance();
+		if (this.converters.containsKey(cls)) {
+			return (Converter<T>) this.converters.get(cls).getInstance();
+		}
 
 		// If it has not been set, we need to set it only once, so we wait for lock
-		synchronized (converters) {
+		synchronized (this.converters) {
 			// Maybe it has been set while we waited for lock, so we check again
-			if (converters.containsKey(clazz))
-				return (Converter<T>)converters.get(clazz).getInstance();
-
-			int closestDistance = Integer.MAX_VALUE;
-			Class<?> closestType = null;
-			for (Map.Entry<Class<?>, InstanceGetter<? extends Converter<?>>> entry : converters.entrySet()) {
-				if (clazz.isAssignableFrom(entry.getKey())) {
-					int distance = ClassUtilDistance(entry.getKey(), clazz, 0);
-					if (distance < closestDistance) {
-						closestDistance = distance;
-						closestType = entry.getKey();
-					}
-				}
-				if (entry.getValue().getTypeLiteral().getRawType().isAnnotationPresent(ConverterCanConstructChild.class) && entry.getKey().isAssignableFrom(clazz)) {
-					int distance = ClassUtilDistance(clazz, entry.getKey(), 0);
-					if (distance < closestDistance) {
-						closestDistance = distance;
-						closestType = entry.getKey();
-					}
-				}
+			if (this.converters.containsKey(cls)) {
+				return (Converter<T>) this.converters.get(cls).getInstance();
 			}
 
+			final Class<?> closestType = getClosestType(cls);
+
 			if (closestType != null) {
-				InstanceGetter<? extends Converter<?>> ig = converters.get(closestType);
-				converters.put(clazz, ig);
-				return (Converter<T>)ig.getInstance();
+				final InstanceGetter<? extends Converter<?>> converter = this.converters.get(closestType);
+				this.converters.put(cls, converter);
+				return (Converter<T>)converter.getInstance();
 			}
 
 			return null;
@@ -133,13 +145,28 @@ public class ConversionServiceImpl implements ConversionService {
 	 * @throws NoConverterException When no converter is found for the specific type (RuntimeException)
 	 */
 	@Override
-	public <T> T[] convertArray(TypeLiteral<T> componentType, Object[] from) throws NoConverterException {
-		if (componentType.getRawType().isPrimitive())
-			throw new RuntimeException("Array conversion does not support primitive types");
+	public <T> T[] convertArray(final TypeLiteral<T> componentType, final Object[] from) throws NoConverterException {
+		if (componentType.getRawType().isPrimitive()) {
+			throw new CannotConvertToPrimitiveException();
+		}
 		Object[] ret = (Object[])Array.newInstance(componentType.getRawType(), from.length);
-		for (int i = 0; i < from.length; ++i)
+		for (int i = 0; i < from.length; ++i) {
 			ret[i] = convert(componentType, from[i]);
+		}
 		return (T[])ret;
+	}
+
+	private static Object getFirstValue(Object from) {
+		while (from.getClass().isArray()) {
+			if (((Object[])from).length > 0) {
+				from = ((Object[])from)[0];
+			}
+			else {
+				/* This should never happen in a servlet environment and therefore cannot be tested in one */
+				return "";
+			}
+		}
+		return from;
 	}
 
 	/**
@@ -152,33 +179,29 @@ public class ConversionServiceImpl implements ConversionService {
 	 * @throws NoConverterException When no converter is found for the specific type (RuntimeException)
 	 */
 	@Override
-	public @CheckForNull <T> T convert(TypeLiteral<T> toType, Object from) throws NoConverterException {
+	public @CheckForNull <T> T convert(final TypeLiteral<T> toType, Object from) throws NoConverterException {
 		if (from.getClass().isArray() && !toType.getRawType().isArray()) {
-			while (from.getClass().isArray())
-				if (((Object[])from).length > 0)
-					from = ((Object[])from)[0];
-				else
-					/* This should never happen in a servlet environment and therefore cannot be tested in one */
-					return null;
+			from = getFirstValue(from);
 		}
 		if (from.getClass().equals(String.class)) {
 			Converter<T> conv = (Converter<T>) this.getConverter(toType.getRawType());
 			if (conv == null && toType.getRawType().isArray()) {
-				Converter<T> compConv = (Converter<T>) this.getConverter(toType.getRawType().getComponentType());
+				final Converter<T> compConv = (Converter<T>) this.getConverter(toType.getRawType().getComponentType());
 				if (compConv != null) {
-					GivenInstanceGetter<? extends Converter<?>> ig = new GivenInstanceGetter<>(new ArrayConverter<>(compConv));
-					register(toType.getRawType(), ig);
-					conv = (Converter<T>) ig.getInstance();
+					final GivenInstanceGetter<? extends Converter<?>> arrayConverter = new GivenInstanceGetter<>(new ArrayConverter<>(compConv));
+					register(toType.getRawType(), arrayConverter);
+					conv = (Converter<T>) arrayConverter.getInstance();
 				}
 			}
-			if (conv == null)
+			if (conv == null) {
 				throw new NoConverterException(toType);
+			}
 			return conv.get(toType, (String)from);
 		}
 		if (from.getClass().isArray()) {
 			return (T) this.convertArray(TypeLiteral.get(toType.getRawType().getComponentType()), (Object[])from);
 		}
 		/* This should never happen in a servlet environment and therefore cannot be tested in one */
-		throw new RuntimeException("Only String, array of String, array of array of string, etc. are allowed");
+		throw new NotAStringException();
 	}
 }

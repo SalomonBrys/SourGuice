@@ -19,13 +19,14 @@ public class IntegerConverter implements Converter<Integer> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public @CheckForNull Integer get(TypeLiteral<? extends Integer> type, String arg) {
+	public @CheckForNull Integer get(final TypeLiteral<? extends Integer> type, final String arg) {
 		try {
 			return Integer.valueOf(arg);
 		}
 		catch (NumberFormatException e) {
-			if (type.getRawType().isPrimitive())
-				return new Integer(0);
+			if (type.getRawType().isPrimitive()) {
+				return Integer.valueOf(0);
+			}
 			return null;
 		}
 	}

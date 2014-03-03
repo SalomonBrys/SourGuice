@@ -15,7 +15,7 @@ import com.google.inject.matcher.AbstractMatcher;
 public class InterceptWithMatcher extends AbstractMatcher<AnnotatedElement> {
 
 	@Override
-	public boolean matches(AnnotatedElement element) {
+	public boolean matches(final AnnotatedElement element) {
 		return Annotations.GetOneTreeRecursive(InterceptWith.class, element) != null;
 	}
 

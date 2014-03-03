@@ -12,7 +12,7 @@ import com.github.sourguice.throwable.controller.MvcResponseException;
 import com.github.sourguice.throwable.controller.MvcResponseRedirect;
 import com.google.inject.Singleton;
 
-@SuppressWarnings({"javadoc", "static-method"})
+@SuppressWarnings({"javadoc", "static-method", "PMD"})
 @Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
 public class RedirectTest extends TestBase {
 

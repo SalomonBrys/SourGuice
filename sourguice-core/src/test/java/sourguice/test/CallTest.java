@@ -1,6 +1,6 @@
 package sourguice.test;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -13,7 +13,6 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -35,8 +34,10 @@ import com.github.sourguice.utils.Annotations;
 import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 @Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
-@SuppressWarnings({"javadoc", "static-method"})
+@SuppressWarnings({"javadoc", "static-method", "PMD"})
 public class CallTest extends TestBase {
 
     // ===================== CONTROLLER =====================
@@ -83,8 +84,9 @@ public class CallTest extends TestBase {
 
     	@RequestMapping("/callfetched")
     	@Writes
-    	public @Nullable String callfetched(MvcCaller caller) throws Throwable {
-    		return (String)caller.call(this.getClass(), "fetched", null, false, new NoArgumentFetcher(), new TestArgumentFetcher());
+    	@SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
+    	public String callfetched(MvcCaller caller) throws Throwable {
+    		return (String) caller.call(this.getClass(), "fetched", null, false, new NoArgumentFetcher(), new TestArgumentFetcher());
     	}
 
     	@Callable

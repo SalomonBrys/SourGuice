@@ -20,11 +20,11 @@ import com.google.inject.servlet.GuiceFilter;
  * even if the asked URL points to an existing resource in the war.
  * This (optional) filter will prevent Guice-Servlet from running and force the
  * default system servlet for existing files if the URL points to an existing file.
- * 
+ *
  * This servlet has two parameters (that can be passed from web.xml):
  *  - index-root: if true, allows root directory to be listed through default servlet (default: false)
  *  - index-dir: if true, allows any directory other than root to be listed through default servlet (default: false)
- * 
+ *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
 public class StaticIgnoreGuiceFilter extends GuiceFilter {
@@ -32,13 +32,13 @@ public class StaticIgnoreGuiceFilter extends GuiceFilter {
 	/**
 	 * Whether or not to allow any directory other than root to be listed
 	 */
-	boolean indexDir = false;
+	private boolean indexDir = false;
 
 	/**
 	 * Whether or not to allow root directory to be listed
 	 */
-	boolean indexRoot = false;
-	
+	private boolean indexRoot = false;
+
 	/**
 	 * The servlet config given at init
 	 */
@@ -46,42 +46,36 @@ public class StaticIgnoreGuiceFilter extends GuiceFilter {
 
 	@Override
 	@OverridingMethodsMustInvokeSuper
-	public void doFilter(ServletRequest _req, ServletResponse _res, FilterChain chain) throws IOException, ServletException {
-		assert(_req != null);
-		assert(chain != null);
-		HttpServletRequest req = (HttpServletRequest)_req;
-		assert context != null;
-		File file = new File(context.getRealPath(req.getRequestURI()));
-		if (file.exists()) {
-			boolean serve = true;
-			if (!indexRoot && req.getRequestURI().equals("/"))
-				serve = false;
-			else if (!indexDir && file.isDirectory())
-				serve = false;
-
-			if (serve) {
-				chain.doFilter(_req, _res);
-				return ;
-			}
+	public void doFilter(final ServletRequest _req, final ServletResponse _res, final FilterChain chain) throws IOException, ServletException {
+		assert _req != null;
+		assert chain != null;
+		final HttpServletRequest req = (HttpServletRequest)_req;
+		assert this.context != null;
+		final File file = new File(this.context.getRealPath(req.getRequestURI()));
+		if (file.exists() && (this.indexRoot || !req.getRequestURI().equals("/")) && (this.indexDir || !file.isDirectory())) {
+			chain.doFilter(_req, _res);
+			return ;
 		}
 		super.doFilter(_req, _res, chain);
 	}
 
 	@Override
 	@OverridingMethodsMustInvokeSuper
-	public void init(FilterConfig config) throws ServletException {
+	public void init(final FilterConfig config) throws ServletException {
 		super.init(config);
-		
-		assert(config != null);
-		
-		context = config.getServletContext();
-		
-		String dir = config.getInitParameter("index-dir");
-		if (dir != null && dir.equals("true"))
-			this.indexDir = true;
 
-		String root = config.getInitParameter("index-root");
-		if (root != null && root.equals("true"))
+		assert config != null;
+
+		this.context = config.getServletContext();
+
+		final String dir = config.getInitParameter("index-dir");
+		if (dir != null && dir.equals("true")) {
+			this.indexDir = true;
+		}
+
+		final String root = config.getInitParameter("index-root");
+		if (root != null && root.equals("true")) {
 			this.indexRoot = true;
+		}
 	}
 }

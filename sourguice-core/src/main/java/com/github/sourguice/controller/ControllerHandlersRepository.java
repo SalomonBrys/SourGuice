@@ -17,7 +17,7 @@ public final class ControllerHandlersRepository {
 	/**
 	 * All classes registered and their corresponding {@link ControllerHandler}
 	 */
-	private Map<InstanceGetter<?>, ControllerHandler<?>> map = new HashMap<>();
+	private final Map<InstanceGetter<?>, ControllerHandler<?>> map = new HashMap<>();
 
 	/**
 	 * Gets the {@link ControllerHandler} for a given class and creates one if none is yet registered for this class
@@ -26,11 +26,12 @@ public final class ControllerHandlersRepository {
 	 * @return The handler for the given class
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> ControllerHandler<T> get(InstanceGetter<T> ig) {
-		if (map.containsKey(ig))
-			return (ControllerHandler<T>)map.get(ig);
-		ControllerHandler<T> c = new ControllerHandler<>(ig);
-		map.put(ig, c);
-		return c;
+	public <T> ControllerHandler<T> get(final InstanceGetter<T> controller) {
+		if (this.map.containsKey(controller)) {
+			return (ControllerHandler<T>) this.map.get(controller);
+		}
+		final ControllerHandler<T> handler = new ControllerHandler<>(controller);
+		this.map.put(controller, handler);
+		return handler;
 	}
 }

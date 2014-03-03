@@ -30,19 +30,19 @@ public abstract class ArgumentFetcher<T> {
 	/**
 	 * The type of the argument to fetch
 	 */
-	private TypeLiteral<T> type;
+	private final TypeLiteral<T> type;
 
 	/**
 	 * Annotations that were found on the method's argument
 	 */
-	private Annotation[] annotations;
+	private final Annotation[] annotations;
 
 	/**
 	 * @param type The type of the argument to fetch
 	 * @param pos The position of the method's argument to fetch
 	 * @param annotations Annotations that were found on the method's argument
 	 */
-	protected ArgumentFetcher(TypeLiteral<T> type, Annotation[] annotations) {
+	protected ArgumentFetcher(final TypeLiteral<T> type, final Annotation[] annotations) {
 		this.type = type;
 		this.annotations = annotations;
 	}
@@ -61,10 +61,12 @@ public abstract class ArgumentFetcher<T> {
 	 * @throws Throwable Any exception that would be thrown by a fetcher
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public @CheckForNull T get(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector, CalltimeArgumentFetcher<?>[] additionalFetchers) throws Throwable {
-		for (CalltimeArgumentFetcher f : additionalFetchers)
-			if (f.canGet(this.type, annotations))
-				return (T)f.get(this.type, annotations);
+	public @CheckForNull T get(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector, final CalltimeArgumentFetcher<?>[] additionalFetchers) throws Throwable {
+		for (final CalltimeArgumentFetcher fetcher : additionalFetchers) {
+			if (fetcher.canGet(this.type, this.annotations)) {
+				return (T)fetcher.get(this.type, this.annotations);
+			}
+		}
 
 		return getPrepared(req, pathVariables, injector);
 	}
@@ -81,7 +83,7 @@ public abstract class ArgumentFetcher<T> {
 	 */
 	protected abstract @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) throws Throwable;
 
-	protected @CheckForNull T convert(Injector injector, Object value) {
+	protected @CheckForNull T convert(final Injector injector, final Object value) {
 		return injector.getInstance(ConversionService.class).convert(this.type, value);
 	}
 }

@@ -22,7 +22,7 @@ import com.github.sourguice.view.Model;
 import com.github.sourguice.view.def.BasicViewRenderer;
 import com.google.inject.Singleton;
 
-@SuppressWarnings({"javadoc", "static-method"})
+@SuppressWarnings({"javadoc", "static-method", "PMD"})
 @Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
 public class ViewTest extends TestBase {
 
