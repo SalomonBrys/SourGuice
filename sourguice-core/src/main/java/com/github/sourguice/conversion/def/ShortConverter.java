@@ -12,9 +12,6 @@ import com.google.inject.TypeLiteral;
  */
 public class ShortConverter implements Converter<Short> {
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@SuppressWarnings("PMD.AvoidUsingShortType")
 	public @CheckForNull Short get(final TypeLiteral<? extends Short> type, final String arg) {

@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.github.sourguice.request.ForwardableRequestFactory;
 import com.github.sourguice.view.ViewRenderer;
+import com.github.sourguice.view.ViewRenderingException;
 import com.google.inject.Inject;
 
 /**
@@ -49,7 +50,7 @@ public class JSPViewRenderer implements ViewRenderer {
 	 */
 	@Override
 	@OverridingMethodsMustInvokeSuper
-	public void render(final String view, final @CheckForNull Map<String, Object> model) throws IOException, ServletException {
+	public void render(final String view, final @CheckForNull Map<String, Object> model) throws ViewRenderingException, IOException {
 
 		final HttpServletRequest req = this.fact.to(view);
 
@@ -67,7 +68,12 @@ public class JSPViewRenderer implements ViewRenderer {
 			return ;
 		}
 
-		req.getRequestDispatcher(view).forward(req, this.res);
+		try {
+			req.getRequestDispatcher(view).forward(req, this.res);
+		}
+		catch (ServletException e) {
+			throw new ViewRenderingException(e);
+		}
 	}
 
 }

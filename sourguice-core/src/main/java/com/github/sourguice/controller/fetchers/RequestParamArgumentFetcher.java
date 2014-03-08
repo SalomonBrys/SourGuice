@@ -3,7 +3,6 @@ package com.github.sourguice.controller.fetchers;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,17 +39,53 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 	 */
 	private final RequestParam infos;
 
+	/**
+	 * If this fetcher fetches a collection, this provider is reponsible to create it
+	 */
 	private @CheckForNull CollectionProvider<?> collectionProvider;
+
+	/**
+	 * If this fetcher fetches a collection, this is it's component type
+	 */
 	private @CheckForNull TypeLiteral<?> collectionComponentType;
 
+	/**
+	 * If this fetcher fetches a map, this provider is reponsible to create it
+	 */
 	private @CheckForNull Provider<? extends Map<Object, Object>> mapProvider;
+
+	/**
+	 * If this fetcher fetches a map, this is it's key type
+	 */
 	private @CheckForNull TypeLiteral<?> mapKeyType;
+
+	/**
+	 * If this fetcher fetches a map, this is it's value type
+	 */
 	private @CheckForNull TypeLiteral<?> mapValueType;
 
+	/**
+	 * A collection provider is responsible to create the collection
+	 *
+	 * @param <T> The real type of the collection to create
+	 */
 	private static interface CollectionProvider<T extends Collection<?>> {
+		/**
+		 * Create the collection
+		 *
+		 * @param inCol The items to put inside the new collection
+		 * @return The created collection
+		 */
 		T get(Collection<?> inCol);
 	}
 
+	/**
+	 * Create the collection provider corresponding to the given type
+	 *
+	 * @param rawType The type of the collection to create
+	 * @return The collection provider that can create collections of the specified type
+	 * @throws NoSuchMethodException If no provider could be found and the given type has no default constructor
+	 */
 	@SuppressWarnings({"PMD.LooseCoupling", "PMD.CyclomaticComplexity"})
 	private static CollectionProvider<?> inferCollectionProvider(final Class<?> rawType) throws NoSuchMethodException {
 		if (rawType.isAssignableFrom(ArrayList.class)) {
@@ -90,9 +125,9 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 	}
 
 	/**
-	 * @see ArgumentFetcher#ArgumentFetcher(Type, int, Annotation[])
+	 * @see ArgumentFetcher#ArgumentFetcher(TypeLiteral, Annotation[])
+	 *
 	 * @param type The type of the argument to fetch
-	 * @param pos The position of the method's argument to fetch
 	 * @param annotations Annotations that were found on the method's argument
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 */
@@ -137,6 +172,15 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 		}
 	}
 
+	/**
+	 * If this fetcher is supposed to fecth a collection,
+	 * this returns the corresponding collection filled with the request content
+	 *
+	 * @param req The current request to extract values
+	 * @param injector Guice injector
+	 * @return The collection created and filled
+	 * @throws NoSuchRequestParameterException If no value were found in the request and no default value were provisioned
+	 */
 	@SuppressWarnings("unchecked")
 	private @CheckForNull T getPreparedCollection(final HttpServletRequest req, final Injector injector) throws NoSuchRequestParameterException {
 		assert this.collectionComponentType != null;
@@ -159,6 +203,13 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 		return (T) this.collectionProvider.get(Arrays.asList(objs));
 	}
 
+	/**
+	 * If this fetcher is supposed to fecth a map,
+	 * this fills map the with the request content
+	 *
+	 * @param ret The map to fill
+	 * @param conversionService The conversion service to use
+	 */
 	private void fillMapWithDefaults(final Map<Object, Object> ret, final ConversionService conversionService) {
 		if (!this.infos.defaultValue().isEmpty()) {
 			final String[] objs = this.infos.defaultValue().split(",");
@@ -176,6 +227,15 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 		}
 	}
 
+	/**
+	 * If this fetcher is supposed to fecth a map,
+	 * this returns the corresponding map filled with the request content
+	 *
+	 * @param req The current request to extract values
+	 * @param injector Guice injector
+	 * @return The collection created and filled
+	 * @throws NoSuchRequestParameterException If no value were found in the request and no default value were provisioned
+	 */
 	@SuppressWarnings({ "unchecked" })
 	private T getPreparedMap(final HttpServletRequest req, final Injector injector) throws NoSuchRequestParameterException {
 		assert this.mapKeyType != null;
@@ -208,9 +268,6 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 		return (T)ret;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) throws NoSuchRequestParameterException {
 		// If a List is requested, gets an array and converts it to list

@@ -102,17 +102,11 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 		this.module = module;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public ForwardableRequestFactory getForwardableRequestFactory(final @GuiceRequest HttpServletRequest req, final ServletContext context) {
 		return new GuiceForwardHttpRequest(req, context);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@SuppressWarnings({"PMD.AvoidUsingShortType", "PMD.AvoidThrowingRawExceptionTypes"})
 	public final void configureServlets() {
@@ -191,8 +185,8 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 	 * Registers a pattern to a controller class
 	 * This is called by {@link BindBuilder#with(Class)}
 	 *
-	 * @param clazz The controller class to register
 	 * @param pattern The pattern on which to register to controller
+	 * @param controller The controller class to register
 	 */
 	@Override
 	public void registerControl(final String pattern, final InstanceGetter<?> controller) {
@@ -216,9 +210,6 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 		servlet.addController(this.repository.get(controller));
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void registerViewRenderer(final Pattern pattern, final InstanceGetter<? extends ViewRenderer> renderer) {
 		this.rendererService.register(pattern, renderer);

@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Exception used to send an HTTP redirect from a controller's method
- * 
+ *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
 public class MvcResponseRedirect extends MvcResponseException {
@@ -16,20 +16,21 @@ public class MvcResponseRedirect extends MvcResponseException {
 	/**
 	 * The URL to redirect to
 	 */
-	public String to;
-	
+	private final String toUrl;
+
 	/**
-	 * @param to The URL to redirect to
+	 * @param toUrl The URL to redirect to
 	 */
-	public MvcResponseRedirect(String to) {
-		this.to = to;
+	public MvcResponseRedirect(final String toUrl) {
+		super();
+		this.toUrl = toUrl;
 	}
 
 	/**
 	 * Sends the configured redirect to the HTTP response
 	 */
 	@Override
-	public void execute(HttpServletResponse res) throws IOException {
-		res.sendRedirect(to);
+	public void execute(final HttpServletResponse res) throws IOException {
+		res.sendRedirect(this.toUrl);
 	}
 }

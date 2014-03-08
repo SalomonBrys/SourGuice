@@ -15,7 +15,7 @@ public class UnreachableExceptionHandlerException extends RuntimeException {
 	 * @param handlerFor The exception class that the handler was registered to handle
 	 * @param interceptedBy The exception handler that already handles it
 	 */
-	public UnreachableExceptionHandlerException(Class<? extends Exception> handlerFor, Class<?> interceptedBy) {
+	public UnreachableExceptionHandlerException(final Class<? extends Exception> handlerFor, final Class<?> interceptedBy) {
 		super("Handler for " + handlerFor.getCanonicalName() + " is unreachable : exceptions will be previously intercepted by " + interceptedBy.getCanonicalName());
 	}
 

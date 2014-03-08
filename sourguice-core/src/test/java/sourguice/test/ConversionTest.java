@@ -215,7 +215,7 @@ public class ConversionTest extends TestBase {
 		HttpTester response = getResponse(request);
 
 		assertEquals(response.getStatus(), 500);
-		assertEquals(response.getReason(), "Array conversion does not support primitive types");
+		assertEquals(response.getReason(), "Array conversion does not support primitive type: int");
 	}
 
 
@@ -226,7 +226,7 @@ public class ConversionTest extends TestBase {
 		HttpTester response = getResponse(request);
 
 		assertEquals(response.getStatus(), 500);
-		assertEquals(response.getReason(), "Array conversion does not support primitive types");
+		assertEquals(response.getReason(), "Array conversion does not support primitive type: int");
 	}
 
 

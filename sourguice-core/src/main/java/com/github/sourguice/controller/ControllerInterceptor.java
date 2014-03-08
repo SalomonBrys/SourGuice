@@ -23,7 +23,7 @@ import com.google.inject.Singleton;
  * Each node defers its execution to the interceptor given in the annotation.
  * That way, if an interceptor chooses to stop the invocation and *not* call {@link MethodInvocation#proceed()},
  * the contained interceptors will not be called.
- * The tree is constructed with {@link Annotations#GetAllTreeRecursive(java.lang.reflect.AnnotatedElement, Class)}
+ * The tree is constructed with {@link Annotations#getAllTreeRecursive(Class, java.lang.reflect.AnnotatedElement)}
  * which means that the "closest" annotation will be used first.
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
@@ -36,6 +36,9 @@ public class ControllerInterceptor implements MethodInterceptor {
 	 */
 	@Inject protected @CheckForNull Injector injector;
 
+	/**
+	 * Cache that binds each method to its InterceptWith list so each list has to be computed only once.
+	 */
 	private final Map<Method, List<InterceptWith>> interceptCache = new HashMap<>();
 
 	/**
@@ -112,7 +115,7 @@ public class ControllerInterceptor implements MethodInterceptor {
 				interceptAnnos = this.interceptCache.get(invocation.getMethod());
 				// It has not, so let's compute it!
 				if (interceptAnnos == null) {
-					interceptAnnos = Annotations.GetAllTreeRecursive(InterceptWith.class, invocation.getMethod());
+					interceptAnnos = Annotations.getAllTreeRecursive(InterceptWith.class, invocation.getMethod());
 					this.interceptCache.put(invocation.getMethod(), interceptAnnos);
 				}
 			}

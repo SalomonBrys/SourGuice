@@ -36,9 +36,9 @@ public class ConversionServiceImpl implements ConversionService {
 	/**
 	 * Register a converter to be associated with the given type
 	 * If the type is of type array, than it will register the converter for the array type AND its subtype
+	 *
 	 * @param conv The converter to use when converting from String to the given type
 	 * @param type The type to associate the converter with
-	 * @return The converter associated with the class
 	 */
 	public void register(final Class<?> type, final InstanceGetter<? extends Converter<?>> conv) {
 		synchronized (this.converters) {
@@ -78,6 +78,12 @@ public class ConversionServiceImpl implements ConversionService {
 		return distance;
 	}
 
+	/**
+	 * Return the closest type to the given class that is registered as convertible
+	 *
+	 * @param cls The class to get its closest convertible type
+	 * @return The closest convertible type
+	 */
 	private @CheckForNull Class<?> getClosestType(final Class<?> cls) {
 		int closestDistance = Integer.MAX_VALUE;
 		Class<?> closestType = null;
@@ -147,7 +153,7 @@ public class ConversionServiceImpl implements ConversionService {
 	@Override
 	public <T> T[] convertArray(final TypeLiteral<T> componentType, final Object[] from) throws NoConverterException {
 		if (componentType.getRawType().isPrimitive()) {
-			throw new CannotConvertToPrimitiveException();
+			throw new CannotConvertToPrimitiveException(componentType.getRawType());
 		}
 		Object[] ret = (Object[])Array.newInstance(componentType.getRawType(), from.length);
 		for (int i = 0; i < from.length; ++i) {
@@ -156,6 +162,12 @@ public class ConversionServiceImpl implements ConversionService {
 		return (T[])ret;
 	}
 
+	/**
+	 * Return the first object of an unknown dimension array
+	 *
+	 * @param from The array
+	 * @return The first object
+	 */
 	private static Object getFirstValue(Object from) {
 		while (from.getClass().isArray()) {
 			if (((Object[])from).length > 0) {
@@ -172,8 +184,8 @@ public class ConversionServiceImpl implements ConversionService {
 	/**
 	 * Converts a string or an array of string into a value or an array of values
 	 *
-	 * @param toClazz The class to convert to.
-	 *                If 'from' is an array, then primitive types are not allowed
+	 * @param toType The type to convert to.
+	 *               If 'from' is an array, then primitive types are not allowed
 	 * @param from The String or String[] to convert from (only String or String[])
 	 * @return The value or array of values
 	 * @throws NoConverterException When no converter is found for the specific type (RuntimeException)
@@ -202,6 +214,6 @@ public class ConversionServiceImpl implements ConversionService {
 			return (T) this.convertArray(TypeLiteral.get(toType.getRawType().getComponentType()), (Object[])from);
 		}
 		/* This should never happen in a servlet environment and therefore cannot be tested in one */
-		throw new NotAStringException();
+		throw new NotAStringException(from.getClass());
 	}
 }

@@ -36,16 +36,13 @@ public class ArrayConverter<T> implements Converter<T[]> {
 		this.converter = converter;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public @CheckForNull T[] get(final TypeLiteral<? extends T[]> type, final String arg) {
 		final Class<?> componentType = type.getRawType().getComponentType();
 
 		if (componentType.isPrimitive()) {
-			throw new CannotConvertToPrimitiveException();
+			throw new CannotConvertToPrimitiveException(componentType);
 		}
 
 		final String[] args = SEPARATOR.split(arg);

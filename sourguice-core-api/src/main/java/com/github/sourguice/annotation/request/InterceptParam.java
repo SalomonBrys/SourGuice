@@ -17,8 +17,8 @@ import com.github.sourguice.utils.MVCCallInterceptSetter;
  * Therefore, the MVC Caller will always set this parameter to false.
  * It is the responsibility of an interceptor that you would configure on the method to replace this
  * null value by the value of the parameter.
- * To do this, you can use the {@link MVCCallInterceptSetter#Set(org.aopalliance.intercept.MethodInvocation, String, Object)} utility method
- * 
+ * To do this, you can use the {@link MVCCallInterceptSetter#set(org.aopalliance.intercept.MethodInvocation, String, Object)} utility method
+ *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
 @Retention(RetentionPolicy.RUNTIME)

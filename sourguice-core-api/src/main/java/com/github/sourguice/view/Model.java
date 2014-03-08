@@ -19,7 +19,7 @@ public final class Model {
 	/**
 	 * The key / value pairs
 	 */
-	HashMap<String, Object> map = new HashMap<>();
+	private final Map<String, Object> map = new HashMap<>();
 
 	/**
 	 * Adds an attribute and its value to the model
@@ -28,8 +28,8 @@ public final class Model {
 	 * @param attributeValue The value of the attribute to add
 	 * @return itself to permit command chain
 	 */
-	public Model addAttribute(String attributeName, @CheckForNull Object attributeValue) {
-		map.put(attributeName, attributeValue);
+	public Model addAttribute(final String attributeName, final @CheckForNull Object attributeValue) {
+		this.map.put(attributeName, attributeValue);
 		return this;
 	}
 
@@ -40,7 +40,7 @@ public final class Model {
 	 * @param value The value of the attribute to add
 	 * @return itself to permit command chain
 	 */
-	public Model put(String name, @CheckForNull Object value) {
+	public Model put(final String name, final @CheckForNull Object value) {
 		return this.addAttribute(name, value);
 	}
 
@@ -50,8 +50,8 @@ public final class Model {
 	 * @param attributes The attributes to add
 	 * @return itself to permit command chain
 	 */
-	public Model addAllAttributes(Map<String, ?> attributes) {
-		map.putAll(attributes);
+	public Model addAllAttributes(final Map<String, ?> attributes) {
+		this.map.putAll(attributes);
 		return this;
 	}
 
@@ -61,10 +61,12 @@ public final class Model {
 	 * @param attributes The attributes to merge
 	 * @return itself to permit command chain
 	 */
-	public Model mergeAttributes(Map<String, ?> attributes) {
-		for (String key : attributes.keySet())
-			if (!map.containsKey(key))
-				map.put(key, attributes.get(key));
+	public Model mergeAttributes(final Map<String, ?> attributes) {
+		for (final String key : attributes.keySet()) {
+			if (!this.map.containsKey(key)) {
+				this.map.put(key, attributes.get(key));
+			}
+		}
 		return this;
 	}
 
@@ -72,6 +74,6 @@ public final class Model {
 	 * @return The key / value pairs of this model as a map
 	 */
 	public Map<String, Object> asMap() {
-		return map;
+		return this.map;
 	}
 }

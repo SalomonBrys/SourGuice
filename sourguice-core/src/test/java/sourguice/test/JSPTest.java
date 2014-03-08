@@ -89,7 +89,7 @@ public class JSPTest extends TestBase {
 		HttpTester response = getResponse(request);
 
 		assertEquals(response.getStatus(), 200);
-		assertEquals(response.getContent(), "Hello World!");
+		assertEquals(response.getContent(), "\n\nHello World!\n");
 	}
 
 

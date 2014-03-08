@@ -12,9 +12,6 @@ import com.google.inject.TypeLiteral;
  */
 public class DoubleConverter implements Converter<Double> {
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public @CheckForNull Double get(final TypeLiteral<? extends Double> type, final String arg) {
 		try {

@@ -1,7 +1,6 @@
 package com.github.sourguice.controller.fetchers;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
 import java.util.Map;
 
 import javax.annotation.CheckForNull;
@@ -30,9 +29,9 @@ public class RequestHeaderArgumentFetcher<T> extends ArgumentFetcher<T> {
 	private final RequestHeader infos;
 
 	/**
-	 * @see ArgumentFetcher#ArgumentFetcher(Type, int, Annotation[])
+	 * @see ArgumentFetcher#ArgumentFetcher(TypeLiteral, Annotation[])
+	 *
 	 * @param type The type of the argument to fetch
-	 * @param pos The position of the method's argument to fetch
 	 * @param annotations Annotations that were found on the method's argument
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 */
@@ -41,9 +40,6 @@ public class RequestHeaderArgumentFetcher<T> extends ArgumentFetcher<T> {
 		this.infos = infos;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) throws NoSuchRequestParameterException {
 		if (req.getHeader(this.infos.value()) == null) {

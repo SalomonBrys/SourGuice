@@ -20,14 +20,14 @@ public final class RequestScopeContainer {
 	/**
 	 * The map containing the items
 	 */
-	private Map<Class<?>, Object> map = new HashMap<>();
+	private final Map<Class<?>, Object> map = new HashMap<>();
 
 	/**
 	 * @param cls The class on which to register the object
 	 * @param obj Stores this object for the time of the request
 	 */
-	public <T> void store(Class<? super T> cls, T obj) {
-		map.put(cls, obj);
+	public <T> void store(final Class<? super T> cls, final T obj) {
+		this.map.put(cls, obj);
 	}
 
 	/**
@@ -37,7 +37,7 @@ public final class RequestScopeContainer {
 	 * @return The object if it was previously registered or null
 	 */
 	@SuppressWarnings("unchecked")
-	public @CheckForNull <T> T get(Class<T> cls) {
-		return (T)map.get(cls);
+	public @CheckForNull <T> T get(final Class<T> cls) {
+		return (T) this.map.get(cls);
 	}
 }

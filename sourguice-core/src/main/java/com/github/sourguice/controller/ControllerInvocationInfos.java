@@ -34,7 +34,6 @@ public class ControllerInvocationInfos {
 
 	/**
 	 * @param invocation The invocation on which calculates informations
-	 * @param controllerHandler The handler of the controller that contains this invocation
 	 */
 	public ControllerInvocationInfos(final MvcInvocation invocation) {
 		this.invocation = invocation;

@@ -15,9 +15,6 @@ import com.google.inject.TypeLiteral;
  */
 public class IntegerConverter implements Converter<Integer> {
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public @CheckForNull Integer get(final TypeLiteral<? extends Integer> type, final String arg) {
 		try {

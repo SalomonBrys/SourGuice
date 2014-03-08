@@ -25,7 +25,7 @@ public interface MvcCaller {
 	 * The object on which to call the method will be retrived from Guice,
 	 * therefore, the given class must be registered in Guice (or it will be instanciate by Guice via Just-In-Time binding)
 	 *
-	 * @param ig The instance getter on which to find the method
+	 * @param clazz The class of the controller of the method
 	 * @param method The method to call
 	 * @param pathVariables The URIPathVariables object to use to retrieve @{@link PathVariable} annotated method parameters
 	 * @param throwWhenHandled throwWhenHandled Whether or not to throw a {@link HandledException} when an exception has been thrown AND handled by the Exception Service
@@ -37,16 +37,6 @@ public interface MvcCaller {
 	 * @throws NoSuchRequestParameterException When retrieval of parameter annotated with anotations from the {@link com.github.sourguice.annotation.request} package failed
 	 * @throws Throwable Any throwable thrown by the method called and not handled
 	 */
-//	public @CheckForNull Object call(InstanceGetter<?> ig, Method method, @CheckForNull @PathVariablesMap Map<String, String> pathVariables, boolean throwWhenHandled, CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchRequestParameterException, Throwable;
-//
-//	/**
-//	 * @see #call(InstanceGetter, Method, Map, boolean, CalltimeArgumentFetcher...)
-//	 */
-//	public @CheckForNull Object call(InstanceGetter<?> ig, String methodName, @CheckForNull @PathVariablesMap Map<String, String> pathVariables, boolean throwWhenHandled, CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchRequestParameterException, Throwable;
-//
-//	/**
-//	 * @see #call(InstanceGetter, Method, Map, boolean, CalltimeArgumentFetcher...)
-//	 */
 	public @CheckForNull Object call(Class<?> clazz, Method method, @CheckForNull @PathVariablesMap Map<String, String> pathVariables, boolean throwWhenHandled, CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchRequestParameterException, Throwable;
 
 	/**
@@ -55,31 +45,4 @@ public interface MvcCaller {
 	@SuppressWarnings("javadoc")
 	public @CheckForNull Object call(Class<?> clazz, String methodName, @CheckForNull @PathVariablesMap Map<String, String> pathVariables, boolean throwWhenHandled, CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchMethodException, NoSuchRequestParameterException, Throwable;
 
-//	/**
-//	 * @return The request that is registered for this caller
-//	 */
-//	abstract public HttpServletRequest getReq();
-//
-//	/**
-//	 * Sets the request registered for this caller
-//	 * This can be used to register a HttpServletRequestWrapper
-//	 * This WILL NOT replace the HttpServletRequest returned by Guice
-//	 * BUT all HttpServletRequest required by @{@link RequestMapping} annotated method will get this request instead of the one registered in Guice
-//	 * @param req The Request to set
-//	 */
-//	abstract public void setReq(HttpServletRequest req);
-//
-//	/**
-//	 * @return The response that is registered for this caller
-//	 */
-//	abstract public HttpServletResponse getRes();
-//
-//	/**
-//	 * Sets the response registered for this caller
-//	 * This can be used to register a HttpServletResponseWrapper
-//	 * This WILL NOT replace the HttpServletResponse returned by Guice
-//	 * BUT all HttpServletResponse required by @{@link RequestMapping} annotated method will get this response instead of the one registered in Guice
-//	 * @param res The Response to set
-//	 */
-//	abstract public void setRes(HttpServletResponse res);
 }

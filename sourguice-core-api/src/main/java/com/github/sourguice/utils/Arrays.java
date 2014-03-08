@@ -15,15 +15,22 @@ import javax.annotation.CheckForNull;
 public final class Arrays {
 
 	/**
+	 * This is a utility repository and cannot be instanciated
+	 */
+	private Arrays() {}
+
+	/**
 	 * Checks if a value is contained in an array
 	 * @param array The array to search in
 	 * @param value The value to search for
 	 * @return Whether or not the value was found in the array
 	 */
-	public static <T> boolean Contains(T[] array, T value) {
-		for (T o : array)
-			if (o.equals(value))
+	public static <T> boolean contains(final T[] array, final T value) {
+		for (final T obj : array) {
+			if (obj.equals(value)) {
 				return true;
+			}
+		}
 
 		return false;
 	}
@@ -33,7 +40,7 @@ public final class Arrays {
 	 * This is only useful in case of a recursive search
 	 *
 	 * @see Finder How to use this
-	 * @see Annotations#GetOneAnnotated(Class, java.lang.annotation.Annotation[]) An exemple of utilisation
+	 * @see Annotations#getOneAnnotated(Class, java.lang.annotation.Annotation[]) An exemple of utilisation
 	 *
 	 * @param <F> The type of object to look for
 	 */
@@ -42,7 +49,7 @@ public final class Arrays {
 		/**
 		 * Already checked objects
 		 */
-		private Set<Object> checked = new HashSet<>();
+		private final Set<Object> checked = new HashSet<>();
 
 		/**
 		 * @param <F> The type of object to look for
@@ -66,7 +73,7 @@ public final class Arrays {
 			 * @param obj The object that is curently being look at
 			 * @return An object that will identify this object
 			 */
-			protected Object getCheck(A obj) { return obj; }
+			protected Object getCheck(final A obj) { return obj; }
 		}
 
 		/**
@@ -76,14 +83,15 @@ public final class Arrays {
 		 * @param finder A Getter to find the F
 		 * @return The F if found or null
 		 */
-		public @CheckForNull <A> F get(A[] array, Getter.Finder<F, A> finder) {
-			for (A obj : array) {
-				Object check = finder.getCheck(obj);
-				if (!checked.contains(check)) {
-					checked.add(check);
-					F f = finder.findIn(obj);
-					if (f != null)
-						return f;
+		public @CheckForNull <A> F get(final A[] array, final Getter.Finder<F, A> finder) {
+			for (final A obj : array) {
+				final Object check = finder.getCheck(obj);
+				if (!this.checked.contains(check)) {
+					this.checked.add(check);
+					final F found = finder.findIn(obj);
+					if (found != null) {
+						return found;
+					}
 				}
 			}
 			return null;
@@ -94,7 +102,7 @@ public final class Arrays {
 	 * Same as {@link Getter}, except it will return a list of F founds
 	 *
 	 * @see Adder How to use this
-	 * @see Annotations#GetAllAnnotated(Class, java.lang.annotation.Annotation[]) An exemple of utilisation
+	 * @see Annotations#getAllAnnotated(Class, java.lang.annotation.Annotation[]) An exemple of utilisation
 	 *
 	 * @param <F> The type of object to look for
 	 */
@@ -103,12 +111,12 @@ public final class Arrays {
 		/**
 		 * List of F found
 		 */
-		private List<F> found = new LinkedList<>();
+		private final List<F> found = new LinkedList<>();
 
 		/**
 		 * Already checked objects
 		 */
-		private Set<Object> checked = new HashSet<>();
+		private final Set<Object> checked = new HashSet<>();
 
 		/**
 		 * @param <F> The type of object to look for
@@ -132,7 +140,7 @@ public final class Arrays {
 			 * @param obj The object that is curently being look at
 			 * @return An object that will identify this object
 			 */
-			protected Object getCheck(A obj) { return obj; }
+			protected Object getCheck(final A obj) { return obj; }
 		}
 
 		/**
@@ -141,12 +149,12 @@ public final class Arrays {
 		 * @param array The array to search in
 		 * @param adder An adder to find all the Fs
 		 */
-		public <A> void find(A[] array, AllGetter.Adder<F, A> adder) {
-			for (A obj : array) {
-				Object check = adder.getCheck(obj);
-				if (!checked.contains(check)) {
-					checked.add(check);
-					adder.addIn(found, obj);
+		public <A> void find(final A[] array, final AllGetter.Adder<F, A> adder) {
+			for (final A obj : array) {
+				final Object check = adder.getCheck(obj);
+				if (!this.checked.contains(check)) {
+					this.checked.add(check);
+					adder.addIn(this.found, obj);
 				}
 			}
 		}
@@ -154,8 +162,8 @@ public final class Arrays {
 		/**
 		 * @return the list of found Fs
 		 */
-		public List<F> found() {
-			return found;
+		public List<F> getFound() {
+			return this.found;
 		}
 	}
 }

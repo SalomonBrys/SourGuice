@@ -23,6 +23,8 @@ import com.github.sourguice.request.wrapper.NoJsessionidHttpRequest;
 import com.github.sourguice.throwable.invocation.HandledException;
 import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException;
 import com.github.sourguice.utils.RequestScopeContainer;
+import com.github.sourguice.view.NoViewRendererException;
+import com.github.sourguice.view.ViewRenderingException;
 import com.google.inject.Injector;
 
 /**
@@ -64,6 +66,15 @@ public final class ControllersServer {
 		this.handlers.add(handler);
 	}
 
+	/**
+	 * Check if the invocation being processed has a {@link HttpError} annotation and handles the request accordingly
+	 *
+	 * @param infos The infos of the invocation being processed
+	 * @param ret Whatever the invocation has returned
+	 * @param res The current HTTP response
+	 * @return Whether there was an {@link HttpError} and it was handled, or not.
+	 * @throws IOException IO failure while manipulating the response
+	 */
 	private static boolean checkHttpError(final ControllerInvocationInfos infos, final Object ret, final HttpServletResponse res) throws IOException {
 		final HttpError sendsError = infos.invocation.getHttpError();
 		if (sendsError == null) {
@@ -89,6 +100,15 @@ public final class ControllersServer {
 		return true;
 	}
 
+	/**
+	 * Check if the invocation being processed has a {@link Redirects} annotation and handles the request accordingly
+	 *
+	 * @param infos The infos of the invocation being processed
+	 * @param ret Whatever the invocation has returned
+	 * @param res The current HTTP response
+	 * @return Whether there was an {@link Redirects} and it was handled, or not.
+	 * @throws IOException IO failure while manipulating the response
+	 */
 	private static boolean checkRedirects(final ControllerInvocationInfos infos, final Object ret, final HttpServletResponse res) throws IOException {
 		final Redirects redirectsTo = infos.invocation.getRedirects();
 		if (redirectsTo == null) {
@@ -111,6 +131,15 @@ public final class ControllersServer {
 		return false;
 	}
 
+	/**
+	 * Check if the invocation being processed has a {@link Writes} annotation and handles the request accordingly
+	 *
+	 * @param infos The infos of the invocation being processed
+	 * @param ret Whatever the invocation has returned
+	 * @param res The current HTTP response
+	 * @return Whether there was an {@link Writes} and it was handled, or not.
+	 * @throws IOException IO failure while manipulating the response
+	 */
 	private static boolean checkWrites(final ControllerInvocationInfos infos, Object ret, final HttpServletResponse res) throws IOException {
 		final Writes writes = infos.invocation.getWrites();
 		if (writes == null) {
@@ -141,7 +170,18 @@ public final class ControllersServer {
 		return true;
 	}
 
-	private void makeCall(final ControllerInvocationInfos infos, final HttpServletResponse res) throws HandledException, Throwable {
+	/**
+	 * Excecutes the call on the given invocation
+	 *
+	 * @param infos The infos of the invocation to call
+	 * @param res The current HTTP response
+	 * @throws HandledException If an exception was thrown and handled
+	 * @throws NoViewRendererException If the invocation gave a view that no view renderer could render
+	 * @throws ViewRenderingException If the invocation gave a view that fail to render
+	 * @throws IOException IO failure while manipulating the response
+	 * @throws Throwable Any exception thrown by the method being called
+	 */
+	private void makeCall(final ControllerInvocationInfos infos, final HttpServletResponse res) throws HandledException, NoViewRendererException, ViewRenderingException, IOException, Throwable {
 		assert this.injector != null;
 		assert infos.urlMatch != null;
 

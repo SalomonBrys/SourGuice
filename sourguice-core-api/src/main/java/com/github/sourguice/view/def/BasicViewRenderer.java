@@ -1,5 +1,6 @@
 package com.github.sourguice.view.def;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -16,6 +17,7 @@ import javax.inject.Singleton;
 import javax.servlet.http.HttpServletResponse;
 
 import com.github.sourguice.view.ViewRenderer;
+import com.github.sourguice.view.ViewRenderingException;
 
 /**
  * Very simple view renderer.
@@ -34,6 +36,16 @@ import com.github.sourguice.view.ViewRenderer;
  */
 @Singleton
 public abstract class BasicViewRenderer implements ViewRenderer {
+
+	/**
+	 * Contains all view name registered and their associated methods
+	 */
+	private final Map<String, Method> map = new HashMap<>();
+
+	/**
+	 * The provider which will provide response on which to write the views for each request
+	 */
+	private final Provider<HttpServletResponse> responseProvider;
 
 	/**
 	 * Each "view method" of the BasicViewRenderer subclass must be annotated with this
@@ -65,40 +77,38 @@ public abstract class BasicViewRenderer implements ViewRenderer {
 		 * @param clazz The class that's missing the annotation
 		 * @param view The missing view
 		 */
-		public NoSuchBasicViewMethodException(Class<?> clazz, String view) {
+		public NoSuchBasicViewMethodException(final Class<?> clazz, final String view) {
 			super(clazz.getCanonicalName() + " has no method annotated with @RenderFor(\"" + view + "\")");
 		}
 	}
 
 	/**
-	 * Contains all view name registered and their associated methods
-	 */
-	private Map<String, Method> map = new HashMap<>();
-
-	private Provider<HttpServletResponse> responseProvider;
-
-	/**
-	 * @param res The response on which to write the views
+	 * @param responseProvider The provider which will provide response on which to write the views for each request
 	 */
 	@Inject
-	public BasicViewRenderer(Provider<HttpServletResponse> responseProvider) {
+	public BasicViewRenderer(final Provider<HttpServletResponse> responseProvider) {
 		this.responseProvider = responseProvider;
 
 		// Gets all annotated method and "remembers" them
-		for (Method method : this.getClass().getMethods())
-			if (method.getAnnotation(RenderFor.class) != null)
-				map.put(method.getAnnotation(RenderFor.class).value(), method);
+		for (final Method method : this.getClass().getMethods()) {
+			if (method.getAnnotation(RenderFor.class) != null) {
+				this.map.put(method.getAnnotation(RenderFor.class).value(), method);
+			}
+		}
 	}
 
 	/**
 	 * Calls the method registered to the given view name and passes the model to it
 	 */
 	@Override
-	public final void render(String view, Map<String, Object> model) throws NoSuchBasicViewMethodException, Throwable {
-		if (map.containsKey(view)) {
-			try (PrintWriter out = responseProvider.get().getWriter()) {
-				map.get(view).invoke(this, out, model);
+	public final void render(final String view, final Map<String, Object> model) throws ViewRenderingException, IOException {
+		if (this.map.containsKey(view)) {
+			try (PrintWriter out = this.responseProvider.get().getWriter()) {
+				this.map.get(view).invoke(this, out, model);
 				out.flush();
+			}
+			catch (ReflectiveOperationException e) {
+				throw new ViewRenderingException(e);
 			}
 			return ;
 		}

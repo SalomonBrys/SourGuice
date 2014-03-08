@@ -39,7 +39,7 @@ import com.google.inject.servlet.ServletModule;
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
-@SuppressWarnings("static-method")
+@SuppressWarnings({"static-method", "PMD.TooManyMethods"})
 public abstract class MvcControlerModule extends ServletModule {
 
 	/**
@@ -58,11 +58,11 @@ public abstract class MvcControlerModule extends ServletModule {
 
 		public void configureServlets();
 
-		public void registerControl(String pattern, InstanceGetter<?> ig);
+		public void registerControl(String pattern, InstanceGetter<?> controller);
 
-		public void registerConverter(Class<?> type, InstanceGetter<? extends Converter<?>> ig);
+		public void registerConverter(Class<?> type, InstanceGetter<? extends Converter<?>> converter);
 
-		public <T extends Exception> void registerExceptionHandler(Class<? extends T> cls, InstanceGetter<? extends ExceptionHandler<T>> ig);
+		public <T extends Exception> void registerExceptionHandler(Class<? extends T> cls, InstanceGetter<? extends ExceptionHandler<T>> handler);
 
 		public void registerViewRenderer(Pattern pattern, InstanceGetter<? extends ViewRenderer> renderer);
 	}
@@ -72,21 +72,22 @@ public abstract class MvcControlerModule extends ServletModule {
 	 * This should be an instance of com.github.sourguice.MvcServletModuleHelperImpl
 	 * found by reflexivity
 	 */
-	private MvcControlerModuleHelperProxy helper;
+	protected MvcControlerModuleHelperProxy helper;
 
 	/**
 	 * This will check that the implementation jar is actually in the classpath
 	 */
 	public MvcControlerModule() {
+		super();
 		try {
-			helper = (MvcControlerModuleHelperProxy)
+			this.helper = (MvcControlerModuleHelperProxy)
 						Class
 							.forName("com.github.sourguice.MvcControlerModuleHelperImpl")
 							.getConstructor(MvcControlerModule.class)
 							.newInstance(this);
 		}
 		catch (ReflectiveOperationException e) {
-			throw new RuntimeException("Cannot find SourGuice Implementation, make sure it is deployed with your application", e);
+			throw new UnsupportedOperationException("Cannot find SourGuice Implementation, make sure it is deployed with your application", e);
 		}
 	}
 
@@ -97,7 +98,7 @@ public abstract class MvcControlerModule extends ServletModule {
 	 * @return The response writer
 	 * @throws IOException If an input or output exception occurs
 	 */
-	@Provides @RequestScoped public PrintWriter getRequestPrintWriter(HttpServletResponse res) throws IOException {
+	@Provides @RequestScoped public PrintWriter getRequestPrintWriter(final HttpServletResponse res) throws IOException {
 		return res.getWriter();
 	}
 
@@ -108,7 +109,7 @@ public abstract class MvcControlerModule extends ServletModule {
 	 * @return The response writer
 	 * @throws IOException If an input or output exception occurs
 	 */
-	@Provides @RequestScoped public Writer getRequestWriter(HttpServletResponse res) throws IOException {
+	@Provides @RequestScoped public Writer getRequestWriter(final HttpServletResponse res) throws IOException {
 		return res.getWriter();
 	}
 
@@ -119,10 +120,10 @@ public abstract class MvcControlerModule extends ServletModule {
 	 * @param container The request's scoped object container
 	 * @return The guice request
 	 */
-	@Provides @RequestScoped @GuiceRequest public HttpServletRequest getGuiceRequest(RequestScopeContainer container) {
-		HttpServletRequest r = container.get(HttpServletRequest.class);
-		assert r != null;
-		return r;
+	@Provides @RequestScoped @GuiceRequest public HttpServletRequest getGuiceRequest(final RequestScopeContainer container) {
+		final HttpServletRequest req = container.get(HttpServletRequest.class);
+		assert req != null;
+		return req;
 	}
 
 	/**
@@ -132,7 +133,7 @@ public abstract class MvcControlerModule extends ServletModule {
 	 * @param container The request's scoped object container
 	 * @return The MatchResult
 	 */
-	@Provides @RequestScoped public @CheckForNull MatchResult getPathMatcher(RequestScopeContainer container) {
+	@Provides @RequestScoped public @CheckForNull MatchResult getPathMatcher(final RequestScopeContainer container) {
 		return container.get(MatchResult.class);
 	}
 
@@ -144,8 +145,8 @@ public abstract class MvcControlerModule extends ServletModule {
 	 * @param context The current Servlet Context object
 	 * @return The ForwardableRequestFactory usable for the current request
 	 */
-	@Provides @RequestScoped public ForwardableRequestFactory getForwardableRequestFactory(@GuiceRequest HttpServletRequest req, ServletContext context) {
-		return helper.getForwardableRequestFactory(req, context);
+	@Provides @RequestScoped public ForwardableRequestFactory getForwardableRequestFactory(final @GuiceRequest HttpServletRequest req, final ServletContext context) {
+		return this.helper.getForwardableRequestFactory(req, context);
 	}
 
 	/**
@@ -154,7 +155,7 @@ public abstract class MvcControlerModule extends ServletModule {
 	 * @param req The current HTTP request object
 	 * @return The RequestMethod of the current request
 	 */
-	@Provides @RequestScoped public RequestMethod getRequestMethod(HttpServletRequest req) {
+	@Provides @RequestScoped public RequestMethod getRequestMethod(final HttpServletRequest req) {
 		return RequestMethod.valueOf(req.getMethod());
 	}
 
@@ -169,7 +170,7 @@ public abstract class MvcControlerModule extends ServletModule {
 	protected final void configureServlets() {
 		super.configureServlets();
 
-		helper.configureServlets();
+		this.helper.configureServlets();
 	}
 
 	/**
@@ -181,29 +182,57 @@ public abstract class MvcControlerModule extends ServletModule {
 
 	/**
 	 * Interface returned by {@link #control(String, String...)} to permit the syntax control(pattern).with(controller.class)
+	 *
+	 * @param <T> The type of instance to register
 	 */
 	public abstract class BindBuilder<T> {
 
-		public void with(Key<? extends T> key) {
-			InstanceGetter<? extends T> ig = new GuiceInstanceGetter<>(key);
-			requestInjection(ig);
-			register(ig);
+		/**
+		 * Registers a Guice key
+		 *
+		 * @param key The key to register
+		 */
+		@SuppressWarnings("synthetic-access")
+		public void with(final Key<? extends T> key) {
+			final InstanceGetter<? extends T> getter = new GuiceInstanceGetter<>(key);
+			requestInjection(getter);
+			register(getter);
 		}
 
-		public void with(Class<? extends T> type) {
+		/**
+		 * Registers a type to be retrieved with Guice
+		 *
+		 * @param type The type to register
+		 */
+		public void with(final Class<? extends T> type) {
 			with(Key.get(type));
 		}
 
-		public void with(TypeLiteral<? extends T> type) {
+		/**
+		 * Registers a type to be retrieved with Guice
+		 *
+		 * @param type The type to register
+		 */
+		public void with(final TypeLiteral<? extends T> type) {
 			with(Key.get(type));
 		}
 
-		public void withInstance(T instance) {
-			InstanceGetter<? extends T> ig = new GivenInstanceGetter<>(instance);
-			register(ig);
+		/**
+		 * Registers a pre-created instance
+		 *
+		 * @param instance The object to register
+		 */
+		public void withInstance(final T instance) {
+			final InstanceGetter<? extends T> getter = new GivenInstanceGetter<>(instance);
+			register(getter);
 		}
 
-		abstract protected void register(InstanceGetter<? extends T> ig);
+		/**
+		 * Makes the registration within the corresponding service.
+		 *
+		 * @param getter The {@link InstanceGetter} to register within the service.
+		 */
+		abstract protected void register(InstanceGetter<? extends T> getter);
 	}
 
 	/**
@@ -211,14 +240,15 @@ public abstract class MvcControlerModule extends ServletModule {
 	 *
 	 * @param pattern The pattern to register for the later controller
 	 * @param patterns Any additional patterns to register
-	 * @return ControlBuilder on which {@link BindBuilder#with(Class)} must be called
+	 * @return BindBuilder on which with() or withInstance() must be called
 	 */
 	public final BindBuilder<Object> control(final String pattern, final String... patterns) {
 		return new BindBuilder<Object>() {
-			@Override protected void register(InstanceGetter<? extends Object> ig) {
-				helper.registerControl(pattern, ig);
-				for (String p : patterns)
-					helper.registerControl(p, ig);
+			@Override protected void register(final InstanceGetter<? extends Object> controller) {
+				MvcControlerModule.this.helper.registerControl(pattern, controller);
+				for (final String addPattern : patterns) {
+					MvcControlerModule.this.helper.registerControl(addPattern, controller);
+				}
 			}
 		};
 	}
@@ -233,6 +263,7 @@ public abstract class MvcControlerModule extends ServletModule {
 		 *
 		 * @param path The path on which redirect
 		 */
+		@SuppressWarnings("PMD.ShortMethodName")
 		public void to(String path);
 	}
 
@@ -241,10 +272,11 @@ public abstract class MvcControlerModule extends ServletModule {
 	 *
 	 * @param pattern The pattern to redirect to the later path
 	 * @param patterns Any additional patterns to redirect
-	 * @return RedirectBuilder on which {@link RedirectBuilder#to(String)} must be called
+	 * @return RedirectBuilder on which to() must be called
 	 */
 	public final RedirectBuilder redirect(final String pattern, final String... patterns) {
 		return new RedirectBuilder() {
+			@SuppressWarnings({"synthetic-access", "PMD.ShortMethodName"})
 			@Override public void to(final String dest) {
 				serve(pattern, patterns).with(new RedirectServlet(dest));
 			}
@@ -254,14 +286,17 @@ public abstract class MvcControlerModule extends ServletModule {
 	/**
 	 * Call this from {@link #configureControllers()} to change the default view renderer.
 	 *
-	 * @return The default view renderer
+	 * @param regex The name regular expression to register to the later view renderer
+	 * @param regexs Any additional name regular expression to register
+	 * @return BindBuilder on which with() or withInstance() must be called
 	 */
 	public BindBuilder<ViewRenderer> renderViews(final String regex, final String... regexs) {
 		return new BindBuilder<ViewRenderer>() {
-			@Override protected void register(InstanceGetter<? extends ViewRenderer> ig) {
-				helper.registerViewRenderer(Pattern.compile(regex), ig);
-				for (String r : regexs)
-					helper.registerViewRenderer(Pattern.compile(r), ig);
+			@Override protected void register(final InstanceGetter<? extends ViewRenderer> renderer) {
+				MvcControlerModule.this.helper.registerViewRenderer(Pattern.compile(regex), renderer);
+				for (final String addRegex : regexs) {
+					MvcControlerModule.this.helper.registerViewRenderer(Pattern.compile(addRegex), renderer);
+				}
 			}
 		};
 	}
@@ -269,16 +304,17 @@ public abstract class MvcControlerModule extends ServletModule {
 	/**
 	 * First method of the syntax convertTo(class).with(converter)
 	 *
-	 * @param to The class to convert to using the later converter
-	 * @param tos Any additional class to convert to
-	 * @return ConvertToBuilder on which {@link ConvertToBuilder#with(Converter)} must be called
+	 * @param toType The class to convert to using the later converter
+	 * @param toTypes Any additional class to convert to
+	 * @return BindBuilder on which with() or withInstance() must be called
 	 */
-	public final BindBuilder<Converter<?>> convertTo(final Class<?> to, final Class<?>... tos) {
+	public final BindBuilder<Converter<?>> convertTo(final Class<?> toType, final Class<?>... toTypes) {
 		return new BindBuilder<Converter<?>>() {
-			@Override protected void register(InstanceGetter<? extends Converter<?>> ig) {
-				helper.registerConverter(to, ig);
-				for (Class<?> t : tos)
-					helper.registerConverter(t, ig);
+			@Override protected void register(final InstanceGetter<? extends Converter<?>> converter) {
+				MvcControlerModule.this.helper.registerConverter(toType, converter);
+				for (final Class<?> addToType : toTypes) {
+					MvcControlerModule.this.helper.registerConverter(addToType, converter);
+				}
 			}
 		};
 	}
@@ -288,19 +324,19 @@ public abstract class MvcControlerModule extends ServletModule {
 	 *
 	 * @param exc The exception class to handle using the later handler
 	 * @param excs Any additional class to convert to
-	 * @return HandleExceptionBuilder on which {@link HandleExceptionBuilder#with(ExceptionHandler)} must be called
+	 * @return BindBuilder on which with() or withInstance() must be called
 	 */
 	@SafeVarargs
 	public final <T extends Exception> BindBuilder<ExceptionHandler<T>> handleException(final Class<? extends T> exc, final Class<? extends T>... excs) {
 		return new BindBuilder<ExceptionHandler<T>>() {
-			@Override protected void register(InstanceGetter<? extends ExceptionHandler<T>> ig) {
-				helper.registerExceptionHandler(exc, ig);
-				for (Class<? extends T> e : excs)
-					helper.registerExceptionHandler(e, ig);
+			@Override protected void register(final InstanceGetter<? extends ExceptionHandler<T>> handler) {
+				MvcControlerModule.this.helper.registerExceptionHandler(exc, handler);
+				for (final Class<? extends T> addExc : excs) {
+					MvcControlerModule.this.helper.registerExceptionHandler(addExc, handler);
+				}
 			}
 		};
 	}
-
 
 	/**
 	 * Allows implementation proxy class to access the actual binder
@@ -308,6 +344,7 @@ public abstract class MvcControlerModule extends ServletModule {
 	 * which is on the same package as this module class, to access this method.
 	 */
 	@Override
+	@SuppressWarnings("PMD.UselessOverridingMethod")
 	protected Binder binder() {
 		return super.binder();
 	}
@@ -321,7 +358,8 @@ public abstract class MvcControlerModule extends ServletModule {
 	 * @param morePatterns Any Servlet-style pattern. examples: /*, /html/*, *.html, etc.
 	 * @return The necessary object for the serve().with() DSL
 	 */
-	protected ServletModule.ServletKeyBindingBuilder _serve(String urlPattern, String... morePatterns) {
+	@SuppressWarnings("PMD.MethodNamingConventions")
+	protected ServletModule.ServletKeyBindingBuilder _serve(final String urlPattern, final String... morePatterns) {
 		return serve(urlPattern, morePatterns);
 	}
 

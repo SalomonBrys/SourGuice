@@ -12,9 +12,6 @@ import com.google.inject.TypeLiteral;
  */
 public class FloatConverter implements Converter<Float> {
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public @CheckForNull Float get(final TypeLiteral<? extends Float> type, final String arg) {
 		try {

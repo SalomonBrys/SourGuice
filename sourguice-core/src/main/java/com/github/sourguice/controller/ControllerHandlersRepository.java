@@ -22,7 +22,7 @@ public final class ControllerHandlersRepository {
 	/**
 	 * Gets the {@link ControllerHandler} for a given class and creates one if none is yet registered for this class
 	 *
-	 * @param clazz The class on which to get / create a {@link ControllerHandler}
+	 * @param controller The controller getter on which to get / create a {@link ControllerHandler}
 	 * @return The handler for the given class
 	 */
 	@SuppressWarnings("unchecked")

@@ -10,9 +10,9 @@ public class HandledException extends Exception {
 
 	/**
 	 * Simple constructor that does nothing but call super
-	 * @param e The handled exception
+	 * @param cause The handled exception
 	 */
-	public HandledException(Throwable e) {
-		super(e);
+	public HandledException(final Throwable cause) {
+		super(cause);
 	}
 }

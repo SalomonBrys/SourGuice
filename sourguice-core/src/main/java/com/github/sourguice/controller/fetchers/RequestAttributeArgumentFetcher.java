@@ -1,7 +1,6 @@
 package com.github.sourguice.controller.fetchers;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
 import java.util.Map;
 
 import javax.annotation.CheckForNull;
@@ -33,12 +32,27 @@ public class RequestAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 	private boolean isAccessor = false;
 
 
+	/**
+	 * Attribute accessor specialization for Request Attributes
+	 *
+	 * @param <T> The type of the attribute
+	 */
 	public static class RequestAttributeAccessor<T> implements Attribute<T> {
 
+		/**
+		 * The request to read / write the attribute from
+		 */
 		private final HttpServletRequest req;
 
+		/**
+		 * The attribute name
+		 */
 		private final String attribute;
 
+		/**
+		 * @param req The request to read / write the attribute from
+		 * @param attribute The attribute name
+		 */
 		public RequestAttributeAccessor(final HttpServletRequest req, final String attribute) {
 			super();
 			this.req = req;
@@ -57,9 +71,9 @@ public class RequestAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 	}
 
 	/**
-	 * @see ArgumentFetcher#ArgumentFetcher(Type, int, Annotation[])
+	 * @see ArgumentFetcher#ArgumentFetcher(TypeLiteral, Annotation[])
+	 *
 	 * @param type The type of the argument to fetch
-	 * @param pos The position of the method's argument to fetch
 	 * @param annotations Annotations that were found on the method's argument
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 */
@@ -71,9 +85,6 @@ public class RequestAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	protected @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) {

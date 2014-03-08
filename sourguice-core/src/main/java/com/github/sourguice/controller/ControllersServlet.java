@@ -18,8 +18,12 @@ import com.google.inject.Injector;
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
 public final class ControllersServlet extends HttpServlet {
+	@SuppressWarnings("javadoc")
 	private static final long serialVersionUID = -7900861299267188869L;
 
+	/**
+	 * The SourGuice Server, where all the magic happens \o/
+	 */
 	private final ControllersServer server = new ControllersServer();
 
 	/**

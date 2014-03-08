@@ -12,9 +12,6 @@ import com.google.inject.TypeLiteral;
  */
 public class LongConverter implements Converter<Long> {
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public @CheckForNull Long get(final TypeLiteral<? extends Long> type, final String arg) {
 		try {

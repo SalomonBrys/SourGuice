@@ -13,7 +13,7 @@ public class NoViewRendererException extends RuntimeException {
 	/**
 	 * @param viewName The name of the view for which no renderer could be found
 	 */
-	public NoViewRendererException(String viewName) {
+	public NoViewRendererException(final String viewName) {
 		super("Could not find renderer for " + viewName);
 	}
 }

@@ -1,5 +1,6 @@
 package com.github.sourguice.view;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -16,7 +17,8 @@ public interface ViewRenderer {
 	 *
 	 * @param view Name of the view to render
 	 * @param model Map that contains all variable names and values needed to construct the view
-	 * @throws Throwable The view renderer can throw anything it needs
+	 * @throws ViewRenderingException If anything went wrong during rendering
+	 * @throws IOException IO failure
 	 */
-	public void render(String view, Map<String, Object> model) throws Throwable;
+	public void render(String view, Map<String, Object> model) throws ViewRenderingException, IOException;
 }

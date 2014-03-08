@@ -39,7 +39,6 @@ public abstract class ArgumentFetcher<T> {
 
 	/**
 	 * @param type The type of the argument to fetch
-	 * @param pos The position of the method's argument to fetch
 	 * @param annotations Annotations that were found on the method's argument
 	 */
 	protected ArgumentFetcher(final TypeLiteral<T> type, final Annotation[] annotations) {
@@ -83,6 +82,13 @@ public abstract class ArgumentFetcher<T> {
 	 */
 	protected abstract @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) throws Throwable;
 
+	/**
+	 * Util for subclasses to convert an object to the type this fetcher is supposed to return
+	 *
+	 * @param injector The Guice injector
+	 * @param value The value to convert
+	 * @return The converted value
+	 */
 	protected @CheckForNull T convert(final Injector injector, final Object value) {
 		return injector.getInstance(ConversionService.class).convert(this.type, value);
 	}

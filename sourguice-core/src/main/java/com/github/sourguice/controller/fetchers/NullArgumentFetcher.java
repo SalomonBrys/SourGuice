@@ -1,7 +1,6 @@
 package com.github.sourguice.controller.fetchers;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
 import java.util.Map;
 
 import javax.annotation.CheckForNull;
@@ -19,20 +18,19 @@ import com.google.inject.TypeLiteral;
  * This is used for @{@link InterceptParam} annotated argument.
  * They return null but the actual argument will later be injected in a {@link MethodInterceptor}
  *
+ * @param <T> The type of the object being asked (ignored since null will always be returned)
+ *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
 public class NullArgumentFetcher<T> extends ArgumentFetcher<T> {
 
 	/**
-	 * @see ArgumentFetcher#ArgumentFetcher(Type, int, Annotation[])
+	 * @see ArgumentFetcher#ArgumentFetcher(TypeLiteral, Annotation[])
 	 */
 	public NullArgumentFetcher(final TypeLiteral<T> type, final Annotation[] annotations) {
 		super(type, annotations);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) {
 		return null;

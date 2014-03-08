@@ -1,7 +1,6 @@
 package com.github.sourguice.controller.fetchers;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
 import java.util.Map;
 
 import javax.annotation.CheckForNull;
@@ -31,12 +30,12 @@ public class InjectorArgumentFetcher<T> extends ArgumentFetcher<T> {
 	private Key<T> key;
 
 	/**
-	 * @see ArgumentFetcher#ArgumentFetcher(Type, int, Annotation[])
+	 * @see ArgumentFetcher#ArgumentFetcher(TypeLiteral, Annotation[])
 	 */
 	public InjectorArgumentFetcher(final TypeLiteral<T> type, final Annotation[] annotations) {
 		super(type, annotations);
 
-		Annotation bindingAnnotation = Annotations.GetOneAnnotated(BindingAnnotation.class, annotations);
+		Annotation bindingAnnotation = Annotations.getOneAnnotated(BindingAnnotation.class, annotations);
 		if (bindingAnnotation == null) {
 			bindingAnnotation = Annotations.fromArray(annotations).getAnnotation(Named.class);
 		}
@@ -49,9 +48,6 @@ public class InjectorArgumentFetcher<T> extends ArgumentFetcher<T> {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) {
 		return injector.getInstance(this.key);

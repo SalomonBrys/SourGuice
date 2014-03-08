@@ -16,7 +16,7 @@ public class InterceptWithMatcher extends AbstractMatcher<AnnotatedElement> {
 
 	@Override
 	public boolean matches(final AnnotatedElement element) {
-		return Annotations.GetOneTreeRecursive(InterceptWith.class, element) != null;
+		return Annotations.getOneTreeRecursive(InterceptWith.class, element) != null;
 	}
 
 }

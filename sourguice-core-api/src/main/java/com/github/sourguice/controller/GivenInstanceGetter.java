@@ -3,39 +3,45 @@ package com.github.sourguice.controller;
 import com.google.inject.TypeLiteral;
 
 /**
- * Used by the syntax control().withInstance()
+ * Used by the syntax *().withInstance()
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
- * @param <T>
+ * @param <T> The type of the instance this will hold
  */
 public class GivenInstanceGetter<T> implements InstanceGetter<T> {
 
-	T instance;
+	/**
+	 * The instance to hold and give back when asked
+	 */
+	private final T instance;
 
-	public GivenInstanceGetter(T instance) {
+	/**
+	 * @param instance The instance to hold and give back when asked
+	 */
+	public GivenInstanceGetter(final T instance) {
 		super();
 		this.instance = instance;
 	}
 
 	@Override
 	public T getInstance() {
-		return instance;
+		return this.instance;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public TypeLiteral<T> getTypeLiteral() {
-		return (TypeLiteral<T>) TypeLiteral.get(instance.getClass());
+		return (TypeLiteral<T>) TypeLiteral.get(this.instance.getClass());
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		return obj instanceof GivenInstanceGetter && instance.equals(((GivenInstanceGetter<?>)obj).instance);
+	public boolean equals(final Object obj) {
+		return obj instanceof GivenInstanceGetter && this.instance.equals(((GivenInstanceGetter<?>)obj).instance);
 	}
 
 	@Override
 	public int hashCode() {
-		return instance.hashCode();
+		return this.instance.hashCode();
 	}
 
 }

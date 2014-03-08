@@ -30,7 +30,7 @@ public class ExceptionServiceImpl implements ExceptionService {
 	/**
 	 * Registers an exception class and its corresponding exception handler
 	 *
-	 * @param clazz The exception class to handle
+	 * @param cls The exception class to handle
 	 * @param handler The handler that handles the exception
 	 * @throws UnreachableExceptionHandlerException When an ExceptionHandler will never be reached because a previous ExceptionHandler
 	 *                                              has been registered that already handles this class of exception

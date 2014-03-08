@@ -2,6 +2,8 @@ package com.github.sourguice.request;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.github.sourguice.view.def.JSPViewRenderer;
+
 /**
  * ForwardableRequestFactory is used to forward the request to a resource :
  *  - Get an instance from Guice
@@ -15,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
+@SuppressWarnings("PMD.ShortMethodName")
 public interface ForwardableRequestFactory {
 	/**
 	 * @param path The path you wish to redirect to

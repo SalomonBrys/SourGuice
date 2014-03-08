@@ -79,12 +79,24 @@ public final class MvcInvocation {
 	 */
 	private final Method method;
 
+	/**
+	 * View annotation if defined on the method
+	 */
 	private final @CheckForNull View view;
 
+	/**
+	 * Writes annotation if defined on the method
+	 */
 	private final @CheckForNull Writes writes;
 
+	/**
+	 * HttpError annotation if defined on the method
+	 */
 	private final @CheckForNull HttpError httpError;
 
+	/**
+	 * Redirects annotation if defined on the method
+	 */
 	private final @CheckForNull Redirects redirects;
 
 	/**
@@ -92,8 +104,18 @@ public final class MvcInvocation {
 	 */
 	private final Map<String, Integer> matchRef = new HashMap<>();
 
+	/**
+	 * The handler of the controller of the method
+	 */
 	private final ControllerHandler<?> controller;
 
+	/**
+	 * Creates the appropriate fetcher for the given argument
+	 *
+	 * @param type The argument's type
+	 * @param annotations The argument's annotation
+	 * @return The appropriate argument fetcher
+	 */
 	private <T> ArgumentFetcher<T> createFetcher(final TypeLiteral<T> type, final Annotation[] annotations) {
 		final AnnotatedElement annos = Annotations.fromArray(annotations);
 
@@ -132,7 +154,7 @@ public final class MvcInvocation {
 
 	/**
 	 * @param mapping The annotation that must be present on each invocation method
-	 * @param clazz The class on witch to call the method
+	 * @param controller The controller on witch to call the method
 	 * @param method The method to call
 	 */
 	public MvcInvocation(final ControllerHandler<?> controller, final @CheckForNull RequestMapping mapping, final Method method) {
@@ -141,13 +163,13 @@ public final class MvcInvocation {
 		this.mapping = mapping;
 		this.method = method;
 
-		this.view = Annotations.GetOneTreeRecursive(View.class, method);
+		this.view = Annotations.getOneTreeRecursive(View.class, method);
 
-		this.writes = Annotations.GetOneTreeRecursive(Writes.class, method);
+		this.writes = Annotations.getOneTreeRecursive(Writes.class, method);
 
-		this.httpError = Annotations.GetOneRecursive(HttpError.class, method.getAnnotations());
+		this.httpError = Annotations.getOneRecursive(HttpError.class, method.getAnnotations());
 
-		this.redirects = Annotations.GetOneRecursive(Redirects.class, method.getAnnotations());
+		this.redirects = Annotations.getOneRecursive(Redirects.class, method.getAnnotations());
 
 		// Transform URL like "/foo-{bar}" into /foo-[^/]+ and registers "bar" as match 1
 		if (this.mapping != null) {
@@ -207,7 +229,7 @@ public final class MvcInvocation {
 		// Checks the HTTP Method
 		if (this.mapping.method().length > 0) {
 			final RequestMethod requestMethod = RequestMethod.valueOf(req.getMethod());
-			if (Arrays.Contains(this.mapping.method(), requestMethod)) {
+			if (Arrays.contains(this.mapping.method(), requestMethod)) {
 				++ret.confidence;
 			}
 			else {
@@ -237,7 +259,7 @@ public final class MvcInvocation {
 
 		// Checks HTTP header Content-Type
 		if (this.mapping.consumes().length > 0) {
-			if (Arrays.Contains(this.mapping.consumes(), req.getContentType())) {
+			if (Arrays.contains(this.mapping.consumes(), req.getContentType())) {
 				++ret.confidence;
 			}
 			else {
@@ -250,7 +272,7 @@ public final class MvcInvocation {
 			if (req.getHeader("Accept") == null) {
 				return null;
 			}
-			if (HttpStrings.AcceptContains(req.getHeader("Accept"), this.mapping.produces())) {
+			if (HttpStrings.acceptContains(req.getHeader("Accept"), this.mapping.produces())) {
 				++ret.confidence;
 			}
 			else {
@@ -327,28 +349,43 @@ public final class MvcInvocation {
 	}
 
 	/**
-	 * @return The invocation's method
+	 * @return The invocation's method's name
 	 */
-	public Method getMethod() {
-		return this.method;
+	public String getName() {
+		return this.method.getName();
 	}
 
+	/**
+	 * @return The controller of the method of this invocation
+	 */
 	public ControllerHandler<?> getController() {
 		return this.controller;
 	}
 
+	/**
+	 * @return View annotation if defined on the method
+	 */
 	public @CheckForNull View getView() {
 		return this.view;
 	}
 
+	/**
+	 * @return Writes annotation if defined on the method
+	 */
 	public @CheckForNull Writes getWrites() {
 		return this.writes;
 	}
 
+	/**
+	 * @return HttpError annotation if defined on the method
+	 */
 	public @CheckForNull HttpError getHttpError() {
 		return this.httpError;
 	}
 
+	/**
+	 * @return Redirects annotation if defined on the method
+	 */
 	public @CheckForNull Redirects getRedirects() {
 		return this.redirects;
 	}

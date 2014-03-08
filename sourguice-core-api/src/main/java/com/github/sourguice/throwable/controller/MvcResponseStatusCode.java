@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Exception used to send an HTTP error from a controller's method
- * 
+ *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
 public class MvcResponseStatusCode extends MvcResponseException {
@@ -18,29 +18,31 @@ public class MvcResponseStatusCode extends MvcResponseException {
 	 * The HTTP error code (Often 404 or 403)
 	 */
 	public int code;
-	
+
 	/**
 	 * The HTTP error message
 	 */
 	public @CheckForNull String message = null;
-	
+
 	/**
 	 * Constructor with only an HTTP error code
 	 * The message will be the default one for this code
-	 * 
+	 *
 	 * @param code The HTTP error code
 	 */
-	public MvcResponseStatusCode(int code) {
+	public MvcResponseStatusCode(final int code) {
+		super();
 		this.code = code;
 	}
 
 	/**
 	 * Constructor with an HTTP error code and a custom error message
-	 * 
+	 *
 	 * @param code The HTTP error code
 	 * @param reason The message for this HTTP error
 	 */
-	public MvcResponseStatusCode(int code, String reason) {
+	public MvcResponseStatusCode(final int code, final String reason) {
+		super();
 		this.code = code;
 		this.message = reason;
 	}
@@ -49,11 +51,13 @@ public class MvcResponseStatusCode extends MvcResponseException {
 	 * Sends the configured error to the HTTP response
 	 */
 	@Override
-	public void execute(HttpServletResponse res) throws IOException {
-		if (message != null)
-			res.sendError(code, message);
-		else
-			res.sendError(code);
+	public void execute(final HttpServletResponse res) throws IOException {
+		if (this.message != null) {
+			res.sendError(this.code, this.message);
+		}
+		else {
+			res.sendError(this.code);
+		}
 	}
 }
 

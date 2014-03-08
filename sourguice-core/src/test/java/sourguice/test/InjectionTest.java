@@ -331,9 +331,9 @@ public class InjectionTest extends TestBase {
 		assertEquals(response.getStatus(), 200);
         String[] split = response.getContent().split(":");
         assertEquals(split.length, 4);
-        assertTrue(Arrays.Contains(split, "one"));
-        assertTrue(Arrays.Contains(split, "two"));
-        assertTrue(Arrays.Contains(split, "three"));
+        assertTrue(Arrays.contains(split, "one"));
+        assertTrue(Arrays.contains(split, "two"));
+        assertTrue(Arrays.contains(split, "three"));
     }
 
     public void getQueue() throws Exception {
@@ -343,9 +343,9 @@ public class InjectionTest extends TestBase {
 		assertEquals(response.getStatus(), 200);
         String[] split = response.getContent().split(":");
         assertEquals(split.length, 4);
-        assertTrue(Arrays.Contains(split, "one"));
-        assertTrue(Arrays.Contains(split, "two"));
-        assertTrue(Arrays.Contains(split, "three"));
+        assertTrue(Arrays.contains(split, "one"));
+        assertTrue(Arrays.contains(split, "two"));
+        assertTrue(Arrays.contains(split, "three"));
     }
 
     public void getSet() throws Exception {
@@ -355,9 +355,9 @@ public class InjectionTest extends TestBase {
 		assertEquals(response.getStatus(), 200);
         String[] split = response.getContent().split(":");
         assertEquals(split.length, 4);
-        assertTrue(Arrays.Contains(split, "one"));
-        assertTrue(Arrays.Contains(split, "two"));
-        assertTrue(Arrays.Contains(split, "three"));
+        assertTrue(Arrays.contains(split, "one"));
+        assertTrue(Arrays.contains(split, "two"));
+        assertTrue(Arrays.contains(split, "three"));
     }
 
     public void getSortedSet() throws Exception {
@@ -367,9 +367,9 @@ public class InjectionTest extends TestBase {
 		assertEquals(response.getStatus(), 200);
         String[] split = response.getContent().split(":");
         assertEquals(split.length, 4);
-        assertTrue(Arrays.Contains(split, "one"));
-        assertTrue(Arrays.Contains(split, "two"));
-        assertTrue(Arrays.Contains(split, "three"));
+        assertTrue(Arrays.contains(split, "one"));
+        assertTrue(Arrays.contains(split, "two"));
+        assertTrue(Arrays.contains(split, "three"));
     }
 
     public void getArrayDeque() throws Exception {
@@ -379,9 +379,9 @@ public class InjectionTest extends TestBase {
 		assertEquals(response.getStatus(), 200);
         String[] split = response.getContent().split(":");
         assertEquals(split.length, 4);
-        assertTrue(Arrays.Contains(split, "one"));
-        assertTrue(Arrays.Contains(split, "two"));
-        assertTrue(Arrays.Contains(split, "three"));
+        assertTrue(Arrays.contains(split, "one"));
+        assertTrue(Arrays.contains(split, "two"));
+        assertTrue(Arrays.contains(split, "three"));
     }
 
 
@@ -392,9 +392,9 @@ public class InjectionTest extends TestBase {
 		assertEquals(response.getStatus(), 200);
         String[] split = response.getContent().split(":");
         assertEquals(split.length, 4);
-        assertTrue(Arrays.Contains(split, "a"));
-        assertTrue(Arrays.Contains(split, "b"));
-        assertTrue(Arrays.Contains(split, "c"));
+        assertTrue(Arrays.contains(split, "a"));
+        assertTrue(Arrays.contains(split, "b"));
+        assertTrue(Arrays.contains(split, "c"));
     }
 
 
@@ -423,9 +423,9 @@ public class InjectionTest extends TestBase {
 		assertEquals(response.getStatus(), 200);
         String[] split = response.getContent().split(":");
         assertEquals(split.length, 4);
-        assertTrue(Arrays.Contains(split, "a=one"));
-        assertTrue(Arrays.Contains(split, "b=two"));
-        assertTrue(Arrays.Contains(split, "c=three"));
+        assertTrue(Arrays.contains(split, "a=one"));
+        assertTrue(Arrays.contains(split, "b=two"));
+        assertTrue(Arrays.contains(split, "c=three"));
     }
 
 
@@ -436,9 +436,9 @@ public class InjectionTest extends TestBase {
 		assertEquals(response.getStatus(), 200);
         String[] split = response.getContent().split(":");
         assertEquals(split.length, 4);
-        assertTrue(Arrays.Contains(split, "a=one"));
-        assertTrue(Arrays.Contains(split, "b=two"));
-        assertTrue(Arrays.Contains(split, "c=three"));
+        assertTrue(Arrays.contains(split, "a=one"));
+        assertTrue(Arrays.contains(split, "b=two"));
+        assertTrue(Arrays.contains(split, "c=three"));
     }
 
 
@@ -449,9 +449,9 @@ public class InjectionTest extends TestBase {
 		assertEquals(response.getStatus(), 200);
         String[] split = response.getContent().split(":");
         assertEquals(split.length, 4);
-        assertTrue(Arrays.Contains(split, "a=one"));
-        assertTrue(Arrays.Contains(split, "b=two"));
-        assertTrue(Arrays.Contains(split, "c=three"));
+        assertTrue(Arrays.contains(split, "a=one"));
+        assertTrue(Arrays.contains(split, "b=two"));
+        assertTrue(Arrays.contains(split, "c=three"));
     }
 
 
@@ -462,9 +462,9 @@ public class InjectionTest extends TestBase {
 		assertEquals(response.getStatus(), 200);
         String[] split = response.getContent().split(":");
         assertEquals(split.length, 4);
-        assertTrue(Arrays.Contains(split, "a=one"));
-        assertTrue(Arrays.Contains(split, "b=two"));
-        assertTrue(Arrays.Contains(split, "c=three"));
+        assertTrue(Arrays.contains(split, "a=one"));
+        assertTrue(Arrays.contains(split, "b=two"));
+        assertTrue(Arrays.contains(split, "c=three"));
     }
 
 
@@ -493,9 +493,9 @@ public class InjectionTest extends TestBase {
 		assertEquals(response.getStatus(), 200);
         String[] split = response.getContent().split(":");
         assertEquals(split.length, 4);
-        assertTrue(Arrays.Contains(split, "one"));
-        assertTrue(Arrays.Contains(split, "two"));
-        assertTrue(Arrays.Contains(split, "three"));
+        assertTrue(Arrays.contains(split, "one"));
+        assertTrue(Arrays.contains(split, "two"));
+        assertTrue(Arrays.contains(split, "three"));
     }
 
 

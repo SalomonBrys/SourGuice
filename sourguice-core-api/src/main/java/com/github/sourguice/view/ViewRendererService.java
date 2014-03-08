@@ -16,6 +16,7 @@ public interface ViewRendererService {
 	 *
 	 * @param viewName the name of the view
 	 * @return the renderer to use or null if none were found
+	 * @throws NoViewRendererException If no renderer was found for this view
 	 */
 	public abstract InstanceGetter<? extends ViewRenderer> getRenderer(String viewName) throws NoViewRendererException;
 

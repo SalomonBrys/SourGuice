@@ -15,9 +15,6 @@ import com.google.inject.TypeLiteral;
 @ConverterCanConstructChild
 public class EnumConverter implements Converter<Enum> {
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@SuppressWarnings({ "unchecked", "cast" })
 	public @CheckForNull Enum get(final TypeLiteral<? extends Enum> type, final String arg) {

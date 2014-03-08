@@ -25,9 +25,6 @@ public class BooleanConverter implements Converter<Boolean> {
 	 */
 	static private final Pattern ZERO = Pattern.compile("0?\\.?0+");
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public @CheckForNull Boolean get(final TypeLiteral<? extends Boolean> clazz, final String arg) {
 		if (	arg.equalsIgnoreCase("true")
