@@ -1,4 +1,4 @@
-package com.github.sourguice.annotation.controller;
+package com.github.sourguice.annotation.request;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

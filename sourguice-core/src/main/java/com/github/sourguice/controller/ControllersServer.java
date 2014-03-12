@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.github.sourguice.annotation.controller.HttpError;
-import com.github.sourguice.annotation.controller.Redirects;
+import com.github.sourguice.annotation.request.Redirects;
 import com.github.sourguice.annotation.request.Writes;
 import com.github.sourguice.call.impl.MvcCallerImpl;
 import com.github.sourguice.request.wrapper.NoJsessionidHttpRequest;

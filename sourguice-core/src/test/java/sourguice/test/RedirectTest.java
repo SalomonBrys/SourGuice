@@ -6,7 +6,7 @@ import org.eclipse.jetty.testing.HttpTester;
 import org.testng.annotations.Test;
 
 import com.github.sourguice.MvcControlerModule;
-import com.github.sourguice.annotation.controller.Redirects;
+import com.github.sourguice.annotation.request.Redirects;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.throwable.controller.MvcResponseException;
 import com.github.sourguice.throwable.controller.MvcResponseRedirect;

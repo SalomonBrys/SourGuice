@@ -16,10 +16,10 @@ import javax.annotation.CheckForNull;
 import javax.servlet.http.HttpServletRequest;
 
 import com.github.sourguice.annotation.controller.HttpError;
-import com.github.sourguice.annotation.controller.Redirects;
 import com.github.sourguice.annotation.request.InterceptParam;
 import com.github.sourguice.annotation.request.PathVariable;
 import com.github.sourguice.annotation.request.PathVariablesMap;
+import com.github.sourguice.annotation.request.Redirects;
 import com.github.sourguice.annotation.request.RequestAttribute;
 import com.github.sourguice.annotation.request.RequestHeader;
 import com.github.sourguice.annotation.request.RequestMapping;
