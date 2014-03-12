@@ -67,15 +67,16 @@ public abstract class TestBase {
 
 		static void handleException(ServletException e, HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
 			Throwable cause = e.getCause();
-			if (cause != null) {
-				String exc = req.getHeader("x-sj-exc");
-				if (exc != null && exc.equals(cause.getClass().getCanonicalName())) {
-					res.sendError(500, cause.getMessage());
-					return ;
-				}
-				System.err.println("UNEXPECTED SERVLET EXCEPTION: " + cause.getClass().getCanonicalName());
+			if (cause == null) {
 				throw e;
 			}
+			String exc = req.getHeader("x-sj-exc");
+			if (exc != null && exc.equals(cause.getClass().getCanonicalName())) {
+				res.sendError(500, cause.getMessage());
+				return ;
+			}
+			System.err.println("UNEXPECTED SERVLET EXCEPTION: " + cause.getClass().getCanonicalName());
+			throw e;
 		}
 
 		@Override
@@ -85,6 +86,9 @@ public abstract class TestBase {
 			}
 			catch (ServletException e) {
 				handleException(e, (HttpServletRequest)req, (HttpServletResponse)res);
+			}
+			catch (Throwable t) {
+				handleException(new ServletException(t), (HttpServletRequest)req, (HttpServletResponse)res);
 			}
 		}
 

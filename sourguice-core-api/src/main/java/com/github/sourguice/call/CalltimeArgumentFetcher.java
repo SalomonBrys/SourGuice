@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 
 import javax.annotation.CheckForNull;
 
+import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -25,8 +26,8 @@ public interface CalltimeArgumentFetcher<T> {
 	 *
 	 * @param type The type of the argument to fetch
 	 * @param annos All annotations attached to the method's argument to bind
+	 * @throws NoSuchRequestParameterException In case of a parameter asked and does not exists
 	 * @return The object to bind to the method's argument
-	 * @throws Throwable If anything went wrong while fetching
 	 */
-	public @CheckForNull T get(TypeLiteral<?> type, Annotation[] annos) throws Throwable;
+	public @CheckForNull T get(TypeLiteral<?> type, Annotation[] annos) throws NoSuchRequestParameterException;
 }

@@ -1,5 +1,7 @@
 package com.github.sourguice.call;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
@@ -9,7 +11,6 @@ import com.github.sourguice.annotation.controller.Callable;
 import com.github.sourguice.annotation.request.PathVariable;
 import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.annotation.request.RequestMapping;
-import com.github.sourguice.controller.InstanceGetter;
 import com.github.sourguice.throwable.invocation.HandledException;
 import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException;
 
@@ -35,14 +36,9 @@ public interface MvcCaller {
 	 *         If throwWhenHandled is false and an exception has been thrown AND handled, will return null
 	 * @throws HandledException Only when throwWhenHandled is true and an exception has been thrown AND handled
 	 * @throws NoSuchRequestParameterException When retrieval of parameter annotated with anotations from the {@link com.github.sourguice.annotation.request} package failed
-	 * @throws Throwable Any throwable thrown by the method called and not handled
+	 * @throws InvocationTargetException Any exception thrown by the method being invoked
+	 * @throws IOException IO failure while writing the response
 	 */
-	public @CheckForNull Object call(Class<?> clazz, Method method, @CheckForNull @PathVariablesMap Map<String, String> pathVariables, boolean throwWhenHandled, CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchRequestParameterException, Throwable;
-
-	/**
-	 * @see #call(InstanceGetter, Method, Map, boolean, CalltimeArgumentFetcher...)
-	 */
-	@SuppressWarnings("javadoc")
-	public @CheckForNull Object call(Class<?> clazz, String methodName, @CheckForNull @PathVariablesMap Map<String, String> pathVariables, boolean throwWhenHandled, CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchMethodException, NoSuchRequestParameterException, Throwable;
+	public @CheckForNull Object call(Class<?> clazz, Method method, @CheckForNull @PathVariablesMap Map<String, String> pathVariables, boolean throwWhenHandled, CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchRequestParameterException, InvocationTargetException, IOException;
 
 }

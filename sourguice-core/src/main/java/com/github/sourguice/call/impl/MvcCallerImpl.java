@@ -1,7 +1,8 @@
 package com.github.sourguice.call.impl;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.MatchResult;
 
@@ -13,10 +14,8 @@ import com.github.sourguice.annotation.controller.Callable;
 import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.call.CalltimeArgumentFetcher;
 import com.github.sourguice.call.MvcCaller;
-import com.github.sourguice.controller.ControllerHandler;
 import com.github.sourguice.controller.ControllerHandlersRepository;
 import com.github.sourguice.controller.GuiceInstanceGetter;
-import com.github.sourguice.controller.InstanceGetter;
 import com.github.sourguice.controller.MvcInvocation;
 import com.github.sourguice.exception.ExceptionHandler;
 import com.github.sourguice.exception.ExceptionService;
@@ -66,11 +65,6 @@ public final class MvcCallerImpl implements MvcCaller {
 	private final Injector injector;
 
 	/**
-	 * Invocation cache, used to access directly an invocation without researching it if it already has been searched
-	 */
-	private final Map<String, MvcInvocation> invocationCache = new HashMap<>();
-
-	/**
 	 * Constructor with arguments to be injected by Guice
 	 */
 	@SuppressWarnings("javadoc")
@@ -83,55 +77,21 @@ public final class MvcCallerImpl implements MvcCaller {
 		this.exceptionService = injector.getInstance(ExceptionService.class);
 	}
 
-	/**
-	 * Finds the method whose name is given
-	 *
-	 * @param controller The controller on which to find the method
-	 * @param methodName The name of the method to find
-	 * @return The invocation that allows the call of the found method
-	 * @throws NoSuchMethodException If no method were found with the given name
-	 */
-	private MvcInvocation findMethodInvocation(final InstanceGetter<?> controller, final String methodName) throws NoSuchMethodException {
-		final ControllerHandler<?> handler = this.repo.get(controller);
-
-		MvcInvocation invocation = this.invocationCache.get(methodName);
-
-		if (invocation == null) {
-			for (final MvcInvocation check : handler.getInvocations()) {
-				if (check.getName().equals(methodName)) {
-					this.invocationCache.put(methodName, check);
-					invocation = check;
-					break ;
-				}
+	@Override
+	@SuppressWarnings("PMD.EmptyCatchBlock")
+	public @CheckForNull Object call(Class<?> cls, Method method, final @CheckForNull @PathVariablesMap Map<String, String> pathVariables, final boolean throwWhenHandled, final CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchRequestParameterException, InvocationTargetException, IOException {
+		if (cls.getSimpleName().contains("$$EnhancerByGuice$$")) {
+			cls = cls.getSuperclass();
+			try {
+				method = cls.getMethod(method.getName(), method.getParameterTypes());
+			}
+			catch (NoSuchMethodException e) {
+				// Can be ignored: The method should stay itself
 			}
 		}
-
-		if (invocation == null) {
-			throw new NoSuchMethodException("No such method @Callable " + controller.getTypeLiteral().getRawType().getCanonicalName() + "." + methodName);
-		}
-
-		return invocation;
-	}
-
-	@Override
-	public @CheckForNull Object call(Class<?> cls, final String methodName, final @CheckForNull @PathVariablesMap Map<String, String> pathVariables, final boolean throwWhenHandled, final CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchMethodException, NoSuchRequestParameterException, Throwable {
-		if (cls.getSimpleName().contains("$$EnhancerByGuice$$")) {
-			cls = cls.getSuperclass();
-		}
 		final GuiceInstanceGetter<?> controller = new GuiceInstanceGetter<>(Key.get(cls));
 		this.injector.injectMembers(controller);
-		return call(findMethodInvocation(controller, methodName), pathVariables, throwWhenHandled, additionalFetchers);
-	}
-
-	@Override
-	public @CheckForNull Object call(Class<?> cls, Method method, final @CheckForNull @PathVariablesMap Map<String, String> pathVariables, final boolean throwWhenHandled, final CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchRequestParameterException, Throwable {
-		if (cls.getSimpleName().contains("$$EnhancerByGuice$$")) {
-			cls = cls.getSuperclass();
-			method = cls.getMethod(method.getName(), method.getParameterTypes());
-		}
-		final GuiceInstanceGetter<?> controller = new GuiceInstanceGetter<>(Key.get(cls));
-		this.injector.injectMembers(controller);
-		return call(findMethodInvocation(controller, method.getName()), pathVariables, throwWhenHandled, additionalFetchers);
+		return call(this.repo.get(controller).getInvocations(method), pathVariables, throwWhenHandled, additionalFetchers);
 	}
 
 	/**
@@ -146,17 +106,18 @@ public final class MvcCallerImpl implements MvcCaller {
 	 * @return Whatever the call returned
 	 * @throws HandledException If an exception has been caught and handled. It is safe to ignore and used to cancel any depending work.
 	 * @throws NoSuchRequestParameterException In case of a parameter asked from request argument or path variable that does not exists
-	 * @throws Throwable Any Throwable the invocation may throw and was not handled by the {@link ExceptionService}
+	 * @throws InvocationTargetException Any exception thrown by the method call and that was not handled
+	 * @throws IOException IO failure while writing the response
 	 * @see MvcCallerImpl#call(MvcInvocation, Map, boolean, CalltimeArgumentFetcher...)
 	 */
-	public @CheckForNull Object call(final MvcInvocation invoc, final @CheckForNull @PathVariablesMap Map<String, String> pathVariables, final boolean throwWhenHandled, final CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchRequestParameterException, Throwable {
+	public @CheckForNull Object call(final MvcInvocation invoc, final @CheckForNull @PathVariablesMap Map<String, String> pathVariables, final boolean throwWhenHandled, final CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchRequestParameterException, InvocationTargetException, IOException {
 		try {
 			assert(this.req != null);
 			assert(this.res != null);
 			assert(this.injector != null);
 			return invoc.invoke(this.req, pathVariables, this.injector, additionalFetchers);
 		}
-		catch (Exception exception) {
+		catch (InvocationTargetException exception) {
 			handleException(exception, throwWhenHandled);
 			return null;
 		}
@@ -166,11 +127,11 @@ public final class MvcCallerImpl implements MvcCaller {
 	 * @see #call(MvcInvocation, Map, boolean, CalltimeArgumentFetcher...)
 	 */
 	@SuppressWarnings("javadoc")
-	public @CheckForNull Object call(final MvcInvocation invoc, final MatchResult urlMatch, final boolean throwWhenHandled, final CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchRequestParameterException, Throwable {
+	public @CheckForNull Object call(final MvcInvocation invoc, final MatchResult urlMatch, final boolean throwWhenHandled, final CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchRequestParameterException, InvocationTargetException, IOException {
 		try {
 			return invoc.invoke(this.req, urlMatch, this.injector, additionalFetchers);
 		}
-		catch (Exception exception) {
+		catch (InvocationTargetException exception) {
 			handleException(exception, throwWhenHandled);
 			return null;
 		}
@@ -179,20 +140,29 @@ public final class MvcCallerImpl implements MvcCaller {
 	/**
 	 * Handles any exception thrown by an invocation
 	 *
-	 * @param exception The exception to handle
+	 * @param invocException The exception to handle
 	 * @param throwWhenHandled Whether to throw a HandledException when the exception was handled
 	 * @throws HandledException If an exception was handled and throwWhenHandled is true
-	 * @throws Exception The given exception if it was not handled
+	 * @throws InvocationTargetException The given exception if it was not handled
+	 * @throws IOException If an input or output exception occurs during response manipulation
 	 */
-	@SuppressWarnings({"unchecked", "PMD.SignatureDeclareThrowsException"})
-	private @CheckForNull <T extends Exception> void handleException(final T exception, final boolean throwWhenHandled) throws HandledException, Exception {
-		final ExceptionHandler<T> handler = (ExceptionHandler<T>) this.exceptionService.getHandler(exception.getClass());
+	@SuppressWarnings({"PMD.SignatureDeclareThrowsException", "unchecked"})
+	private @CheckForNull void handleException(final InvocationTargetException invocException, final boolean throwWhenHandled) throws HandledException, InvocationTargetException, IOException {
+		final Throwable thrown = invocException.getCause();
+		if (!(thrown instanceof Exception)) {
+			throw invocException;
+		}
+		if (thrown instanceof HandledException) {
+			throw (HandledException) thrown;
+		}
+		final Exception exception = (Exception) thrown;
+		final ExceptionHandler<Exception> handler = (ExceptionHandler<Exception>) this.exceptionService.getHandler(exception.getClass());
 		if (handler != null && handler.handle(exception, this.req, this.res)) {
 			if (throwWhenHandled) {
 				throw new HandledException(exception);
 			}
 			return ;
 		}
-		throw exception;
+		throw invocException;
 	}
 }

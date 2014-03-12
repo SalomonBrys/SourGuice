@@ -57,10 +57,9 @@ public abstract class ArgumentFetcher<T> {
 	 * @param additionalFetchers Any additional fetcher provided at "call-time" directly by the user
 	 * @return The argument to be passed to the MVC invocation
 	 * @throws NoSuchRequestParameterException In case of a parameter asked from request argument or path variable that does not exists
-	 * @throws Throwable Any exception that would be thrown by a fetcher
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public @CheckForNull T get(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector, final CalltimeArgumentFetcher<?>[] additionalFetchers) throws Throwable {
+	public @CheckForNull T get(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector, final CalltimeArgumentFetcher<?>[] additionalFetchers) throws NoSuchRequestParameterException {
 		for (final CalltimeArgumentFetcher fetcher : additionalFetchers) {
 			if (fetcher.canGet(this.type, this.annotations)) {
 				return (T)fetcher.get(this.type, this.annotations);
@@ -78,9 +77,8 @@ public abstract class ArgumentFetcher<T> {
 	 * @param injector Guice injector
 	 * @return The argument to be passed to the MVC invocation
 	 * @throws NoSuchRequestParameterException In case of a parameter asked from request argument or path variable that does not exists
-	 * @throws Throwable Any exception that would be thrown by a fetcher
 	 */
-	protected abstract @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) throws Throwable;
+	protected abstract @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) throws NoSuchRequestParameterException;
 
 	/**
 	 * Util for subclasses to convert an object to the type this fetcher is supposed to return

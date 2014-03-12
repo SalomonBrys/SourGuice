@@ -10,6 +10,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import javax.annotation.CheckForNull;
@@ -46,9 +47,7 @@ public class CallTest extends TestBase {
     public static class Controller {
 
     	@RequestMapping("/callprint")
-    	public void callprint(MvcCaller caller, Writer writer) throws Throwable {
-    		caller.call(this.getClass(), "printName", null, false);
-    		writer.write(":");
+    	public void callprint(MvcCaller caller) throws Throwable {
     		Method method = this.getClass().getMethod("printName", Writer.class);
     		caller.call(this.getClass(), method, null, false);
     	}
@@ -56,14 +55,16 @@ public class CallTest extends TestBase {
     	@RequestMapping("/callbad")
     	@Writes
     	public String callbad(MvcCaller caller) throws Throwable {
-    		caller.call(this.getClass(), "choucroute", null, false);
+    		Method method = String.class.getMethod("toUpperCase", char.class);
+    		caller.call(this.getClass(), method, null, false);
     		return "Salomon";
     	}
 
     	@RequestMapping("/callhandled")
     	@Writes
     	public String callhandled(MvcCaller caller) throws Throwable {
-    		caller.call(this.getClass(), "throwhandled", null, false);
+    		Method method = this.getClass().getMethod("throwhandled");
+    		caller.call(this.getClass(), method, null, false);
     		return "Salomon";
     	}
 
@@ -78,7 +79,13 @@ public class CallTest extends TestBase {
     	@RequestMapping("/callthrownothandled")
     	@Writes
     	public String callthrownothandled(MvcCaller caller) throws Throwable {
-    		caller.call(this.getClass(), "thrownothandled", null, false);
+    		Method method = this.getClass().getMethod("thrownothandled");
+    		try {
+    			caller.call(this.getClass(), method, null, false);
+    		}
+    		catch (InvocationTargetException e) {
+    			throw e.getCause();
+    		}
     		return "Salomon";
     	}
 
@@ -86,7 +93,8 @@ public class CallTest extends TestBase {
     	@Writes
     	@SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
     	public String callfetched(MvcCaller caller) throws Throwable {
-    		return (String) caller.call(this.getClass(), "fetched", null, false, new NoArgumentFetcher(), new TestArgumentFetcher());
+    		Method method = this.getClass().getMethod("fetched", String.class);
+    		return (String) caller.call(this.getClass(), method, null, false, new NoArgumentFetcher(), new TestArgumentFetcher());
     	}
 
     	@Callable
@@ -150,7 +158,7 @@ public class CallTest extends TestBase {
 		@Override public boolean canGet(TypeLiteral<?> type, Annotation[] annos) {
 			return type.getRawType() == String.class && Annotations.fromArray(annos).isAnnotationPresent(TestArgument.class);
 		}
-		@Override public String get(TypeLiteral<?> type, Annotation[] annos) throws Throwable {
+		@Override public String get(TypeLiteral<?> type, Annotation[] annos) {
 			return "Salomon";
 		}
     }
@@ -159,7 +167,7 @@ public class CallTest extends TestBase {
 		@Override public boolean canGet(TypeLiteral<?> type, Annotation[] annos) {
 			return false;
 		}
-		@Override @CheckForNull public String get(TypeLiteral<?> type, Annotation[] annos) throws Throwable {
+		@Override @CheckForNull public String get(TypeLiteral<?> type, Annotation[] annos) {
 			return null;
 		}
     }
@@ -190,7 +198,7 @@ public class CallTest extends TestBase {
 		HttpTester response = getResponse(request);
 
 		assertEquals(response.getStatus(), 200);
-		assertEquals(response.getContent(), "[Salomon]:[Salomon]");
+		assertEquals(response.getContent(), "[Salomon]");
 	}
 
 	public void getCallBad() throws Exception {
@@ -200,7 +208,7 @@ public class CallTest extends TestBase {
 		HttpTester response = getResponse(request);
 
 		assertEquals(response.getStatus(), 500);
-		assertEquals(response.getReason(), "No such method @Callable sourguice.test.CallTest.Controller.choucroute");
+		assertEquals(response.getReason(), "java.lang.String.toUpperCase(char)");
 	}
 
 	public void getCallHandled() throws Exception {

@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.CharBuffer;
 import java.util.LinkedList;
 import java.util.List;
@@ -179,9 +180,10 @@ public final class ControllersServer {
 	 * @throws NoViewRendererException If the invocation gave a view that no view renderer could render
 	 * @throws ViewRenderingException If the invocation gave a view that fail to render
 	 * @throws IOException IO failure while manipulating the response
-	 * @throws Throwable Any exception thrown by the method being called
+	 * @throws NoSuchRequestParameterException If a parameter could not be found
+	 * @throws InvocationTargetException Any exception thrown by the method being called
 	 */
-	private void makeCall(final ControllerInvocationInfos infos, final HttpServletResponse res) throws HandledException, NoViewRendererException, ViewRenderingException, IOException, Throwable {
+	private void makeCall(final ControllerInvocationInfos infos, final HttpServletResponse res) throws HandledException, NoViewRendererException, ViewRenderingException, IOException, InvocationTargetException, NoSuchRequestParameterException {
 		assert this.injector != null;
 		assert infos.urlMatch != null;
 
@@ -226,7 +228,7 @@ public final class ControllersServer {
 	 * @throws ServletException When an exception that was not handled by the MVC system is thrown
 	 * @throws IOException If an input or output exception occurs
 	 */
-	@SuppressWarnings({"PMD.EmptyCatchBlock", "PMD.AvoidCatchingThrowable"})
+	@SuppressWarnings({"PMD.EmptyCatchBlock", "PMD.PreserveStackTrace"})
 	protected void serve(HttpServletRequest req, final HttpServletResponse res) throws ServletException, IOException {
 
 		assert req != null;
@@ -270,8 +272,11 @@ public final class ControllersServer {
 		catch (HandledException e) {
 			// Exception was handled by the MvcExceptionService, it is safe (and expected) to ignore
 		}
-		catch (Throwable thrown) {
-			throw new ServletException(thrown);
+		catch (InvocationTargetException e) {
+			throw new ServletException(e.getCause());
+		}
+		catch (NoViewRendererException | ViewRenderingException e) {
+			throw new ServletException(e);
 		}
 	}
 }

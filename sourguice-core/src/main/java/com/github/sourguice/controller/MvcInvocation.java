@@ -292,14 +292,14 @@ public final class MvcInvocation {
 	 * @param additionalFetchers Any additional fetcher provided at "call-time" directly by the user
 	 * @return What the method call returned
 	 * @throws NoSuchRequestParameterException In case of a parameter asked from request argument or path variable that does not exists
-	 * @throws Throwable Any thing that the method call might have thrown
+	 * @throws InvocationTargetException Any thing that the method call might have thrown
 	 */
 	public @CheckForNull Object invoke(
 			final HttpServletRequest req,
 			final @PathVariablesMap Map<String, String> pathVariables,
 			final Injector injector,
 			final CalltimeArgumentFetcher<?>... additionalFetchers
-			) throws NoSuchRequestParameterException, Throwable  {
+			) throws NoSuchRequestParameterException, InvocationTargetException {
 
 		// Pushes path variables to the stack, this permits to have invocations inside invocations
 		injector.getInstance(PathVariablesProvider.class).push(pathVariables);
@@ -321,9 +321,8 @@ public final class MvcInvocation {
 					invocRet = ret;
 				}
 			}
-			// Catches anything that might be thrown by the method call
-			catch (InvocationTargetException thrown) {
-				throw thrown.getCause();
+			catch (IllegalAccessException e) {
+				throw new UnsupportedOperationException(e);
 			}
 
 			// Returns whatever the method call returned
@@ -336,7 +335,7 @@ public final class MvcInvocation {
 	}
 
 	/**
-	 * Invoke proxy for internal use
+	 * @see #invoke(HttpServletRequest, Map, Injector, CalltimeArgumentFetcher...)
 	 */
 	@SuppressWarnings("javadoc")
 	public @CheckForNull Object invoke(
@@ -344,15 +343,15 @@ public final class MvcInvocation {
 			final MatchResult urlMatch,
 			final Injector injector,
 			final CalltimeArgumentFetcher<?>... additionalFetchers
-			) throws NoSuchRequestParameterException, Throwable {
+			) throws NoSuchRequestParameterException, InvocationTargetException {
 		return invoke(req, PathVariablesProvider.fromMatch(urlMatch, this.matchRef), injector, additionalFetchers);
 	}
 
 	/**
 	 * @return The invocation's method's name
 	 */
-	public String getName() {
-		return this.method.getName();
+	public Method getMethod() {
+		return this.method;
 	}
 
 	/**
