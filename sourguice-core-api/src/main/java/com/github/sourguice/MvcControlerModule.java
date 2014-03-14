@@ -19,8 +19,8 @@ import com.github.sourguice.conversion.Converter;
 import com.github.sourguice.exception.ExceptionHandler;
 import com.github.sourguice.request.ForwardableRequestFactory;
 import com.github.sourguice.utils.RedirectServlet;
-import com.github.sourguice.utils.RequestScopeContainer;
 import com.github.sourguice.value.RequestMethod;
+import com.github.sourguice.value.ValueConstants;
 import com.github.sourguice.view.ViewRenderer;
 import com.google.inject.Binder;
 import com.google.inject.Key;
@@ -116,11 +116,11 @@ public abstract class MvcControlerModule extends ServletModule {
 	 * Registers in guice the MatchResult class to be binded to the request's URL parsed path variables
 	 * according to the request's {@link RequestMapping}
 	 *
-	 * @param container The request's scoped object container
+	 * @param req The request of the match
 	 * @return The MatchResult
 	 */
-	@Provides @RequestScoped public @CheckForNull MatchResult getPathMatcher(final RequestScopeContainer container) {
-		return container.get(MatchResult.class);
+	@Provides @RequestScoped public @CheckForNull MatchResult getPathMatcher(final HttpServletRequest req) {
+		return (MatchResult) req.getAttribute(ValueConstants.MATCH_RESULT_REQUEST_ATTRIBUTE);
 	}
 
 	/**

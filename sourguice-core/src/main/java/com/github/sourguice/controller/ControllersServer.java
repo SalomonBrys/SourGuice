@@ -8,7 +8,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.CharBuffer;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.MatchResult;
 
 import javax.annotation.CheckForNull;
 import javax.inject.Inject;
@@ -23,7 +22,7 @@ import com.github.sourguice.call.impl.MvcCallerImpl;
 import com.github.sourguice.request.wrapper.NoJsessionidHttpRequest;
 import com.github.sourguice.throwable.invocation.HandledException;
 import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException;
-import com.github.sourguice.utils.RequestScopeContainer;
+import com.github.sourguice.value.ValueConstants;
 import com.github.sourguice.view.NoViewRendererException;
 import com.github.sourguice.view.ViewRenderingException;
 import com.google.inject.Injector;
@@ -240,11 +239,6 @@ public final class ControllersServer {
 			req = new NoJsessionidHttpRequest(req);
 		}
 
-		final RequestScopeContainer requestScopeContainer = this.injector.getInstance(RequestScopeContainer.class);
-
-		// Stores the request into the RequestScoped Container so it can be later retrieved using @GuiceRequest
-		requestScopeContainer.store(HttpServletRequest.class, req);
-
 		// Gets the best invocation of all controller handlers
 		ControllerInvocationInfos infos = null;
 		for (final ControllerHandler<?> handler : this.handlers) {
@@ -260,7 +254,7 @@ public final class ControllersServer {
 
 		assert infos.urlMatch != null;
 		// Stores the MatchResult into the RequestScoped Container so it can be later retrieved with guice injection
-		requestScopeContainer.store(MatchResult.class, infos.urlMatch);
+		req.setAttribute(ValueConstants.MATCH_RESULT_REQUEST_ATTRIBUTE, infos.urlMatch);
 
 		try {
 			makeCall(infos, res);

@@ -39,7 +39,6 @@ import com.github.sourguice.request.wrapper.GuiceForwardHttpRequest;
 import com.github.sourguice.throwable.controller.MvcResponseException;
 import com.github.sourguice.throwable.service.exception.UnreachableExceptionHandlerException;
 import com.github.sourguice.utils.MVCCallInterceptSetter;
-import com.github.sourguice.utils.RequestScopeContainer;
 import com.github.sourguice.view.Model;
 import com.github.sourguice.view.ViewRenderer;
 import com.github.sourguice.view.ViewRendererService;
@@ -137,9 +136,6 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 		// Asks for controller registration by subclass
 		// This will fill the servlets map
 		this.module.configureControllers();
-
-		// Binds RequestScope container that will contains RequestScope objects that cannot be directly integrated into Guice
-		this.module.binder().bind(RequestScopeContainer.class);
 
 		// Binds the services
 		this.module.binder().bind(ConversionService.class).toInstance(this.conversionService);
