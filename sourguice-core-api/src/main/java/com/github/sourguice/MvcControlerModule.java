@@ -11,7 +11,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.github.sourguice.annotation.request.GuiceRequest;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.controller.GivenInstanceGetter;
 import com.github.sourguice.controller.GuiceInstanceGetter;
@@ -54,7 +53,7 @@ public abstract class MvcControlerModule extends ServletModule {
 	@SuppressWarnings("javadoc")
 	static interface MvcControlerModuleHelperProxy {
 
-		public ForwardableRequestFactory getForwardableRequestFactory(@GuiceRequest HttpServletRequest req, ServletContext context);
+		public ForwardableRequestFactory getForwardableRequestFactory(HttpServletRequest req, ServletContext context);
 
 		public void configureServlets();
 
@@ -114,19 +113,6 @@ public abstract class MvcControlerModule extends ServletModule {
 	}
 
 	/**
-	 * Registers in guice the HttpServletRequest class annotated with @{@link GuiceRequest}
-	 * to be binded to the Guice modified request
-	 *
-	 * @param container The request's scoped object container
-	 * @return The guice request
-	 */
-	@Provides @RequestScoped @GuiceRequest public HttpServletRequest getGuiceRequest(final RequestScopeContainer container) {
-		final HttpServletRequest req = container.get(HttpServletRequest.class);
-		assert req != null;
-		return req;
-	}
-
-	/**
 	 * Registers in guice the MatchResult class to be binded to the request's URL parsed path variables
 	 * according to the request's {@link RequestMapping}
 	 *
@@ -145,7 +131,7 @@ public abstract class MvcControlerModule extends ServletModule {
 	 * @param context The current Servlet Context object
 	 * @return The ForwardableRequestFactory usable for the current request
 	 */
-	@Provides @RequestScoped public ForwardableRequestFactory getForwardableRequestFactory(final @GuiceRequest HttpServletRequest req, final ServletContext context) {
+	@Provides @RequestScoped public ForwardableRequestFactory getForwardableRequestFactory(final HttpServletRequest req, final ServletContext context) {
 		return this.helper.getForwardableRequestFactory(req, context);
 	}
 

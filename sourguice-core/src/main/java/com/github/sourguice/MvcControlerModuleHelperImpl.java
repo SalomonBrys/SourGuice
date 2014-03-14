@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.github.sourguice.MvcControlerModule.BindBuilder;
 import com.github.sourguice.MvcControlerModule.MvcControlerModuleHelperProxy;
-import com.github.sourguice.annotation.request.GuiceRequest;
 import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.call.MvcCaller;
 import com.github.sourguice.call.impl.MvcCallerImpl;
@@ -103,7 +102,7 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 	}
 
 	@Override
-	public ForwardableRequestFactory getForwardableRequestFactory(final @GuiceRequest HttpServletRequest req, final ServletContext context) {
+	public ForwardableRequestFactory getForwardableRequestFactory(final HttpServletRequest req, final ServletContext context) {
 		return new GuiceForwardHttpRequest(req, context);
 	}
 
