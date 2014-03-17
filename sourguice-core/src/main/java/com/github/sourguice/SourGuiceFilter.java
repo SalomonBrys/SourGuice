@@ -12,6 +12,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
+import com.github.sourguice.throwable.SourGuiceRuntimeException;
 import com.github.sourguice.throwable.invocation.CacheTooLateException;
 import com.google.inject.servlet.GuiceFilter;
 
@@ -52,7 +53,7 @@ public class SourGuiceFilter extends GuiceFilter {
 					this.cacheWriter.write(cbuf, off, len);
 				}
 				catch (IOException e) {
-					throw new RuntimeException(e);
+					throw new SourGuiceRuntimeException(e);
 				}
 			}
 		}

@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.annotation.request.RequestParam;
 import com.github.sourguice.conversion.ConversionService;
+import com.github.sourguice.throwable.SourGuiceRuntimeException;
 import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException;
 import com.github.sourguice.value.ValueConstants;
 import com.google.inject.Injector;
@@ -113,7 +114,6 @@ public class RequestParamCollectionArgumentFetcher<T> extends ArgumentFetcher<T>
 	 * @param annotations Annotations that were found on the method's argument
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 */
-	@SuppressWarnings({"PMD.AvoidThrowingRawExceptionTypes"})
 	public RequestParamCollectionArgumentFetcher(final TypeLiteral<T> type, final Annotation[] annotations, final RequestParam infos) {
 		super(type, annotations);
 		this.infos = infos;
@@ -123,7 +123,7 @@ public class RequestParamCollectionArgumentFetcher<T> extends ArgumentFetcher<T>
 			this.collectionProvider = inferCollectionProvider(type.getRawType());
 		}
 		catch (NoSuchMethodException e) {
-			throw new RuntimeException(e);
+			throw new SourGuiceRuntimeException(e);
 		}
 	}
 
