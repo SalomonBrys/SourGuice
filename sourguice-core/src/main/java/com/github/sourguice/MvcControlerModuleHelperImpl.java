@@ -36,6 +36,7 @@ import com.github.sourguice.exception.def.MVCResponseExceptionHandler;
 import com.github.sourguice.exception.impl.ExceptionServiceImpl;
 import com.github.sourguice.request.ForwardableRequestFactory;
 import com.github.sourguice.request.wrapper.GuiceForwardHttpRequest;
+import com.github.sourguice.throwable.SourGuiceRuntimeException;
 import com.github.sourguice.throwable.controller.MvcResponseException;
 import com.github.sourguice.throwable.service.exception.UnreachableExceptionHandlerException;
 import com.github.sourguice.utils.MVCCallInterceptSetter;
@@ -106,7 +107,7 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 	}
 
 	@Override
-	@SuppressWarnings({"PMD.AvoidUsingShortType", "PMD.AvoidThrowingRawExceptionTypes"})
+	@SuppressWarnings({"PMD.AvoidUsingShortType"})
 	public final void configureServlets() {
 
 		// Registers default converters
@@ -124,7 +125,7 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 			this.module.handleException(MvcResponseException.class).withInstance(new MVCResponseExceptionHandler());
 		}
 		catch (UnreachableExceptionHandlerException e) {
-			throw new RuntimeException(e);
+			throw new SourGuiceRuntimeException(e);
 		}
 
 		// Registers default view renderers

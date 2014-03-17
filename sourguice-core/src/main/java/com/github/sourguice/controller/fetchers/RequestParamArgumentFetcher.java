@@ -40,7 +40,6 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 	 * @param annotations Annotations that were found on the method's argument
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 */
-	@SuppressWarnings({"PMD.AvoidThrowingRawExceptionTypes"})
 	public RequestParamArgumentFetcher(final TypeLiteral<T> type, final Annotation[] annotations, final RequestParam infos) {
 		super(type, annotations);
 		this.infos = infos;
