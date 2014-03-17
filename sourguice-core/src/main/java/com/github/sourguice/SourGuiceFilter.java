@@ -6,10 +6,9 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.github.sourguice.request.Cache;
+import com.github.sourguice.cache.Cache;
 import com.github.sourguice.response.SourGuiceResponse;
 import com.google.inject.servlet.GuiceFilter;
 
@@ -27,7 +26,7 @@ public class SourGuiceFilter extends GuiceFilter {
 
 		final Cache cache = res.getCache();
 		if (cache != null) {
-			cache.save((HttpServletRequest) req, res);
+			cache.save(res);
 		}
 	}
 

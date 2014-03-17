@@ -5,4 +5,4 @@
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
 @com.github.sourguice.annotation.EverythingIsNonnullAndTaintedByDefault
-package com.github.sourguice.cache;
+package com.github.sourguice.cache.impl;

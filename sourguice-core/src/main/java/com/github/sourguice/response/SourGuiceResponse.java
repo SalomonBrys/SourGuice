@@ -1,14 +1,14 @@
 package com.github.sourguice.response;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.Writer;
 
 import javax.annotation.CheckForNull;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
-import com.github.sourguice.request.Cache;
+import com.github.sourguice.cache.Cache;
 import com.github.sourguice.throwable.NoSourGuiceResponseException;
 
 /**
@@ -55,7 +55,7 @@ public class SourGuiceResponse extends HttpServletResponseWrapper {
 	}
 
 	@Override
-	public PrintWriter getWriter() throws IOException {
+	public SourGuiceResponseWriter getWriter() throws IOException {
 		if (this.writer == null) {
 			this.writer = new SourGuiceResponseWriter(super.getResponse().getWriter());
 		}
@@ -65,9 +65,12 @@ public class SourGuiceResponse extends HttpServletResponseWrapper {
 	/**
 	 * Set a cache to be used on this request
 	 * @param cache The cache responsible for saving this request
+	 * @param cacheWriter The writer of the cache
+	 * @throws IOException If an input or output exception occurred
 	 */
-	public void setCache(final Cache cache) {
+	public void setCache(final Cache cache, final Writer cacheWriter) throws IOException {
 		this.cache = cache;
+		getWriter().setCacheWriter(cacheWriter);
 	}
 
 	/**

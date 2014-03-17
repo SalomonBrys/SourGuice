@@ -6,8 +6,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.github.sourguice.request.Cache;
-import com.github.sourguice.request.CacheService;
+import com.github.sourguice.cache.Cache;
+import com.github.sourguice.cache.CacheService;
 
 /**
  * Flag annotation that indicates that this request will be cached with default {@link Cache}
