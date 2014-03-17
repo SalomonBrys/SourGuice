@@ -1,6 +1,5 @@
 package com.github.sourguice;
 
-import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
@@ -28,12 +27,19 @@ public class SourGuiceFilter extends GuiceFilter {
 	 */
 	public static class SourGuiceResponseWriter extends PrintWriter {
 		/**
-		 * The writer of the caching system, if any
+		 * The writer of the cache, if any
 		 */
 		private @CheckForNull Writer cacheWriter = null;
+
+		/**
+		 * Whether or not something has already been written
+		 */
 		private boolean hasWritten = false;
 
-		public SourGuiceResponseWriter(Writer base) {
+		/**
+		 * @see PrintWriter#PrintWriter(Writer)
+		 */
+		public SourGuiceResponseWriter(final Writer base) {
 			super(base);
 		}
 
@@ -51,7 +57,10 @@ public class SourGuiceFilter extends GuiceFilter {
 			}
 		}
 
-		public void setCacheWriter(CharArrayWriter cacheWriter) {
+		/**
+		 * @param cacheWriter The writer of the cache
+		 */
+		public void setCacheWriter(final Writer cacheWriter) {
 			if (this.hasWritten) {
 				throw new CacheTooLateException();
 			}
@@ -59,28 +68,34 @@ public class SourGuiceFilter extends GuiceFilter {
 		}
 	}
 
+	/**
+	 * Response wrapper that handles SourGuice specificities
+	 */
 	public static class SourGuiceResponse extends HttpServletResponseWrapper {
 
-		SourGuiceResponseWriter writer;
+		/**
+		 * The writer that intercept writes to duplicate it to cache if any
+		 */
+		private @CheckForNull SourGuiceResponseWriter writer = null;
 
-		public SourGuiceResponse(HttpServletResponse response) {
+		/**
+		 * @see HttpServletResponseWrapper#HttpServletResponseWrapper(HttpServletResponse)
+		 */
+		public SourGuiceResponse(final HttpServletResponse response) {
 			super(response);
-			try {
-				this.writer = new SourGuiceResponseWriter(response.getWriter());
-			}
-			catch (IOException e) {
-				throw new RuntimeException(e);
-			}
 		}
 
 		@Override
 		public PrintWriter getWriter() throws IOException {
+			if (this.writer == null) {
+				this.writer = new SourGuiceResponseWriter(super.getResponse().getWriter());
+			}
 			return this.writer;
 		}
 	}
 
 	@Override
-	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+	public void doFilter(final ServletRequest req, ServletResponse res, final FilterChain chain) throws IOException, ServletException {
 		res = new SourGuiceResponse((HttpServletResponse) res);
 		super.doFilter(req, res, chain);
 	}
