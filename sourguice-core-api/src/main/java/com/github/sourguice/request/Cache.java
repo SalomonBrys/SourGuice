@@ -2,6 +2,7 @@ package com.github.sourguice.request;
 
 import java.io.Writer;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -22,8 +23,9 @@ public interface Cache {
 
 	/**
 	 * Called by the {@link CacheService} when the response has fully been written
+	 * @param req The request to cache
 	 * @param res The response to cache
 	 */
-	public void save(HttpServletResponse res);
+	public void save(HttpServletRequest req, HttpServletResponse res);
 
 }
