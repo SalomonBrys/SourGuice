@@ -30,11 +30,8 @@ public class CacheTest extends TestBase {
     	static int manualCharHit = 0;
     	static int manualByteHit = 0;
 
-		@RequestMapping(value = "/startup")
-		public void startup() {
-			// Does nothing.
-			// Calling it makes SourGuice initialize
-		}
+		@RequestMapping(value = "/__startup")
+		public void startup() { /* startup */ }
 
 		@RequestMapping(value = "/manual_char")
 		@Writes
@@ -83,15 +80,8 @@ public class CacheTest extends TestBase {
 
 	public void getManualChar() throws Exception {
 		synchronized (this) { // Forcing serial testing
-			getResponse(makeRequest("GET", "/startup"));
-
 			HttpTester request = makeRequest("GET", "/manual_char");
-
-			long start = System.nanoTime();
 			HttpTester response = getResponse(request);
-			long end = System.nanoTime();
-
-			System.out.println("Manual char request duration: " + ((double)(end - start) / 1000000) + "ms");
 
 			assertEquals(response.getStatus(), 200);
 			assertEquals(response.getContent(), "Salomon:C");
@@ -101,15 +91,8 @@ public class CacheTest extends TestBase {
 
 	public void getManualByte() throws Exception {
 		synchronized (this) { // Forcing serial testing
-			getResponse(makeRequest("GET", "/startup"));
-
 			HttpTester request = makeRequest("GET", "/manual_byte");
-
-			long start = System.nanoTime();
 			HttpTester response = getResponse(request);
-			long end = System.nanoTime();
-
-			System.out.println("Manual byte request duration: " + ((double)(end - start) / 1000000) + "ms");
 
 			assertEquals(response.getStatus(), 200);
 			assertEquals(response.getContent(), "Salomon:B");

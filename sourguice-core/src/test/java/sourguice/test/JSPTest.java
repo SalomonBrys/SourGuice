@@ -44,6 +44,10 @@ public class JSPTest extends TestBase {
     @Singleton
     @ViewDirectory("/WEB-INF")
     public static class Controller {
+
+    	@RequestMapping(value = "/__startup")
+		public void startup() { /* startup */ }
+
 		@View("Hi.jsp")
     	@RequestMapping("/hi")
     	public void hi(Model model) {

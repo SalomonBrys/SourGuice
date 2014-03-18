@@ -3,6 +3,7 @@ package sourguice.test;
 import static org.testng.Assert.*;
 
 import org.eclipse.jetty.testing.HttpTester;
+import org.eclipse.jetty.testing.ServletTester;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -121,6 +122,12 @@ public class RequestMappingTest extends TestBase {
 	@Override
 	protected MvcControlerModule module() {
 		return new ControllerModule();
+	}
+
+    @Override
+	protected void makeStartupRequest(ServletTester tester) throws Exception {
+		getResponse(tester, makeRequest("GET", "/a/__startup"));
+		getResponse(tester, makeRequest("GET", "/b/__startup"));
 	}
 
 	// ===================== DATA PROVIDER =====================

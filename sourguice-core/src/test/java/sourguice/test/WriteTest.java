@@ -26,6 +26,9 @@ public class WriteTest extends TestBase {
     @Singleton
     public static class Controller {
 
+		@RequestMapping(value = "/__startup")
+		public void startup() { /* startup */ }
+
 		@RequestMapping(value = "/writefail")
 		@Writes
 		@SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION")

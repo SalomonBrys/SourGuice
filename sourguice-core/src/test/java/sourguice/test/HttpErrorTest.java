@@ -21,6 +21,9 @@ public class HttpErrorTest extends TestBase {
     @Singleton
     public static class Controller {
 
+    	@RequestMapping(value = "/__startup")
+		public void startup() { /* startup */ }
+
         @RequestMapping("/forbidden")
         @HttpError(403)
         public void forbidden() {

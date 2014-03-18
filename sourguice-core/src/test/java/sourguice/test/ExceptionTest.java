@@ -24,6 +24,10 @@ public class ExceptionTest extends TestBase {
 
     @Singleton
     public static class Controller {
+
+    	@RequestMapping(value = "/__startup")
+		public void startup() { /* startup */ }
+
     	@RequestMapping("/exception")
     	public void exception() throws CustomException {
     		throw new CustomException("Choucroute");

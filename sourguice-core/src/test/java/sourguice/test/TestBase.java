@@ -59,8 +59,13 @@ public abstract class TestBase {
 			tester.addServlet(DefaultServlet.class, "/");
 			addServletTesterFilter(tester);
 			tester.start();
+			makeStartupRequest(tester);
 			this.queue.add(tester);
 		}
+	}
+
+	protected void makeStartupRequest(ServletTester tester) throws Exception {
+		getResponse(tester, makeRequest("GET", "/__startup"));
 	}
 
 	public static class TestGuiceFilter extends SourGuiceFilter {
@@ -124,47 +129,32 @@ public abstract class TestBase {
 		request.setHeader("content-length", String.valueOf(content.length()));
 	}
 
-	protected HttpTester getResponse(ServletTester tester, HttpTester request, boolean debug) throws Exception {
+	protected HttpTester getResponse(ServletTester tester, HttpTester request) throws Exception {
 		HttpTester response = new HttpTester();
 
 		String reqTxt = request.generate();
-		if (debug) {
-			System.out.println("==========================================");
-			System.out.println("REQUEST:");
-			System.out.println(reqTxt);
-		}
 
+		long start = System.nanoTime();
 		String resTxt = tester.getResponses(reqTxt);
-		if (debug) {
-			System.out.println("==========================================");
-			System.out.println("RESPONSE:");
-			System.out.println(resTxt);
-			System.out.println("==========================================");
-		}
+		long end = System.nanoTime();
+		System.out.println(request.getMethod() + " " + request.getURI() + ": " + ((double)(end - start) / 1000000) + "ms");
+
 		response.parse(resTxt);
 
 		return response;
 	}
 
-	protected HttpTester getResponse(HttpTester request, boolean debug) throws Exception {
+	protected HttpTester getResponse(HttpTester request) throws Exception {
 
 		ServletTester tester = this.queue.poll();
 
 		try {
-			HttpTester response = getResponse(tester, request, debug);
+			HttpTester response = getResponse(tester, request);
 			return response;
 		}
 		finally {
 			this.queue.offer(tester);
 		}
-	}
-
-	protected HttpTester getResponse(HttpTester request) throws Exception {
-		return getResponse(request, false);
-	}
-
-	protected HttpTester getResponse(ServletTester tester, HttpTester request) throws Exception {
-		return getResponse(tester, request, false);
 	}
 
 	abstract protected MvcControlerModule module();

@@ -11,6 +11,7 @@ import javax.inject.Provider;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.testing.HttpTester;
+import org.eclipse.jetty.testing.ServletTester;
 import org.testng.annotations.Test;
 
 import com.github.sourguice.MvcControlerModule;
@@ -71,7 +72,11 @@ public class ViewTest extends TestBase {
 	@ViewDirectory("/views")
 	@ViewRenderedWith(regex = ".*", renderer = AnnoTestRenderer.class)
     public static class AController {
-        @SuppressWarnings("serial")
+
+    	@RequestMapping(value = "/__startup")
+		public void startup() { /* startup */ }
+
+    	@SuppressWarnings("serial")
 		@RequestMapping("/annodir")
         @View("annodir.view")
         public void annodir(Model model) {
@@ -103,6 +108,10 @@ public class ViewTest extends TestBase {
 
     @Singleton
     public static class DController {
+
+    	@RequestMapping(value = "/__startup")
+		public void startup() { /* startup */ }
+
         @RequestMapping("/anno")
         @View("anno.view")
         public void anno(Model model) {
@@ -129,6 +138,12 @@ public class ViewTest extends TestBase {
     protected MvcControlerModule module() {
         return new ControllerModule();
     }
+
+    @Override
+	protected void makeStartupRequest(ServletTester tester) throws Exception {
+		getResponse(tester, makeRequest("GET", "/a/__startup"));
+		getResponse(tester, makeRequest("GET", "/d/__startup"));
+	}
 
     // ===================== TESTS =====================
 

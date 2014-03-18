@@ -40,7 +40,11 @@ public class InjectionTest extends TestBase {
 
     @Singleton
     public static class Controller {
-        @RequestMapping("/method")
+
+    	@RequestMapping(value = "/__startup")
+		public void startup() { /* startup */ }
+
+		@RequestMapping("/method")
         @Writes
         public String method(RequestMethod m) {
             return ":" + m.toString();

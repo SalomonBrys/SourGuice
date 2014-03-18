@@ -57,6 +57,10 @@ public class CustomConvertorTest extends TestBase {
 
 	@Singleton
 	public static class Controller {
+
+		@RequestMapping(value = "/__startup")
+		public void startup() { /* startup */ }
+
 		@RequestMapping("/name")
 		@Writes
 		public String name(@RequestParam("var") HasAName n) {

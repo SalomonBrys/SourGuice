@@ -70,6 +70,9 @@ public class FilterTest extends TestBase {
 	@Singleton
     public static class Controller {
 
+    	@RequestMapping(value = "/__startup")
+		public void startup() { /* startup */ }
+
     	@RequestMapping("/intercepted")
     	@InterceptWith(Interceptor.class)
     	@Writes

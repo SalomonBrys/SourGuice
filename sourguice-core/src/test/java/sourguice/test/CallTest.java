@@ -46,6 +46,9 @@ public class CallTest extends TestBase {
     @Singleton
     public static class Controller {
 
+    	@RequestMapping(value = "/__startup")
+		public void startup() { /* startup */ }
+
     	@RequestMapping("/callprint")
     	public void callprint(MvcCaller caller) throws Throwable {
     		Method method = this.getClass().getMethod("printName", Writer.class);

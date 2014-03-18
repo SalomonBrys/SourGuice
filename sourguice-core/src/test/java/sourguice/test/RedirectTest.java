@@ -21,6 +21,9 @@ public class RedirectTest extends TestBase {
     @Singleton
     public static class Controller {
 
+    	@RequestMapping(value = "/__startup")
+		public void startup() { /* startup */ }
+
         @RequestMapping("/static")
         @Redirects("/redir1")
         public void _static() {

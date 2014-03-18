@@ -32,6 +32,9 @@ public class ConversionTest extends TestBase {
 	@Singleton
 	public static class Controller {
 
+    	@RequestMapping(value = "/__startup")
+		public void startup() { /* startup */ }
+
 		@RequestMapping("/boolean")
 		@Writes
 		public String _boolean(@RequestParam("var") Boolean[] var) {
