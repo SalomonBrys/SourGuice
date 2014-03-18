@@ -3,8 +3,7 @@ package sourguice.test;
 import static org.testng.Assert.assertEquals;
 
 import java.io.IOException;
-
-import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
 
 import org.eclipse.jetty.testing.HttpTester;
 import org.eclipse.jetty.testing.ServletTester;
@@ -48,12 +47,12 @@ public class CacheTest extends TestBase {
 		}
 
 		@RequestMapping(value = "/manual_byte")
-		public void manual_byte(CacheService cacheService, HttpServletResponse res) throws IOException {
+		public void manual_byte(CacheService cacheService, OutputStream stream) throws IOException {
 			cacheService.<InMemoryCache>cacheRequest().setExpiration(2 * 60); // 2 minutes
 
 			++manualByteHit;
 
-			res.getOutputStream().write("Salomon:B".getBytes());
+			stream.write("Salomon:B".getBytes());
 		}
 
     }
