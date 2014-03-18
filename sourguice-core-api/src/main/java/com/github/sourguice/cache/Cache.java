@@ -1,6 +1,7 @@
 package com.github.sourguice.cache;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Writer;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,10 +22,19 @@ public interface Cache {
 	 * Called by the {@link CacheService} when the cache should be initialize for a new request
 	 *
 	 * @param req The request to cache
-	 * @return The writer that will receive the response data
 	 * @throws IOException If an IO exception occured while creating the writer
 	 */
-	public Writer begin(HttpServletRequest req) throws IOException;
+	public void begin(HttpServletRequest req) throws IOException;
+
+	/**
+	 * @return The writer that will receive the response data
+	 */
+	public Writer getWriter();
+
+	/**
+	 * @return The stream that will receive the response data
+	 */
+	public OutputStream getStream();
 
 	/**
 	 * Called by the {@link CacheService} when the response has fully been written

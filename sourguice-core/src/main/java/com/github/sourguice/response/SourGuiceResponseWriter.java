@@ -5,7 +5,6 @@ import java.io.Writer;
 
 import javax.annotation.CheckForNull;
 
-import com.github.sourguice.throwable.SourGuiceRuntimeException;
 import com.github.sourguice.throwable.invocation.CacheTooLateException;
 
 /**
@@ -42,12 +41,7 @@ public class SourGuiceResponseWriter extends Writer {
 		this.base.write(cbuf, off, len);
 		this.hasWritten = true;
 		if (this.cacheWriter != null) {
-			try {
-				this.cacheWriter.write(cbuf, off, len);
-			}
-			catch (IOException e) {
-				throw new SourGuiceRuntimeException(e);
-			}
+			this.cacheWriter.write(cbuf, off, len);
 		}
 	}
 

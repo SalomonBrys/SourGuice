@@ -2,9 +2,9 @@ package com.github.sourguice.response;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Writer;
 
 import javax.annotation.CheckForNull;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
@@ -23,7 +23,7 @@ public class SourGuiceResponse extends HttpServletResponseWrapper {
 	private @CheckForNull Cache cache = null;
 
 	/**
-	 * The writer that intercept writes to duplicate it to cache if any
+	 * The writer that intercepts writes to duplicate it to cache if any
 	 */
 	private @CheckForNull SourGuiceResponseWriter writer = null;
 
@@ -31,6 +31,11 @@ public class SourGuiceResponse extends HttpServletResponseWrapper {
 	 * The print writer for the response
 	 */
 	private @CheckForNull PrintWriter printWriter = null;
+
+	/**
+	 * The stream that intercepts writes to duplicate it to cache if any
+	 */
+	private @CheckForNull SourGuiceResponseStream stream = null;
 
 	/**
 	 * Find the {@link SourGuiceResponse} in the current HttpServletResponse
@@ -60,34 +65,44 @@ public class SourGuiceResponse extends HttpServletResponseWrapper {
 		super(response);
 	}
 
-	/**
-	 * @return The SourGuiceResponseWriter (that is encapsualted inside the PrintWriter)
-	 * @throws IOException IO exception
-	 */
-	private SourGuiceResponseWriter getResponseWriter() throws IOException {
+	@Override
+	public PrintWriter getWriter() throws IOException {
 		if (this.writer == null) {
 			this.writer = new SourGuiceResponseWriter(super.getResponse().getWriter());
+			if (this.cache != null) {
+				this.writer.setCacheWriter(this.cache.getWriter());
+			}
 		}
-		return this.writer;
+		if (this.printWriter == null) {
+			this.printWriter = new PrintWriter(this.writer);
+		}
+		return this.printWriter;
 	}
 
 	@Override
-	public PrintWriter getWriter() throws IOException {
-		if (this.printWriter == null) {
-			this.printWriter = new PrintWriter(getResponseWriter());
+	public ServletOutputStream getOutputStream() throws IOException {
+		if (this.stream == null) {
+			this.stream = new SourGuiceResponseStream(super.getResponse().getOutputStream());
+			if (this.cache != null) {
+				this.stream.setCacheStream(this.cache.getStream());
+			}
 		}
-		return this.printWriter;
+		return this.stream;
 	}
 
 	/**
 	 * Set a cache to be used on this request
 	 * @param cache The cache responsible for saving this request
-	 * @param cacheWriter The writer of the cache
 	 * @throws IOException If an input or output exception occurred
 	 */
-	public void setCache(final Cache cache, final Writer cacheWriter) throws IOException {
+	public void setCache(final Cache cache) throws IOException {
 		this.cache = cache;
-		getResponseWriter().setCacheWriter(cacheWriter);
+		if (this.writer != null) {
+			this.writer.setCacheWriter(cache.getWriter());
+		}
+		if (this.stream != null) {
+			this.stream.setCacheStream(cache.getStream());
+		}
 	}
 
 	/**

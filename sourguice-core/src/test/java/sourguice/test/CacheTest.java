@@ -4,6 +4,8 @@ import static org.testng.Assert.assertEquals;
 
 import java.io.IOException;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.eclipse.jetty.testing.HttpTester;
 import org.eclipse.jetty.testing.ServletTester;
 import org.testng.annotations.Test;
@@ -26,16 +28,32 @@ public class CacheTest extends TestBase {
     @Singleton
     public static class Controller {
 
-    	static int manualHit = 0;
+    	static int manualCharHit = 0;
+    	static int manualByteHit = 0;
 
-		@RequestMapping(value = "/manual")
+		@RequestMapping(value = "/startup")
+		public void startup() {
+			// Does nothing.
+			// Calling it makes SourGuice initialize
+		}
+
+		@RequestMapping(value = "/manual_char")
 		@Writes
-		public String writereader(CacheService cacheService) throws IOException {
+		public String manual_char(CacheService cacheService) throws IOException {
 			cacheService.<InMemoryCache>cacheRequest().setExpiration(2 * 60); // 2 minutes
 
-			++manualHit;
+			++manualCharHit;
 
-			return "Salomon";
+			return "Salomon:C";
+		}
+
+		@RequestMapping(value = "/manual_byte")
+		public void manual_byte(CacheService cacheService, HttpServletResponse res) throws IOException {
+			cacheService.<InMemoryCache>cacheRequest().setExpiration(2 * 60); // 2 minutes
+
+			++manualByteHit;
+
+			res.getOutputStream().write("Salomon:B".getBytes());
 		}
 
     }
@@ -64,19 +82,39 @@ public class CacheTest extends TestBase {
 
     // ===================== TESTS =====================
 
-	public void getManual() throws Exception {
+	public void getManualChar() throws Exception {
 		synchronized (this) { // Forcing serial testing
-			HttpTester request = makeRequest("GET", "/manual");
+			getResponse(makeRequest("GET", "/startup"));
+
+			HttpTester request = makeRequest("GET", "/manual_char");
 
 			long start = System.nanoTime();
 			HttpTester response = getResponse(request);
 			long end = System.nanoTime();
 
-			System.out.println("Manual request duration: " + ((double)(end - start) / 1000000) + "ms");
+			System.out.println("Manual char request duration: " + ((double)(end - start) / 1000000) + "ms");
 
 			assertEquals(response.getStatus(), 200);
-			assertEquals(response.getContent(), "Salomon");
-			assertEquals(Controller.manualHit, 1);
+			assertEquals(response.getContent(), "Salomon:C");
+			assertEquals(Controller.manualCharHit, 1);
+		}
+	}
+
+	public void getManualByte() throws Exception {
+		synchronized (this) { // Forcing serial testing
+			getResponse(makeRequest("GET", "/startup"));
+
+			HttpTester request = makeRequest("GET", "/manual_byte");
+
+			long start = System.nanoTime();
+			HttpTester response = getResponse(request);
+			long end = System.nanoTime();
+
+			System.out.println("Manual byte request duration: " + ((double)(end - start) / 1000000) + "ms");
+
+			assertEquals(response.getStatus(), 200);
+			assertEquals(response.getContent(), "Salomon:B");
+			assertEquals(Controller.manualByteHit, 1);
 		}
 	}
 

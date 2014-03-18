@@ -58,7 +58,7 @@ public class InMemoryCacheFilter implements Filter {
 		}
 
 		final HttpServletRequest req = (HttpServletRequest) _req;
-		final Set<CacheEntry> set = InMemoryCache.lruCache.get(req.getPathInfo());
+		final Set<CacheEntry> set = InMemoryCache.lruCache.get(req.getRequestURI());
 
 		if (set == null) {
 			chain.doFilter(_req, _res);
@@ -71,7 +71,12 @@ public class InMemoryCacheFilter implements Filter {
 		while (iter.hasNext()) {
 			final CacheEntry cacheEntry = iter.next();
 			if (cacheEntry.expires.after(now) && checkHeaders(req, cacheEntry.headers)) {
-				_res.getWriter().write(cacheEntry.data);
+				if (cacheEntry.charData != null) {
+					_res.getWriter().write(cacheEntry.charData);
+				}
+				else if (cacheEntry.byteData != null) {
+					_res.getOutputStream().write(cacheEntry.byteData);
+				}
 				return ;
 			}
 		}

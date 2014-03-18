@@ -1,7 +1,6 @@
 package com.github.sourguice.cache.impl;
 
 import java.io.IOException;
-import java.io.Writer;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -41,13 +40,12 @@ public class CacheServiceImpl implements CacheService {
 		this.injector = injector;
 	}
 
-	@SuppressWarnings("resource")
 	@Override
 	public <T extends Cache> T cacheRequest(final T cache) throws IOException {
 		final HttpServletRequest request = this.injector.getInstance(HttpServletRequest.class);
 		final SourGuiceResponse response = SourGuiceResponse.getSourGuice(this.injector.getInstance(HttpServletResponse.class));
-		final Writer writer = cache.begin(request);
-		response.setCache(cache, writer);
+		cache.begin(request);
+		response.setCache(cache);
 		return cache;
 	}
 

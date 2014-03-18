@@ -1,6 +1,9 @@
 package com.github.sourguice.cache.def;
 
+import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Calendar;
 import java.util.Collections;
@@ -40,7 +43,12 @@ public class InMemoryCache implements Cache {
 	/**
 	 * The writer in which the response will be written
 	 */
-	private final CharArrayWriter writer = new CharArrayWriter();
+	private @CheckForNull CharArrayWriter writer = null;
+
+	/**
+	 * The writer in which the response will be written
+	 */
+	private @CheckForNull ByteArrayOutputStream stream = null;
 
 	/**
 	 * Current cache entry
@@ -72,9 +80,14 @@ public class InMemoryCache implements Cache {
 		protected final Map<String, String> headers = new HashMap<>();
 
 		/**
-		 * Entry data
+		 * Entry char data
 		 */
-		protected String data = "";
+		protected @CheckForNull char[] charData = null;
+
+		/**
+		 * Entry byte data
+		 */
+		protected @CheckForNull byte[] byteData = null;
 
 		@Override
 		public int hashCode() {
@@ -132,9 +145,24 @@ public class InMemoryCache implements Cache {
 	}
 
 	@Override
-	public Writer begin(final HttpServletRequest req) {
+	public void begin(final HttpServletRequest req) {
 		this.request = req;
+	}
+
+	@Override
+	public Writer getWriter() {
+		if (this.writer == null) {
+			this.writer = new CharArrayWriter();
+		}
 		return this.writer;
+	}
+
+	@Override
+	public @CheckForNull OutputStream getStream() {
+		if (this.stream == null) {
+			this.stream = new ByteArrayOutputStream();
+		}
+		return this.stream;
 	}
 
 	/**
@@ -171,7 +199,7 @@ public class InMemoryCache implements Cache {
 	}
 
 	@Override
-	public void save(final HttpServletResponse res) {
+	public void save(final HttpServletResponse res) throws IOException {
 		if (lruCache == null) {
 			throw new UnsupportedOperationException("InMemoryCache is not initialized");
 		}
@@ -181,14 +209,20 @@ public class InMemoryCache implements Cache {
 		if (this.request == null) {
 			throw new UnsupportedOperationException("Cache has not been registered for this request");
 		}
-		final String pathInfo = this.request.getPathInfo();
-		Set<CacheEntry> set = lruCache.get(pathInfo);
+		final String requestURI = this.request.getRequestURI();
+		Set<CacheEntry> set = lruCache.get(requestURI);
 		if (set == null) {
 			set = new HashSet<>();
-			lruCache.put(pathInfo, set);
+			lruCache.put(requestURI, set);
 		}
-		this.entry.data = this.writer.toString();
+		if (this.writer != null) {
+			this.entry.charData = this.writer.toCharArray();
+			this.writer.close();
+		}
+		else if (this.stream != null) {
+			this.entry.byteData = this.stream.toByteArray();
+			this.stream.close();
+		}
 		set.add(this.entry);
-		this.writer.close();
 	}
 }
