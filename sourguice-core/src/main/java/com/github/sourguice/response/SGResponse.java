@@ -10,12 +10,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
 import com.github.sourguice.cache.Cache;
-import com.github.sourguice.throwable.NoSourGuiceResponseException;
+import com.github.sourguice.throwable.NoSGResponseException;
 
 /**
  * Response wrapper that handles SourGuice specificities
  */
-public class SourGuiceResponse extends HttpServletResponseWrapper {
+public class SGResponse extends HttpServletResponseWrapper {
 
 	/**
 	 * Cache for this request
@@ -25,7 +25,7 @@ public class SourGuiceResponse extends HttpServletResponseWrapper {
 	/**
 	 * The writer that intercepts writes to duplicate it to cache if any
 	 */
-	private @CheckForNull SourGuiceResponseWriter writer = null;
+	private @CheckForNull SGResponseWriter writer = null;
 
 	/**
 	 * The print writer for the response
@@ -35,18 +35,18 @@ public class SourGuiceResponse extends HttpServletResponseWrapper {
 	/**
 	 * The stream that intercepts writes to duplicate it to cache if any
 	 */
-	private @CheckForNull SourGuiceResponseStream stream = null;
+	private @CheckForNull SGResponseStream stream = null;
 
 	/**
-	 * Find the {@link SourGuiceResponse} in the current HttpServletResponse
+	 * Find the {@link SGResponse} in the current HttpServletResponse
 	 *
 	 * @param res The current HttpServletResponse
 	 * @return The found SourGuiceResponse
-	 * @throws NoSourGuiceResponseException if no SourGuiceResponse could be found
+	 * @throws NoSGResponseException if no SourGuiceResponse could be found
 	 */
-	public static SourGuiceResponse getSourGuice(final HttpServletResponse res) throws NoSourGuiceResponseException {
-		if (res instanceof SourGuiceResponse) {
-			return (SourGuiceResponse) res;
+	public static SGResponse getSourGuice(final HttpServletResponse res) throws NoSGResponseException {
+		if (res instanceof SGResponse) {
+			return (SGResponse) res;
 		}
 		if (res instanceof HttpServletResponseWrapper) {
 			final ServletResponse base = ((HttpServletResponseWrapper) res).getResponse();
@@ -55,20 +55,20 @@ public class SourGuiceResponse extends HttpServletResponseWrapper {
 			}
 		}
 
-		throw new NoSourGuiceResponseException();
+		throw new NoSGResponseException();
 	}
 
 	/**
 	 * @see HttpServletResponseWrapper#HttpServletResponseWrapper(HttpServletResponse)
 	 */
-	public SourGuiceResponse(final HttpServletResponse response) {
+	public SGResponse(final HttpServletResponse response) {
 		super(response);
 	}
 
 	@Override
 	public PrintWriter getWriter() throws IOException {
 		if (this.writer == null) {
-			this.writer = new SourGuiceResponseWriter(super.getResponse().getWriter());
+			this.writer = new SGResponseWriter(super.getResponse().getWriter());
 			if (this.cache != null) {
 				this.writer.setCacheWriter(this.cache.getWriter());
 			}
@@ -82,7 +82,7 @@ public class SourGuiceResponse extends HttpServletResponseWrapper {
 	@Override
 	public ServletOutputStream getOutputStream() throws IOException {
 		if (this.stream == null) {
-			this.stream = new SourGuiceResponseStream(super.getResponse().getOutputStream());
+			this.stream = new SGResponseStream(super.getResponse().getOutputStream());
 			if (this.cache != null) {
 				this.stream.setCacheStream(this.cache.getStream());
 			}

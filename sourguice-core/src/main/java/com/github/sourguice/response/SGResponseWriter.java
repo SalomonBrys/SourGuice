@@ -10,7 +10,7 @@ import com.github.sourguice.throwable.invocation.CacheTooLateException;
 /**
  * Writer that will wrap the response's writer and intercept any write so that the cache (if any) can handle it
  */
-public class SourGuiceResponseWriter extends Writer {
+public class SGResponseWriter extends Writer {
 	/**
 	 * The base writer
 	 */
@@ -31,7 +31,7 @@ public class SourGuiceResponseWriter extends Writer {
 	 *
 	 * @param base Base writer
 	 */
-	public SourGuiceResponseWriter(final Writer base) {
+	public SGResponseWriter(final Writer base) {
 		super();
 		this.base = base;
 	}

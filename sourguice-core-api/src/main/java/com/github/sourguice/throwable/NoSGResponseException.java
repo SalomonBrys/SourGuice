@@ -7,14 +7,14 @@ package com.github.sourguice.throwable;
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
-public class NoSourGuiceResponseException extends RuntimeException {
+public class NoSGResponseException extends RuntimeException {
 	@SuppressWarnings("javadoc")
 	private static final long serialVersionUID = -7673588736646558235L;
 
 	/**
 	 * @see RuntimeException#RuntimeException()
 	 */
-	public NoSourGuiceResponseException() {
+	public NoSGResponseException() {
 		super("The current HTTPResponse is not SourGuice specific: did you forget to use the com.github.sourguice.SourGuiceFilter filter ?");
 	}
 

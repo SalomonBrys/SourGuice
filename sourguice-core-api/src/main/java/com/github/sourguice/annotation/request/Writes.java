@@ -11,9 +11,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.meta.TypeQualifierNickname;
 
 /**
- * Indicates that the MVC system must writes the return of the annotated method directly to the response
+ * Indicates that SourGuice must writes the return of the annotated method directly to the response
  * rather than interpreting it as the view name.
- * 
+ *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
 @Target({ElementType.METHOD})

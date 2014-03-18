@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.servlet.http.HttpServletRequest;
 
-import com.github.sourguice.MvcControlerModule;
+import com.github.sourguice.SourGuiceControlerModule;
 import com.github.sourguice.annotation.controller.Callable;
 import com.github.sourguice.annotation.controller.ViewDirectory;
 import com.github.sourguice.annotation.controller.ViewRendered;
@@ -28,7 +28,7 @@ import com.google.inject.TypeLiteral;
 
 /**
  * Handles a controller class.
- * A controller class can be any class that is declared in {@link MvcControlerModule} configureControllers method
+ * A controller class can be any class that is declared in {@link SourGuiceControlerModule} configureControllers method
  * using the syntax control(pattern).with(controller.class)
  * This class is responsible for creating and managing all possible invocations for the given class
  *   (which are all methods annotated with @{@link RequestMapping})
@@ -45,7 +45,7 @@ public final class ControllerHandler<T> implements InstanceGetter<T> {
     /**
      * List of available invocations for this controller
      */
-    private final Map<Method, MvcInvocation> invocations = new HashMap<>();
+    private final Map<Method, ControllerInvocation> invocations = new HashMap<>();
 
     /**
      * The default view directory, not empty if the controller is annotated with {@link ViewDirectory}
@@ -86,7 +86,7 @@ public final class ControllerHandler<T> implements InstanceGetter<T> {
 
         for (final Method method : controller.getTypeLiteral().getRawType().getMethods()) {
             if (Annotations.getOneTreeRecursive(Callable.class, method) != null) {
-                this.invocations.put(method, new MvcInvocation(this, Annotations.getOneRecursive(RequestMapping.class, method.getAnnotations()), method));
+                this.invocations.put(method, new ControllerInvocation(this, Annotations.getOneRecursive(RequestMapping.class, method.getAnnotations()), method));
             }
         }
     }
@@ -100,7 +100,7 @@ public final class ControllerHandler<T> implements InstanceGetter<T> {
     public @CheckForNull ControllerInvocationInfos getBestInvocation(final HttpServletRequest req) {
         // Get the best invocation for the given request
         ControllerInvocationInfos infos = null;
-        for (final MvcInvocation invocation : this.invocations.values()) {
+        for (final ControllerInvocation invocation : this.invocations.values()) {
             infos = ControllerInvocationInfos.getBest(infos, invocation.canServe(req));
         }
 
@@ -119,8 +119,8 @@ public final class ControllerHandler<T> implements InstanceGetter<T> {
      * @return The invocations that were found on this controller class for this method
      * @throws UnsupportedOperationException If the method has no invocation on this class
      */
-	public MvcInvocation getInvocations(final Method method) throws UnsupportedOperationException {
-		final MvcInvocation ret = this.invocations.get(method);
+	public ControllerInvocation getInvocations(final Method method) throws UnsupportedOperationException {
+		final ControllerInvocation ret = this.invocations.get(method);
 		if (ret == null) {
 			throw new UnsupportedOperationException("No such method @Callable " + getTypeLiteral().getRawType().getCanonicalName() + "." + method.toString());
 		}

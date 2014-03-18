@@ -51,7 +51,7 @@ import com.google.inject.TypeLiteral;
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
-public final class MvcInvocation {
+public final class ControllerInvocation {
 
 	/**
 	 * Pattern to detect a variable in a url string
@@ -157,7 +157,7 @@ public final class MvcInvocation {
 	 * @param controller The controller on witch to call the method
 	 * @param method The method to call
 	 */
-	public MvcInvocation(final ControllerHandler<?> controller, final @CheckForNull RequestMapping mapping, final Method method) {
+	public ControllerInvocation(final ControllerHandler<?> controller, final @CheckForNull RequestMapping mapping, final Method method) {
 		// Set properties
 		this.controller = controller;
 		this.mapping = mapping;

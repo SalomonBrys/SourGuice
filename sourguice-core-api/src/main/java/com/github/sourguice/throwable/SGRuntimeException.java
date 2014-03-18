@@ -7,7 +7,7 @@ package com.github.sourguice.throwable;
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
-public class SourGuiceRuntimeException extends RuntimeException {
+public class SGRuntimeException extends RuntimeException {
 
 	@SuppressWarnings("javadoc")
 	private static final long serialVersionUID = 4077437307080980456L;
@@ -15,7 +15,7 @@ public class SourGuiceRuntimeException extends RuntimeException {
 	/**
 	 * @see RuntimeException#RuntimeException(Throwable)
 	 */
-	public SourGuiceRuntimeException(final Throwable cause) {
+	public SGRuntimeException(final Throwable cause) {
 		super(cause);
 	}
 

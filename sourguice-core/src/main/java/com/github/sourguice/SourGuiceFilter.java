@@ -9,7 +9,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
 import com.github.sourguice.cache.Cache;
-import com.github.sourguice.response.SourGuiceResponse;
+import com.github.sourguice.response.SGResponse;
 import com.google.inject.servlet.GuiceFilter;
 
 /**
@@ -21,7 +21,7 @@ public class SourGuiceFilter extends GuiceFilter {
 
 	@Override
 	public void doFilter(final ServletRequest _req, final ServletResponse _res, final FilterChain chain) throws IOException, ServletException {
-		final SourGuiceResponse res = new SourGuiceResponse((HttpServletResponse) _res);
+		final SGResponse res = new SGResponse((HttpServletResponse) _res);
 		super.doFilter(_req, res, chain);
 
 		final Cache cache = res.getCache();

@@ -11,7 +11,7 @@ import com.github.sourguice.throwable.invocation.CacheTooLateException;
 /**
  * Stream that will wrap the response's stream and intercept any write so that the cache (if any) can handle it
  */
-public class SourGuiceResponseStream extends ServletOutputStream {
+public class SGResponseStream extends ServletOutputStream {
 	/**
 	 * The base stream
 	 */
@@ -32,7 +32,7 @@ public class SourGuiceResponseStream extends ServletOutputStream {
 	 *
 	 * @param base Base stream
 	 */
-	public SourGuiceResponseStream(final OutputStream base) {
+	public SGResponseStream(final OutputStream base) {
 		super();
 		this.base = base;
 	}

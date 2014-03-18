@@ -48,14 +48,14 @@ public abstract class ArgumentFetcher<T> {
 
 	/**
 	 * This method must fetch the argument
-	 * This method will be called at each MVC invocation
+	 * This method will be called at each invocation
 	 * This will first check if any "Call-time" Argument Fetcher can get the argument and, if not, ask its subclass via getPrepared
 	 *
 	 * @param req The current HTTP request
 	 * @param pathVariables Variables that were parsed from request URL
 	 * @param injector Guice injector
 	 * @param additionalFetchers Any additional fetcher provided at "call-time" directly by the user
-	 * @return The argument to be passed to the MVC invocation
+	 * @return The argument to be passed to the invocation
 	 * @throws NoSuchRequestParameterException In case of a parameter asked from request argument or path variable that does not exists
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -75,7 +75,7 @@ public abstract class ArgumentFetcher<T> {
 	 * @param req The current HTTP request
 	 * @param pathVariables Variables that were parsed from request URL
 	 * @param injector Guice injector
-	 * @return The argument to be passed to the MVC invocation
+	 * @return The argument to be passed to the invocation
 	 * @throws NoSuchRequestParameterException In case of a parameter asked from request argument or path variable that does not exists
 	 */
 	protected abstract @CheckForNull T getPrepared(HttpServletRequest req, @PathVariablesMap Map<String, String> pathVariables, Injector injector) throws NoSuchRequestParameterException;

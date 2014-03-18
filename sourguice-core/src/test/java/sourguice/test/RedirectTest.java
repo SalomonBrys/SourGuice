@@ -5,11 +5,11 @@ import static org.testng.Assert.*;
 import org.eclipse.jetty.testing.HttpTester;
 import org.testng.annotations.Test;
 
-import com.github.sourguice.MvcControlerModule;
+import com.github.sourguice.SourGuiceControlerModule;
 import com.github.sourguice.annotation.request.Redirects;
 import com.github.sourguice.annotation.request.RequestMapping;
-import com.github.sourguice.throwable.controller.MvcResponseException;
-import com.github.sourguice.throwable.controller.MvcResponseRedirect;
+import com.github.sourguice.throwable.controller.SGResponseException;
+import com.github.sourguice.throwable.controller.SGResponseRedirect;
 import com.google.inject.Singleton;
 
 @SuppressWarnings({"javadoc", "static-method", "PMD"})
@@ -43,8 +43,8 @@ public class RedirectTest extends TestBase {
         }
 
         @RequestMapping("/exception")
-        public void exception() throws MvcResponseException {
-        	throw new MvcResponseRedirect("/redir4");
+        public void exception() throws SGResponseException {
+        	throw new SGResponseRedirect("/redir4");
         }
 
         @RequestMapping("/ignored")
@@ -63,7 +63,7 @@ public class RedirectTest extends TestBase {
 
     // ===================== MODULE =====================
 
-    public static class ControllerModule extends MvcControlerModule {
+    public static class ControllerModule extends SourGuiceControlerModule {
         @Override
         protected void configureControllers() {
             control("/*").with(Controller.class);
@@ -72,7 +72,7 @@ public class RedirectTest extends TestBase {
     }
 
     @Override
-    protected MvcControlerModule module() {
+    protected SourGuiceControlerModule module() {
         return new ControllerModule();
     }
 

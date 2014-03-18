@@ -17,13 +17,13 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.eclipse.jetty.testing.HttpTester;
 import org.testng.annotations.Test;
 
-import com.github.sourguice.MvcControlerModule;
+import com.github.sourguice.SourGuiceControlerModule;
 import com.github.sourguice.annotation.controller.InterceptWith;
 import com.github.sourguice.annotation.request.InterceptParam;
 import com.github.sourguice.annotation.request.RequestAttribute;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.Writes;
-import com.github.sourguice.utils.MVCCallInterceptSetter;
+import com.github.sourguice.utils.SGCallInterceptSetter;
 import com.google.inject.Singleton;
 
 @SuppressWarnings({"javadoc", "static-method", "PMD"})
@@ -35,10 +35,10 @@ public class FilterTest extends TestBase {
 	@Singleton
 	public static class Interceptor implements MethodInterceptor {
 
-		private MVCCallInterceptSetter setter;
+		private SGCallInterceptSetter setter;
 
 		@Inject
-		public Interceptor(MVCCallInterceptSetter setter) {
+		public Interceptor(SGCallInterceptSetter setter) {
 			super();
 			this.setter = setter;
 		}
@@ -90,7 +90,7 @@ public class FilterTest extends TestBase {
 
     // ===================== MODULE =====================
 
-    public static class ControllerModule extends MvcControlerModule {
+    public static class ControllerModule extends SourGuiceControlerModule {
         @Override
         protected void configureControllers() {
             control("/*").with(Controller.class);
@@ -99,7 +99,7 @@ public class FilterTest extends TestBase {
     }
 
     @Override
-    protected MvcControlerModule module() {
+    protected SourGuiceControlerModule module() {
         return new ControllerModule();
     }
 

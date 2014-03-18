@@ -22,13 +22,13 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.eclipse.jetty.testing.HttpTester;
 import org.testng.annotations.Test;
 
-import com.github.sourguice.MvcControlerModule;
+import com.github.sourguice.SourGuiceControlerModule;
 import com.github.sourguice.annotation.controller.Callable;
 import com.github.sourguice.annotation.controller.InterceptWith;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.Writes;
 import com.github.sourguice.call.CalltimeArgumentFetcher;
-import com.github.sourguice.call.MvcCaller;
+import com.github.sourguice.call.SGCaller;
 import com.github.sourguice.exception.ExceptionHandler;
 import com.github.sourguice.throwable.service.exception.UnreachableExceptionHandlerException;
 import com.github.sourguice.utils.Annotations;
@@ -50,14 +50,14 @@ public class CallTest extends TestBase {
 		public void startup() { /* startup */ }
 
     	@RequestMapping("/callprint")
-    	public void callprint(MvcCaller caller) throws Throwable {
+    	public void callprint(SGCaller caller) throws Throwable {
     		Method method = this.getClass().getMethod("printName", Writer.class);
     		caller.call(this.getClass(), method, null, false);
     	}
 
     	@RequestMapping("/callbad")
     	@Writes
-    	public String callbad(MvcCaller caller) throws Throwable {
+    	public String callbad(SGCaller caller) throws Throwable {
     		Method method = String.class.getMethod("toUpperCase", char.class);
     		caller.call(this.getClass(), method, null, false);
     		return "Salomon";
@@ -65,7 +65,7 @@ public class CallTest extends TestBase {
 
     	@RequestMapping("/callhandled")
     	@Writes
-    	public String callhandled(MvcCaller caller) throws Throwable {
+    	public String callhandled(SGCaller caller) throws Throwable {
     		Method method = this.getClass().getMethod("throwhandled");
     		caller.call(this.getClass(), method, null, false);
     		return "Salomon";
@@ -73,7 +73,7 @@ public class CallTest extends TestBase {
 
     	@RequestMapping("/callthrowhandled")
     	@Writes
-    	public String callthrowhandled(MvcCaller caller) throws Throwable {
+    	public String callthrowhandled(SGCaller caller) throws Throwable {
     		Method method = this.getClass().getMethod("throwhandled");
     		caller.call(this.getClass(), method, null, true);
     		return "Salomon";
@@ -81,7 +81,7 @@ public class CallTest extends TestBase {
 
     	@RequestMapping("/callthrownothandled")
     	@Writes
-    	public String callthrownothandled(MvcCaller caller) throws Throwable {
+    	public String callthrownothandled(SGCaller caller) throws Throwable {
     		Method method = this.getClass().getMethod("thrownothandled");
     		try {
     			caller.call(this.getClass(), method, null, false);
@@ -95,7 +95,7 @@ public class CallTest extends TestBase {
     	@RequestMapping("/callfetched")
     	@Writes
     	@SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
-    	public String callfetched(MvcCaller caller) throws Throwable {
+    	public String callfetched(SGCaller caller) throws Throwable {
     		Method method = this.getClass().getMethod("fetched", String.class);
     		return (String) caller.call(this.getClass(), method, null, false, new NoArgumentFetcher(), new TestArgumentFetcher());
     	}
@@ -177,7 +177,7 @@ public class CallTest extends TestBase {
 
     // ===================== MODULE =====================
 
-    public static class ControllerModule extends MvcControlerModule {
+    public static class ControllerModule extends SourGuiceControlerModule {
         @Override
         protected void configureControllers() {
             control("/*").with(Controller.class);
@@ -189,7 +189,7 @@ public class CallTest extends TestBase {
     }
 
     @Override
-    protected MvcControlerModule module() {
+    protected SourGuiceControlerModule module() {
         return new ControllerModule();
     }
 

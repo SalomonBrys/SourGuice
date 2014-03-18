@@ -6,7 +6,7 @@ import com.github.sourguice.annotation.request.RequestParam;
  * Exception thrown when a @{@link RequestParam} annotated parameter is not found in the request
  * and the annotation does not provide a default implementation
  *
- * This exception is caught by the MVC Calling system that provides a default error page stating that the parameter is missing
+ * This exception is caught by SourGuice and provides a default error page stating that the parameter is missing
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */

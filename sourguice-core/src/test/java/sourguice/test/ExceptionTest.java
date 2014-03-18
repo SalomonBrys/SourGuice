@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.testing.HttpTester;
 import org.testng.annotations.Test;
 
-import com.github.sourguice.MvcControlerModule;
+import com.github.sourguice.SourGuiceControlerModule;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.exception.ExceptionHandler;
 import com.github.sourguice.throwable.service.exception.UnreachableExceptionHandlerException;
@@ -78,7 +78,7 @@ public class ExceptionTest extends TestBase {
 
     // ===================== MODULE =====================
 
-    public static class ControllerModule extends MvcControlerModule {
+    public static class ControllerModule extends SourGuiceControlerModule {
 
     	public static boolean exceptionCaught = false;
 
@@ -102,7 +102,7 @@ public class ExceptionTest extends TestBase {
     }
 
     @Override
-    protected MvcControlerModule module() {
+    protected SourGuiceControlerModule module() {
         return new ControllerModule();
     }
 

@@ -5,11 +5,11 @@ import static org.testng.Assert.*;
 import org.eclipse.jetty.testing.HttpTester;
 import org.testng.annotations.Test;
 
-import com.github.sourguice.MvcControlerModule;
+import com.github.sourguice.SourGuiceControlerModule;
 import com.github.sourguice.annotation.controller.HttpError;
 import com.github.sourguice.annotation.request.RequestMapping;
-import com.github.sourguice.throwable.controller.MvcResponseException;
-import com.github.sourguice.throwable.controller.MvcResponseStatusCode;
+import com.github.sourguice.throwable.controller.SGResponseException;
+import com.github.sourguice.throwable.controller.SGResponseStatusCode;
 import com.google.inject.Singleton;
 
 @SuppressWarnings({"javadoc", "static-method", "PMD"})
@@ -37,14 +37,14 @@ public class HttpErrorTest extends TestBase {
         }
 
         @RequestMapping("/unauthorized")
-        public void unauthorized() throws MvcResponseStatusCode {
-        	throw new MvcResponseStatusCode(401);
+        public void unauthorized() throws SGResponseStatusCode {
+        	throw new SGResponseStatusCode(401);
         }
 
 
         @RequestMapping("/teapot")
-        public void teapot() throws MvcResponseException {
-        	throw new MvcResponseStatusCode(418, "I'm a teapot");
+        public void teapot() throws SGResponseException {
+        	throw new SGResponseStatusCode(418, "I'm a teapot");
         }
 
         @RequestMapping("/gotohell")
@@ -57,7 +57,7 @@ public class HttpErrorTest extends TestBase {
 
     // ===================== MODULE =====================
 
-    public static class ControllerModule extends MvcControlerModule {
+    public static class ControllerModule extends SourGuiceControlerModule {
         @Override
         protected void configureControllers() {
             control("/*").with(Controller.class);
@@ -65,7 +65,7 @@ public class HttpErrorTest extends TestBase {
     }
 
     @Override
-    protected MvcControlerModule module() {
+    protected SourGuiceControlerModule module() {
         return new ControllerModule();
     }
 

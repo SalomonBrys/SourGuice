@@ -19,7 +19,7 @@ import org.testng.TestNG;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
-import com.github.sourguice.MvcControlerModule;
+import com.github.sourguice.SourGuiceControlerModule;
 import com.github.sourguice.SourGuiceFilter;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -31,7 +31,7 @@ public abstract class TestBase {
 	public static final int INVOCATION_COUNT = 3;
 	public static final int THREAD_POOL_SIZE = 4;
 
-	public static class StandardContextListener<T extends MvcControlerModule> extends GuiceServletContextListener {
+	public static class StandardContextListener<T extends SourGuiceControlerModule> extends GuiceServletContextListener {
 
 		private Injector injector;
 
@@ -51,7 +51,7 @@ public abstract class TestBase {
 
 	@BeforeClass
 	public void startupServletTester() throws Exception {
-		StandardContextListener<MvcControlerModule> scl = new StandardContextListener<>(module());
+		StandardContextListener<SourGuiceControlerModule> scl = new StandardContextListener<>(module());
 		for (int i = 0; i < THREAD_POOL_SIZE; ++i) {
 			ServletTester tester = new ServletTester();
 			tester.setContextPath("/");
@@ -157,7 +157,7 @@ public abstract class TestBase {
 		}
 	}
 
-	abstract protected MvcControlerModule module();
+	abstract protected SourGuiceControlerModule module();
 
 	public static void main(String[] args) {
 		TestNG testng = new TestNG();

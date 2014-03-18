@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
-public class MvcResponseRedirect extends MvcResponseException {
+public class SGResponseRedirect extends SGResponseException {
 	@SuppressWarnings("javadoc")
 	private static final long serialVersionUID = -5613860675750051649L;
 
@@ -21,7 +21,7 @@ public class MvcResponseRedirect extends MvcResponseException {
 	/**
 	 * @param toUrl The URL to redirect to
 	 */
-	public MvcResponseRedirect(final String toUrl) {
+	public SGResponseRedirect(final String toUrl) {
 		super();
 		this.toUrl = toUrl;
 	}

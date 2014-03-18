@@ -13,10 +13,10 @@ import javax.servlet.http.HttpServletResponse;
 import com.github.sourguice.annotation.controller.Callable;
 import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.call.CalltimeArgumentFetcher;
-import com.github.sourguice.call.MvcCaller;
+import com.github.sourguice.call.SGCaller;
 import com.github.sourguice.controller.ControllerHandlersRepository;
 import com.github.sourguice.controller.GuiceInstanceGetter;
-import com.github.sourguice.controller.MvcInvocation;
+import com.github.sourguice.controller.ControllerInvocation;
 import com.github.sourguice.exception.ExceptionHandler;
 import com.github.sourguice.exception.ExceptionService;
 import com.github.sourguice.throwable.invocation.HandledException;
@@ -37,7 +37,7 @@ import com.google.inject.servlet.RequestScoped;
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
 @RequestScoped
-public final class MvcCallerImpl implements MvcCaller {
+public final class SGCallerImpl implements SGCaller {
 
 	/**
 	 * The request used to bind ServletRequest related arguments
@@ -69,7 +69,7 @@ public final class MvcCallerImpl implements MvcCaller {
 	 */
 	@SuppressWarnings("javadoc")
 	@Inject
-	public MvcCallerImpl(final HttpServletRequest req, final HttpServletResponse res, final Injector injector) {
+	public SGCallerImpl(final HttpServletRequest req, final HttpServletResponse res, final Injector injector) {
 		this.req = req;
 		this.res = res;
 		this.injector = injector;
@@ -108,9 +108,9 @@ public final class MvcCallerImpl implements MvcCaller {
 	 * @throws NoSuchRequestParameterException In case of a parameter asked from request argument or path variable that does not exists
 	 * @throws InvocationTargetException Any exception thrown by the method call and that was not handled
 	 * @throws IOException IO failure while writing the response
-	 * @see MvcCallerImpl#call(MvcInvocation, Map, boolean, CalltimeArgumentFetcher...)
+	 * @see SGCallerImpl#call(ControllerInvocation, Map, boolean, CalltimeArgumentFetcher...)
 	 */
-	public @CheckForNull Object call(final MvcInvocation invoc, final @CheckForNull @PathVariablesMap Map<String, String> pathVariables, final boolean throwWhenHandled, final CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchRequestParameterException, InvocationTargetException, IOException {
+	public @CheckForNull Object call(final ControllerInvocation invoc, final @CheckForNull @PathVariablesMap Map<String, String> pathVariables, final boolean throwWhenHandled, final CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchRequestParameterException, InvocationTargetException, IOException {
 		try {
 			assert(this.req != null);
 			assert(this.res != null);
@@ -124,10 +124,10 @@ public final class MvcCallerImpl implements MvcCaller {
 	}
 
 	/**
-	 * @see #call(MvcInvocation, Map, boolean, CalltimeArgumentFetcher...)
+	 * @see #call(ControllerInvocation, Map, boolean, CalltimeArgumentFetcher...)
 	 */
 	@SuppressWarnings("javadoc")
-	public @CheckForNull Object call(final MvcInvocation invoc, final MatchResult urlMatch, final boolean throwWhenHandled, final CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchRequestParameterException, InvocationTargetException, IOException {
+	public @CheckForNull Object call(final ControllerInvocation invoc, final MatchResult urlMatch, final boolean throwWhenHandled, final CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchRequestParameterException, InvocationTargetException, IOException {
 		try {
 			return invoc.invoke(this.req, urlMatch, this.injector, additionalFetchers);
 		}

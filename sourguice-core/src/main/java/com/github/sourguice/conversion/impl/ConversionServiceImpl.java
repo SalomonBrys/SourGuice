@@ -20,7 +20,7 @@ import com.google.inject.TypeLiteral;
 
 /**
  * Holds all registered converters
- * Permits to the MVC system to convert string from the HTTP request to any type needed
+ * Permits SourGuice to convert string from the HTTP request to any type needed
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */

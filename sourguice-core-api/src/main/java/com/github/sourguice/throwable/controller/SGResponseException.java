@@ -6,11 +6,11 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Base of all exceptions in this package.
- * All exceptions in this package are caught by the MVC Call system and execute a treatment on the response
+ * All exceptions in this package are caught by SourGuice that then executes a treatment on the response
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
-public abstract class MvcResponseException extends Exception {
+public abstract class SGResponseException extends Exception {
 	@SuppressWarnings("javadoc")
 	private static final long serialVersionUID = 8302019360183385619L;
 

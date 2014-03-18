@@ -14,7 +14,7 @@ public class ControllerInvocationInfos {
 	/**
 	 * The concerned invocation
 	 */
-	public MvcInvocation invocation;
+	public ControllerInvocation invocation;
 
 	/**
 	 * Specialization indice for this method to match the request
@@ -35,7 +35,7 @@ public class ControllerInvocationInfos {
 	/**
 	 * @param invocation The invocation on which calculates informations
 	 */
-	public ControllerInvocationInfos(final MvcInvocation invocation) {
+	public ControllerInvocationInfos(final ControllerInvocation invocation) {
 		this.invocation = invocation;
 	}
 

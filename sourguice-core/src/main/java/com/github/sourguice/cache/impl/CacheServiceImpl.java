@@ -10,11 +10,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.github.sourguice.cache.Cache;
 import com.github.sourguice.cache.CacheService;
-import com.github.sourguice.response.SourGuiceResponse;
+import com.github.sourguice.response.SGResponse;
 import com.google.inject.Injector;
 
 /**
- * Forwards the cache registration to the current {@link SourGuiceResponse}
+ * Forwards the cache registration to the current {@link SGResponse}
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
@@ -43,7 +43,7 @@ public class CacheServiceImpl implements CacheService {
 	@Override
 	public <T extends Cache> T cacheRequest(final T cache) throws IOException {
 		final HttpServletRequest request = this.injector.getInstance(HttpServletRequest.class);
-		final SourGuiceResponse response = SourGuiceResponse.getSourGuice(this.injector.getInstance(HttpServletResponse.class));
+		final SGResponse response = SGResponse.getSourGuice(this.injector.getInstance(HttpServletResponse.class));
 		cache.begin(request);
 		response.setCache(cache);
 		return cache;

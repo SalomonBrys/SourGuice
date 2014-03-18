@@ -33,7 +33,7 @@ import com.google.inject.servlet.ServletModule;
 
 /**
  * This class is the base guice module class to inherit
- * To configure a MVC module, create a subclass of this class
+ * To configure a SourGuice MVC module, create a subclass of this class
  * then override {@link #configureControllers()}
  * Then, use the syntax control(pattern).with(controller.class)
  * You can, of course, use the standard guice and guice-servlet commands.
@@ -41,19 +41,17 @@ import com.google.inject.servlet.ServletModule;
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
 @SuppressWarnings({"static-method", "PMD.TooManyMethods"})
-public abstract class MvcControlerModule extends ServletModule {
+public abstract class SourGuiceControlerModule extends ServletModule {
 
 	/**
 	 * This class is needed because API and implementation are not in the same JAR project.
 	 * This means that while the module is in the API jar, all implementations are in a seperate jar
 	 * that is unknown from the API code.
 	 * To connect to the implementation, the API code uses reflexivity to find the implementation class.
-	 * This implementation class implements MvcServletModuleHelperProxy that the API module will use
-	 * to delegate the actual implementation and bindings.
 	 * @author salomon
 	 */
 	@SuppressWarnings("javadoc")
-	static interface MvcControlerModuleHelperProxy {
+	static interface SGControlerModuleHelperProxy {
 
 		public ForwardableRequestFactory getForwardableRequestFactory(HttpServletRequest req, ServletContext context);
 
@@ -70,21 +68,20 @@ public abstract class MvcControlerModule extends ServletModule {
 
 	/**
 	 * The helper proxy on which every implementation call will be forwarded
-	 * This should be an instance of com.github.sourguice.MvcServletModuleHelperImpl
-	 * found by reflexivity
+	 * Found by reflexivity in the core jar.
 	 */
-	protected MvcControlerModuleHelperProxy helper;
+	protected SGControlerModuleHelperProxy helper;
 
 	/**
 	 * This will check that the implementation jar is actually in the classpath
 	 */
-	public MvcControlerModule() {
+	public SourGuiceControlerModule() {
 		super();
 		try {
-			this.helper = (MvcControlerModuleHelperProxy)
+			this.helper = (SGControlerModuleHelperProxy)
 						Class
-							.forName("com.github.sourguice.MvcControlerModuleHelperImpl")
-							.getConstructor(MvcControlerModule.class)
+							.forName("com.github.sourguice.SGControlerModuleHelperImpl")
+							.getConstructor(SourGuiceControlerModule.class)
 							.newInstance(this);
 		}
 		catch (ReflectiveOperationException e) {
@@ -255,16 +252,16 @@ public abstract class MvcControlerModule extends ServletModule {
 	public final BindBuilder<Object> control(final String pattern, final String... patterns) {
 		return new BindBuilder<Object>() {
 			@Override protected void register(final InstanceGetter<? extends Object> controller) {
-				MvcControlerModule.this.helper.registerControl(pattern, controller);
+				SourGuiceControlerModule.this.helper.registerControl(pattern, controller);
 				for (final String addPattern : patterns) {
-					MvcControlerModule.this.helper.registerControl(addPattern, controller);
+					SourGuiceControlerModule.this.helper.registerControl(addPattern, controller);
 				}
 			}
 		};
 	}
 
 	/**
-	 * Interface returned by {@link MvcControlerModule#redirect(String, String...)} to permit the syntax redirect(pattern).to(path)
+	 * Interface returned by {@link SourGuiceControlerModule#redirect(String, String...)} to permit the syntax redirect(pattern).to(path)
 	 */
 	public static interface RedirectBuilder {
 		/**
@@ -303,9 +300,9 @@ public abstract class MvcControlerModule extends ServletModule {
 	public BindBuilder<ViewRenderer> renderViews(final String regex, final String... regexs) {
 		return new BindBuilder<ViewRenderer>() {
 			@Override protected void register(final InstanceGetter<? extends ViewRenderer> renderer) {
-				MvcControlerModule.this.helper.registerViewRenderer(Pattern.compile(regex), renderer);
+				SourGuiceControlerModule.this.helper.registerViewRenderer(Pattern.compile(regex), renderer);
 				for (final String addRegex : regexs) {
-					MvcControlerModule.this.helper.registerViewRenderer(Pattern.compile(addRegex), renderer);
+					SourGuiceControlerModule.this.helper.registerViewRenderer(Pattern.compile(addRegex), renderer);
 				}
 			}
 		};
@@ -321,9 +318,9 @@ public abstract class MvcControlerModule extends ServletModule {
 	public final BindBuilder<Converter<?>> convertTo(final Class<?> toType, final Class<?>... toTypes) {
 		return new BindBuilder<Converter<?>>() {
 			@Override protected void register(final InstanceGetter<? extends Converter<?>> converter) {
-				MvcControlerModule.this.helper.registerConverter(toType, converter);
+				SourGuiceControlerModule.this.helper.registerConverter(toType, converter);
 				for (final Class<?> addToType : toTypes) {
-					MvcControlerModule.this.helper.registerConverter(addToType, converter);
+					SourGuiceControlerModule.this.helper.registerConverter(addToType, converter);
 				}
 			}
 		};
@@ -340,9 +337,9 @@ public abstract class MvcControlerModule extends ServletModule {
 	public final <T extends Exception> BindBuilder<ExceptionHandler<T>> handleException(final Class<? extends T> exc, final Class<? extends T>... excs) {
 		return new BindBuilder<ExceptionHandler<T>>() {
 			@Override protected void register(final InstanceGetter<? extends ExceptionHandler<T>> handler) {
-				MvcControlerModule.this.helper.registerExceptionHandler(exc, handler);
+				SourGuiceControlerModule.this.helper.registerExceptionHandler(exc, handler);
 				for (final Class<? extends T> addExc : excs) {
-					MvcControlerModule.this.helper.registerExceptionHandler(addExc, handler);
+					SourGuiceControlerModule.this.helper.registerExceptionHandler(addExc, handler);
 				}
 			}
 		};

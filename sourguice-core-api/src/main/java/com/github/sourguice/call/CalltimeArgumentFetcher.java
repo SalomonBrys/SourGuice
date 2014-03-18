@@ -8,7 +8,7 @@ import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException
 import com.google.inject.TypeLiteral;
 
 /**
- * Fetches additional arguments for method calling through {@link MvcCaller}
+ * Fetches additional arguments for method calling through {@link SGCaller}
  *
  * @param <T> Which type of argument. This is for type safety only, one CalltimeArgumentFetcher can handle multiple types.
  *

@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.annotation.request.RequestParam;
 import com.github.sourguice.conversion.ConversionService;
-import com.github.sourguice.throwable.SourGuiceRuntimeException;
+import com.github.sourguice.throwable.SGRuntimeException;
 import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException;
 import com.github.sourguice.value.ValueConstants;
 import com.google.inject.Injector;
@@ -123,7 +123,7 @@ public class RequestParamCollectionArgumentFetcher<T> extends ArgumentFetcher<T>
 			this.collectionProvider = inferCollectionProvider(type.getRawType());
 		}
 		catch (NoSuchMethodException e) {
-			throw new SourGuiceRuntimeException(e);
+			throw new SGRuntimeException(e);
 		}
 	}
 

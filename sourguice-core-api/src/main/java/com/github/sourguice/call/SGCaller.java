@@ -19,7 +19,7 @@ import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
-public interface MvcCaller {
+public interface SGCaller {
 
 	/**
 	 * Executes a call to a given method

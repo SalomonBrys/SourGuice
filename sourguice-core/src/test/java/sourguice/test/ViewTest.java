@@ -14,7 +14,7 @@ import org.eclipse.jetty.testing.HttpTester;
 import org.eclipse.jetty.testing.ServletTester;
 import org.testng.annotations.Test;
 
-import com.github.sourguice.MvcControlerModule;
+import com.github.sourguice.SourGuiceControlerModule;
 import com.github.sourguice.annotation.controller.ViewRenderedWith;
 import com.github.sourguice.annotation.controller.ViewDirectory;
 import com.github.sourguice.annotation.request.RequestMapping;
@@ -125,7 +125,7 @@ public class ViewTest extends TestBase {
 
     // ===================== MODULE =====================
 
-    public static class ControllerModule extends MvcControlerModule {
+    public static class ControllerModule extends SourGuiceControlerModule {
         @Override
         protected void configureControllers() {
             control("/a/*").with(AController.class);
@@ -135,7 +135,7 @@ public class ViewTest extends TestBase {
     }
 
     @Override
-    protected MvcControlerModule module() {
+    protected SourGuiceControlerModule module() {
         return new ControllerModule();
     }
 

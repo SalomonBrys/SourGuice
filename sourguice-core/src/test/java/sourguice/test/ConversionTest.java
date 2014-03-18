@@ -6,7 +6,7 @@ import org.eclipse.jetty.testing.HttpTester;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.github.sourguice.MvcControlerModule;
+import com.github.sourguice.SourGuiceControlerModule;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.RequestParam;
 import com.github.sourguice.annotation.request.Writes;
@@ -108,7 +108,7 @@ public class ConversionTest extends TestBase {
 
 	// ===================== MODULE =====================
 
-	public static class ControllerModule extends MvcControlerModule {
+	public static class ControllerModule extends SourGuiceControlerModule {
 		@Override
 		protected void configureControllers() {
 			control("/*").with(Controller.class);
@@ -118,7 +118,7 @@ public class ConversionTest extends TestBase {
 	}
 
 	@Override
-	protected MvcControlerModule module() {
+	protected SourGuiceControlerModule module() {
 		return new ControllerModule();
 	}
 

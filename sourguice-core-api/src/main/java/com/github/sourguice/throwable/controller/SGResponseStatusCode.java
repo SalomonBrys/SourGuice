@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
-public class MvcResponseStatusCode extends MvcResponseException {
+public class SGResponseStatusCode extends SGResponseException {
 	@SuppressWarnings("javadoc")
 	private static final long serialVersionUID = -5463694767632145191L;
 
@@ -30,7 +30,7 @@ public class MvcResponseStatusCode extends MvcResponseException {
 	 *
 	 * @param code The HTTP error code
 	 */
-	public MvcResponseStatusCode(final int code) {
+	public SGResponseStatusCode(final int code) {
 		super();
 		this.code = code;
 	}
@@ -41,7 +41,7 @@ public class MvcResponseStatusCode extends MvcResponseException {
 	 * @param code The HTTP error code
 	 * @param reason The message for this HTTP error
 	 */
-	public MvcResponseStatusCode(final int code, final String reason) {
+	public SGResponseStatusCode(final int code, final String reason) {
 		super();
 		this.code = code;
 		this.message = reason;

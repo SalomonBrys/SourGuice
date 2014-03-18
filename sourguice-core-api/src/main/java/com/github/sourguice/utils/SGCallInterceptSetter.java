@@ -18,7 +18,7 @@ import com.google.inject.Singleton;
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
 @Singleton
-public class MVCCallInterceptSetter {
+public class SGCallInterceptSetter {
 
 	/**
 	 * Cache that associates a map of match association to a method

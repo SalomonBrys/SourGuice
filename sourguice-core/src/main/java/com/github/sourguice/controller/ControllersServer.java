@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.github.sourguice.annotation.controller.HttpError;
 import com.github.sourguice.annotation.request.Redirects;
 import com.github.sourguice.annotation.request.Writes;
-import com.github.sourguice.call.impl.MvcCallerImpl;
+import com.github.sourguice.call.impl.SGCallerImpl;
 import com.github.sourguice.request.wrapper.NoJsessionidHttpRequest;
 import com.github.sourguice.throwable.invocation.HandledException;
 import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException;
@@ -187,7 +187,7 @@ public final class ControllersServer {
 		assert infos.urlMatch != null;
 
 		// Invoke the invocation using the MethodCaller registered in Guice
-		final Object ret = this.injector.getInstance(MvcCallerImpl.class).call(infos.invocation, infos.urlMatch, true);
+		final Object ret = this.injector.getInstance(SGCallerImpl.class).call(infos.invocation, infos.urlMatch, true);
 
 		// Sets the view to the default default view
 		String view = infos.defaultView;
@@ -224,7 +224,7 @@ public final class ControllersServer {
 	 *
 	 * @param req The HTTP Request
 	 * @param res The HTTP Response
-	 * @throws ServletException When an exception that was not handled by the MVC system is thrown
+	 * @throws ServletException When an exception that was not handled by SourGuice is thrown
 	 * @throws IOException If an input or output exception occurs
 	 */
 	@SuppressWarnings({"PMD.EmptyCatchBlock", "PMD.PreserveStackTrace"})
@@ -264,7 +264,7 @@ public final class ControllersServer {
 			res.sendError(400, e.getMessage());
 		}
 		catch (HandledException e) {
-			// Exception was handled by the MvcExceptionService, it is safe (and expected) to ignore
+			// Exception was handled by SourGuice, it is safe (and expected) to ignore
 		}
 		catch (InvocationTargetException e) {
 			throw new ServletException(e.getCause());

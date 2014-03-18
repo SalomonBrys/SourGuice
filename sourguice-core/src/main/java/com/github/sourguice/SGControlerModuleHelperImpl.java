@@ -8,13 +8,13 @@ import javax.annotation.CheckForNull;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
-import com.github.sourguice.MvcControlerModule.BindBuilder;
-import com.github.sourguice.MvcControlerModule.MvcControlerModuleHelperProxy;
+import com.github.sourguice.SourGuiceControlerModule.BindBuilder;
+import com.github.sourguice.SourGuiceControlerModule.SGControlerModuleHelperProxy;
 import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.cache.CacheService;
 import com.github.sourguice.cache.impl.CacheServiceImpl;
-import com.github.sourguice.call.MvcCaller;
-import com.github.sourguice.call.impl.MvcCallerImpl;
+import com.github.sourguice.call.SGCaller;
+import com.github.sourguice.call.impl.SGCallerImpl;
 import com.github.sourguice.call.impl.PathVariablesProvider;
 import com.github.sourguice.controller.ControllerHandlersRepository;
 import com.github.sourguice.controller.ControllerInterceptor;
@@ -34,14 +34,14 @@ import com.github.sourguice.conversion.def.StringConverter;
 import com.github.sourguice.conversion.impl.ConversionServiceImpl;
 import com.github.sourguice.exception.ExceptionHandler;
 import com.github.sourguice.exception.ExceptionService;
-import com.github.sourguice.exception.def.MVCResponseExceptionHandler;
+import com.github.sourguice.exception.def.SGResponseExceptionHandler;
 import com.github.sourguice.exception.impl.ExceptionServiceImpl;
 import com.github.sourguice.request.ForwardableRequestFactory;
 import com.github.sourguice.request.wrapper.GuiceForwardHttpRequest;
-import com.github.sourguice.throwable.SourGuiceRuntimeException;
-import com.github.sourguice.throwable.controller.MvcResponseException;
+import com.github.sourguice.throwable.SGRuntimeException;
+import com.github.sourguice.throwable.controller.SGResponseException;
 import com.github.sourguice.throwable.service.exception.UnreachableExceptionHandlerException;
-import com.github.sourguice.utils.MVCCallInterceptSetter;
+import com.github.sourguice.utils.SGCallInterceptSetter;
 import com.github.sourguice.view.Model;
 import com.github.sourguice.view.ViewRenderer;
 import com.github.sourguice.view.ViewRendererService;
@@ -53,12 +53,12 @@ import com.google.inject.servlet.RequestScoped;
 import com.google.inject.servlet.ServletScopes;
 
 /**
- * This is used by {@link MvcControlerModule} to actually bind the implementations of SourGuices classes
+ * This is used by {@link SourGuiceControlerModule} to actually bind the implementations of SourGuices classes
  * This is needed because SourGuice builds two different jars : one for API and one for implementation
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
-public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperProxy {
+public class SGControlerModuleHelperImpl implements SGControlerModuleHelperProxy {
 
 	/**
 	 * The list of registered path and their corresponding controllers
@@ -76,7 +76,7 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 	/**
 	 * The actual module that ws subclassed to bind controllers
 	 */
-	protected MvcControlerModule module;
+	protected SourGuiceControlerModule module;
 
 	/**
 	/**
@@ -95,10 +95,10 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 	private final ViewRendererServiceImpl rendererService = new ViewRendererServiceImpl();
 
 	/**
-	 * Constructor, used by {@link MvcControlerModule}.
+	 * Constructor, used by {@link SourGuiceControlerModule}.
 	 * @param module The module itself, so this helper will access to Guice binding methods
 	 */
-	public MvcControlerModuleHelperImpl(final MvcControlerModule module) {
+	public SGControlerModuleHelperImpl(final SourGuiceControlerModule module) {
 		super();
 		this.module = module;
 	}
@@ -124,10 +124,10 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 
 		// Registers default exception handlers
 		try {
-			this.module.handleException(MvcResponseException.class).withInstance(new MVCResponseExceptionHandler());
+			this.module.handleException(SGResponseException.class).withInstance(new SGResponseExceptionHandler());
 		}
 		catch (UnreachableExceptionHandlerException e) {
-			throw new SourGuiceRuntimeException(e);
+			throw new SGRuntimeException(e);
 		}
 
 		// Registers default view renderers
@@ -150,7 +150,7 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 		this.module.binder().bind(Model.class).in(ServletScopes.REQUEST);
 
 		// Binds method calling related classes
-		this.module.binder().bind(MvcCaller.class).to(MvcCallerImpl.class).in(RequestScoped.class);
+		this.module.binder().bind(SGCaller.class).to(SGCallerImpl.class).in(RequestScoped.class);
 		this.module.binder().bind(new TypeLiteral<Map<String, String>>() {/**/}).annotatedWith(PathVariablesMap.class).toProvider(PathVariablesProvider.class).in(RequestScoped.class);
 
 		// Creates a controllerHandler repository and registers it in guice
@@ -158,7 +158,7 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 		this.module.binder().bind(ControllerHandlersRepository.class).toInstance(this.repository);
 
 		// Binds Intercept
-		this.module.binder().bind(MVCCallInterceptSetter.class);
+		this.module.binder().bind(SGCallInterceptSetter.class);
 
 		// Binds interceptors
 		final ControllerInterceptor interceptor = new ControllerInterceptor();

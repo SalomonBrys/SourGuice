@@ -7,14 +7,14 @@ import java.util.regex.MatchResult;
 
 import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.annotation.request.RequestMapping;
-import com.github.sourguice.call.MvcCaller;
+import com.github.sourguice.call.SGCaller;
 import com.google.inject.Provider;
 import com.google.inject.servlet.RequestScoped;
 
 /**
  * Guice provider for @{@link PathVariablesMap} map
  * It is a stack provider, as the path variables returned in guice should vary according to the call.
- * Basically, when a call through {@link MvcCaller} is made, a new URIPathVariables is pushed
+ * Basically, when a call through {@link SGCaller} is made, a new URIPathVariables is pushed
  * and is poped at the end of the call.
  * This class should only be used internally
  */
