@@ -1,6 +1,7 @@
 package com.github.sourguice.response;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Writer;
 
 import javax.annotation.CheckForNull;
@@ -25,6 +26,11 @@ public class SourGuiceResponse extends HttpServletResponseWrapper {
 	 * The writer that intercept writes to duplicate it to cache if any
 	 */
 	private @CheckForNull SourGuiceResponseWriter writer = null;
+
+	/**
+	 * The print writer for the response
+	 */
+	private @CheckForNull PrintWriter printWriter = null;
 
 	/**
 	 * Find the {@link SourGuiceResponse} in the current HttpServletResponse
@@ -54,12 +60,23 @@ public class SourGuiceResponse extends HttpServletResponseWrapper {
 		super(response);
 	}
 
-	@Override
-	public SourGuiceResponseWriter getWriter() throws IOException {
+	/**
+	 * @return The SourGuiceResponseWriter (that is encapsualted inside the PrintWriter)
+	 * @throws IOException IO exception
+	 */
+	private SourGuiceResponseWriter getResponseWriter() throws IOException {
 		if (this.writer == null) {
 			this.writer = new SourGuiceResponseWriter(super.getResponse().getWriter());
 		}
 		return this.writer;
+	}
+
+	@Override
+	public PrintWriter getWriter() throws IOException {
+		if (this.printWriter == null) {
+			this.printWriter = new PrintWriter(getResponseWriter());
+		}
+		return this.printWriter;
 	}
 
 	/**
@@ -70,7 +87,7 @@ public class SourGuiceResponse extends HttpServletResponseWrapper {
 	 */
 	public void setCache(final Cache cache, final Writer cacheWriter) throws IOException {
 		this.cache = cache;
-		getWriter().setCacheWriter(cacheWriter);
+		getResponseWriter().setCacheWriter(cacheWriter);
 	}
 
 	/**

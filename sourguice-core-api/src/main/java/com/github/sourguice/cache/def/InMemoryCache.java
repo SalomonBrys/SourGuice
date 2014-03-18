@@ -187,6 +187,7 @@ public class InMemoryCache implements Cache {
 			set = new HashSet<>();
 			lruCache.put(pathInfo, set);
 		}
+		this.entry.data = this.writer.toString();
 		set.add(this.entry);
 		this.writer.close();
 	}

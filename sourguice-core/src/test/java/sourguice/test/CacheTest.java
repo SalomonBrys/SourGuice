@@ -5,6 +5,7 @@ import static org.testng.Assert.assertEquals;
 import java.io.IOException;
 
 import org.eclipse.jetty.testing.HttpTester;
+import org.eclipse.jetty.testing.ServletTester;
 import org.testng.annotations.Test;
 
 import com.github.sourguice.MvcControlerModule;
@@ -13,6 +14,7 @@ import com.github.sourguice.annotation.request.Writes;
 import com.github.sourguice.cache.Cache;
 import com.github.sourguice.cache.CacheService;
 import com.github.sourguice.cache.def.InMemoryCache;
+import com.github.sourguice.cache.def.InMemoryCacheFilter;
 import com.google.inject.Singleton;
 
 @SuppressWarnings({"javadoc", "static-method", "PMD"})
@@ -54,14 +56,23 @@ public class CacheTest extends TestBase {
         return new ControllerModule();
     }
 
-    // ===================== TESTS =====================
+	@Override
+	protected void addServletTesterFilter(ServletTester tester) {
+		tester.addFilter(InMemoryCacheFilter.class, "/*", 0);
+		tester.addFilter(TestGuiceFilter.class, "/*", 0);
+	}
 
+    // ===================== TESTS =====================
 
 	public void getManual() throws Exception {
 		synchronized (this) { // Forcing serial testing
 			HttpTester request = makeRequest("GET", "/manual");
 
+			long start = System.nanoTime();
 			HttpTester response = getResponse(request);
+			long end = System.nanoTime();
+
+			System.out.println("Manual request duration: " + ((double)(end - start) / 1000000) + "ms");
 
 			assertEquals(response.getStatus(), 200);
 			assertEquals(response.getContent(), "Salomon");

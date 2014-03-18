@@ -20,9 +20,9 @@ import com.google.inject.servlet.GuiceFilter;
 public class SourGuiceFilter extends GuiceFilter {
 
 	@Override
-	public void doFilter(final ServletRequest req, final ServletResponse _res, final FilterChain chain) throws IOException, ServletException {
+	public void doFilter(final ServletRequest _req, final ServletResponse _res, final FilterChain chain) throws IOException, ServletException {
 		final SourGuiceResponse res = new SourGuiceResponse((HttpServletResponse) _res);
-		super.doFilter(req, res, chain);
+		super.doFilter(_req, res, chain);
 
 		final Cache cache = res.getCache();
 		if (cache != null) {
