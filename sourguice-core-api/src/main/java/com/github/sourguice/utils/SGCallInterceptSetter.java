@@ -1,8 +1,8 @@
 package com.github.sourguice.utils;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.CheckForNull;
 
@@ -23,7 +23,7 @@ public class SGCallInterceptSetter {
 	/**
 	 * Cache that associates a map of match association to a method
 	 */
-	private final Map<Method, Map<String, Integer>> posCache = new HashMap<>();
+	private final Map<Method, Map<String, Integer>> posCache = new ConcurrentHashMap<>();
 
 	/**
 	 * Find the position of the {@link InterceptParam} annotated method parameter with the correct key.
@@ -35,7 +35,7 @@ public class SGCallInterceptSetter {
 	 * @return The position of the parameter or null if none found
 	 */
 	private @CheckForNull static Integer findInterceptParam(final Method method, final String key, final Map<String, Integer> map) {
-		synchronized (map) {
+		synchronized (method) {
 			final Integer pos = map.get(key);
 			if (pos != null) {
 				return pos;
@@ -66,10 +66,10 @@ public class SGCallInterceptSetter {
 
 		Map<String, Integer> map = this.posCache.get(method);
 		if (map == null) {
-			synchronized (this.posCache) {
+			synchronized (method) {
 				map = this.posCache.get(method);
 				if (map == null) {
-					map = new HashMap<>();
+					map = new ConcurrentHashMap<>();
 					this.posCache.put(method, map);
 				}
 			}

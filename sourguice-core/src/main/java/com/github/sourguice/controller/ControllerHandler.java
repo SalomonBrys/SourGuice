@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import javax.annotation.CheckForNull;
@@ -60,7 +61,7 @@ public final class ControllerHandler<T> implements InstanceGetter<T> {
     /**
      * Cache that associate a view to a renderer, so each view will look for its renderer only once
      */
-    private final Map<String, InstanceGetter<? extends ViewRenderer>> rendererCache = new HashMap<>();
+    private final Map<String, InstanceGetter<? extends ViewRenderer>> rendererCache = new ConcurrentHashMap<>();
 
     /**
      * @param controller The controller getter to handle
@@ -148,7 +149,7 @@ public final class ControllerHandler<T> implements InstanceGetter<T> {
 
         // If it has not been set, we need to set it only once, so we get a synchronized lock
         if (renderer == null) {
-            synchronized (this.rendererCache) {
+            synchronized (this) {
                 // Maybe it has been set while we were waiting for the lock, so we check again
                 renderer = this.rendererCache.get(view);
                 if (renderer == null) {

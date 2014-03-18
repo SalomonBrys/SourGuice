@@ -1,8 +1,8 @@
 package com.github.sourguice.conversion.impl;
 
 import java.lang.reflect.Array;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.CheckForNull;
 import javax.inject.Singleton;
@@ -31,7 +31,7 @@ public class ConversionServiceImpl implements ConversionService {
 	/**
 	 * Map of registered convertable classes and their associated converter
 	 */
-	private final Map<Class<?>, InstanceGetter<? extends Converter<?>>> converters = new HashMap<>();
+	private final Map<Class<?>, InstanceGetter<? extends Converter<?>>> converters = new ConcurrentHashMap<>();
 
 	/**
 	 * Register a converter to be associated with the given type
@@ -41,9 +41,7 @@ public class ConversionServiceImpl implements ConversionService {
 	 * @param type The type to associate the converter with
 	 */
 	public void register(final Class<?> type, final InstanceGetter<? extends Converter<?>> conv) {
-		synchronized (this.converters) {
-			this.converters.put(type, conv);
-		}
+		this.converters.put(type, conv);
 	}
 
 	/**
@@ -123,7 +121,7 @@ public class ConversionServiceImpl implements ConversionService {
 		}
 
 		// If it has not been set, we need to set it only once, so we wait for lock
-		synchronized (this.converters) {
+		synchronized (cls) {
 			// Maybe it has been set while we waited for lock, so we check again
 			if (this.converters.containsKey(cls)) {
 				return (Converter<T>) this.converters.get(cls).getInstance();

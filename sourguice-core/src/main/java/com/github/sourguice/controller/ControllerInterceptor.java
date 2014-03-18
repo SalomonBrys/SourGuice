@@ -2,9 +2,9 @@ package com.github.sourguice.controller;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.CheckForNull;
 
@@ -39,7 +39,7 @@ public class ControllerInterceptor implements MethodInterceptor {
 	/**
 	 * Cache that binds each method to its InterceptWith list so each list has to be computed only once.
 	 */
-	private final Map<Method, List<InterceptWith>> interceptCache = new HashMap<>();
+	private final Map<Method, List<InterceptWith>> interceptCache = new ConcurrentHashMap<>();
 
 	/**
 	 * Wrapper around {@link MethodInvocation} to allow the invocation to be intercepted
@@ -106,17 +106,19 @@ public class ControllerInterceptor implements MethodInterceptor {
 	@Override
 	public Object invoke(MethodInvocation invocation) throws Throwable {
 
+		final Method method = invocation.getMethod();
+
 		// We first check if this has already been computed
-		List<InterceptWith> interceptAnnos = this.interceptCache.get(invocation.getMethod());
+		List<InterceptWith> interceptAnnos = this.interceptCache.get(method);
 		// If it has not been, then we need a lock
 		if (interceptAnnos == null) {
-			synchronized (this.interceptCache) {
+			synchronized (method) {
 				// Maybe it has been computed while we waited for the lock, so we check again
-				interceptAnnos = this.interceptCache.get(invocation.getMethod());
+				interceptAnnos = this.interceptCache.get(method);
 				// It has not, so let's compute it!
 				if (interceptAnnos == null) {
-					interceptAnnos = Annotations.getAllTreeRecursive(InterceptWith.class, invocation.getMethod());
-					this.interceptCache.put(invocation.getMethod(), interceptAnnos);
+					interceptAnnos = Annotations.getAllTreeRecursive(InterceptWith.class, method);
+					this.interceptCache.put(method, interceptAnnos);
 				}
 			}
 		}
