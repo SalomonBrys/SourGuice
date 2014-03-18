@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 import com.github.sourguice.MvcControlerModule.BindBuilder;
 import com.github.sourguice.MvcControlerModule.MvcControlerModuleHelperProxy;
 import com.github.sourguice.annotation.request.PathVariablesMap;
+import com.github.sourguice.cache.CacheService;
+import com.github.sourguice.cache.impl.CacheServiceImpl;
 import com.github.sourguice.call.MvcCaller;
 import com.github.sourguice.call.impl.MvcCallerImpl;
 import com.github.sourguice.call.impl.PathVariablesProvider;
@@ -142,6 +144,7 @@ public class MvcControlerModuleHelperImpl implements MvcControlerModuleHelperPro
 		this.module.binder().bind(ConversionService.class).toInstance(this.conversionService);
 		this.module.binder().bind(ExceptionService.class).toInstance(this.exceptionService);
 		this.module.binder().bind(ViewRendererService.class).toInstance(this.rendererService);
+		this.module.binder().bind(CacheService.class).to(CacheServiceImpl.class);
 
 		// Binds view related classes
 		this.module.binder().bind(Model.class).in(ServletScopes.REQUEST);

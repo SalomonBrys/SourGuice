@@ -20,9 +20,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
 import com.github.sourguice.MvcControlerModule;
+import com.github.sourguice.SourGuiceFilter;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.servlet.GuiceFilter;
 import com.google.inject.servlet.GuiceServletContextListener;
 
 @SuppressWarnings({"javadoc", "static-method", "PMD"})
@@ -63,7 +63,7 @@ public abstract class TestBase {
 		}
 	}
 
-	public static class TestGuiceFilter extends GuiceFilter {
+	public static class TestGuiceFilter extends SourGuiceFilter {
 
 		static void handleException(ServletException e, HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
 			Throwable cause = e.getCause();

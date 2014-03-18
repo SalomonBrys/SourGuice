@@ -13,8 +13,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-import com.google.inject.servlet.GuiceFilter;
-
 /**
  * In some application servers, the filter / servlet API will always be called,
  * even if the asked URL points to an existing resource in the war.
@@ -27,7 +25,7 @@ import com.google.inject.servlet.GuiceFilter;
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
-public class StaticIgnoreGuiceFilter extends GuiceFilter {
+public class StaticIgnoreSourGuiceFilter extends SourGuiceFilter {
 
 	/**
 	 * Whether or not to allow any directory other than root to be listed
