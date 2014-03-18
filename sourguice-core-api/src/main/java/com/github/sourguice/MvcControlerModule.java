@@ -1,6 +1,7 @@
 package com.github.sourguice;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.regex.MatchResult;
@@ -8,6 +9,7 @@ import java.util.regex.Pattern;
 
 import javax.annotation.CheckForNull;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -110,6 +112,28 @@ public abstract class MvcControlerModule extends ServletModule {
 	 */
 	@Provides @RequestScoped public Writer getRequestWriter(final HttpServletResponse res) throws IOException {
 		return res.getWriter();
+	}
+
+	/**
+	 * Registers in guice the ServletOutputStream class to be binded to the request's response output stream
+	 *
+	 * @param res The current HTTP response object
+	 * @return The response stream
+	 * @throws IOException If an input or output exception occurs
+	 */
+	@Provides @RequestScoped public ServletOutputStream getRequestServletOutputStream(final HttpServletResponse res) throws IOException {
+		return res.getOutputStream();
+	}
+
+	/**
+	 * Registers in guice the OutputStream class to be binded to the request's response output stream
+	 *
+	 * @param res The current HTTP response object
+	 * @return The response stream
+	 * @throws IOException If an input or output exception occurs
+	 */
+	@Provides @RequestScoped public OutputStream getRequestOutputStream(final HttpServletResponse res) throws IOException {
+		return res.getOutputStream();
 	}
 
 	/**
