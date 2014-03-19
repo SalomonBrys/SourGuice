@@ -15,17 +15,39 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import com.github.sourguice.cache.CacheService;
 
+/**
+ * Interceptor that makes SourGuice cache the {@link CacheInMemory} anotated method with the {@link InMemoryCache}
+ *
+ * @author Salomon BRYS <salomon.brys@gmail.com>
+ */
 public class InMemoryCacheInterceptor implements MethodInterceptor {
 
+	/**
+	 * Method annotation that indicates that this method's response should be cached
+	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
 	@Documented
 	public @interface CacheInMemory {
+		/**
+		 * @return Duration of the cache
+		 */
 		int seconds();
+
+		/**
+		 * @return List of headers that are part of this cache's entry
+		 */
 		String[] headers() default {};
 	}
 
+	/**
+	 * Guice provider for the CacheService (request scoped)
+	 */
 	private @CheckForNull @Inject Provider<CacheService> serviceProvider;
+
+	/**
+	 * Guice provider for the InMemoryCache (request scoped)
+	 */
 	private @CheckForNull @Inject Provider<InMemoryCache> cacheProvider;
 
 

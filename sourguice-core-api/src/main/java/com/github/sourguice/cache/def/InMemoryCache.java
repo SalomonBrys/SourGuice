@@ -121,9 +121,11 @@ public class InMemoryCache implements Cache {
 	}
 
 	/**
-	 * Initialize the cache
+	 * Initialize the cache and creates the module to install in Guice
 	 *
 	 * @param maxSize Maximum number of request that can be cached
+	 * @param registerFilter Whether or not to register the {@link InMemoryCacheFilter} in Guice. If true, the filter will be register for /*
+	 * @return The module to install
 	 */
 	@SuppressWarnings("serial")
 	static public ServletModule initialize(final int maxSize, final boolean registerFilter) {
@@ -150,6 +152,12 @@ public class InMemoryCache implements Cache {
 		};
 	}
 
+	/**
+	 * Initialize the cache and creates the module to install in Guice with the {@link InMemoryCacheFilter} registered for all requests
+	 *
+	 * @param maxSize Maximum number of request that can be cached
+	 * @return The module to install
+	 */
 	static public ServletModule initialize(final int maxSize) {
 		return initialize(maxSize, false);
 	}
