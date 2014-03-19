@@ -352,7 +352,7 @@ public abstract class SourGuiceControlerModule extends ServletModule {
 	 */
 	@Override
 	@SuppressWarnings("PMD.UselessOverridingMethod")
-	protected Binder binder() {
+	public Binder binder() {
 		return super.binder();
 	}
 
@@ -369,5 +369,4 @@ public abstract class SourGuiceControlerModule extends ServletModule {
 	protected ServletModule.ServletKeyBindingBuilder _serve(final String urlPattern, final String... morePatterns) {
 		return serve(urlPattern, morePatterns);
 	}
-
 }

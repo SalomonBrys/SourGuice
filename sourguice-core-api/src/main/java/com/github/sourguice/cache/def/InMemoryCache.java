@@ -20,7 +20,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.github.sourguice.cache.Cache;
+import com.github.sourguice.cache.def.InMemoryCacheInterceptor.CacheInMemory;
+import com.google.inject.matcher.Matchers;
 import com.google.inject.servlet.RequestScoped;
+import com.google.inject.servlet.ServletModule;
 
 /**
  * This is a VERY simple cache that caches response data in memory.
@@ -123,13 +126,32 @@ public class InMemoryCache implements Cache {
 	 * @param maxSize Maximum number of request that can be cached
 	 */
 	@SuppressWarnings("serial")
-	static public void initialize(final int maxSize) {
+	static public ServletModule initialize(final int maxSize, final boolean registerFilter) {
 		lruCache = Collections.synchronizedMap(new LinkedHashMap<String, Set<CacheEntry>>(maxSize + 1, .75f, true) {
 			@Override
 			protected boolean removeEldestEntry(final Map.Entry<String, Set<CacheEntry>> eldest) {
 				return size() > maxSize;
 			}
 		});
+
+		return new ServletModule() {
+			@Override
+			protected void configureServlets() {
+				super.configureServlets();
+
+				bind(Cache.class).to(InMemoryCache.class);
+				if (registerFilter) {
+					filter("/*").through(InMemoryCacheFilter.class);
+				}
+				final InMemoryCacheInterceptor interceptor = new InMemoryCacheInterceptor();
+				requestInjection(interceptor);
+				bindInterceptor(Matchers.any(), Matchers.annotatedWith(CacheInMemory.class), interceptor);
+			}
+		};
+	}
+
+	static public ServletModule initialize(final int maxSize) {
+		return initialize(maxSize, false);
 	}
 
 	/**

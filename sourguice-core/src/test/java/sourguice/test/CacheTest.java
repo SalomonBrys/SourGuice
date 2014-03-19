@@ -12,10 +12,10 @@ import org.testng.annotations.Test;
 import com.github.sourguice.SourGuiceControlerModule;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.Writes;
-import com.github.sourguice.cache.Cache;
 import com.github.sourguice.cache.CacheService;
 import com.github.sourguice.cache.def.InMemoryCache;
 import com.github.sourguice.cache.def.InMemoryCacheFilter;
+import com.github.sourguice.cache.def.InMemoryCacheInterceptor.CacheInMemory;
 import com.google.inject.Singleton;
 
 @SuppressWarnings({"javadoc", "static-method", "PMD"})
@@ -29,6 +29,7 @@ public class CacheTest extends TestBase {
 
     	static int manualCharHit = 0;
     	static int manualByteHit = 0;
+    	static int autoHit = 0;
 
 		@RequestMapping(value = "/__startup")
 		public void startup() { /* startup */ }
@@ -52,6 +53,15 @@ public class CacheTest extends TestBase {
 			stream.write("Salomon:B".getBytes());
 		}
 
+		@RequestMapping(value = "/auto")
+		@CacheInMemory(seconds = 2 * 60)
+		@Writes
+		public String auto() {
+			++autoHit;
+
+			return "Salomon:A";
+		}
+
     }
 
     // ===================== MODULE =====================
@@ -60,8 +70,7 @@ public class CacheTest extends TestBase {
         @Override
         protected void configureControllers() {
             control("/*").with(Controller.class);
-            InMemoryCache.initialize(16);
-            bind(Cache.class).to(InMemoryCache.class);
+            install(InMemoryCache.initialize(16));
         }
     }
 
@@ -97,6 +106,17 @@ public class CacheTest extends TestBase {
 			assertEquals(response.getStatus(), 200);
 			assertEquals(response.getContent(), "Salomon:B");
 			assertEquals(Controller.manualByteHit, 1);
+		}
+	}
+
+	public void getAuto() throws Exception {
+		synchronized (this) { // Forcing serial testing
+			HttpTester request = makeRequest("GET", "/auto");
+			HttpTester response = getResponse(request);
+
+			assertEquals(response.getStatus(), 200);
+			assertEquals(response.getContent(), "Salomon:A");
+			assertEquals(Controller.autoHit, 1);
 		}
 	}
 
