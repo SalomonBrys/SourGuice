@@ -255,4 +255,15 @@ public class InMemoryCache implements Cache {
 		}
 		set.add(this.entry);
 	}
+
+	/**
+	 * Removes the cache for a specific URI
+	 *
+	 * @param uri The URI to remove from the cache
+	 */
+	public static void remove(final String uri) {
+		if (lruCache != null) {
+			lruCache.remove(uri);
+		}
+	}
 }

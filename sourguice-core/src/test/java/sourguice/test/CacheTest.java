@@ -30,6 +30,7 @@ public class CacheTest extends TestBase {
     	static int manualCharHit = 0;
     	static int manualByteHit = 0;
     	static int autoHit = 0;
+    	static int removeHit = 0;
 
 		@RequestMapping(value = "/__startup")
 		public void startup() { /* startup */ }
@@ -60,6 +61,17 @@ public class CacheTest extends TestBase {
 			++autoHit;
 
 			return "Salomon:A";
+		}
+
+		@RequestMapping(value = "/remove_1")
+		@CacheInMemory(seconds = 2 * 60)
+		public void remove_1() {
+			++removeHit;
+		}
+
+		@RequestMapping(value = "/remove_2")
+		public void remove_2() {
+			InMemoryCache.remove("/remove_1");
 		}
 
     }
@@ -117,6 +129,23 @@ public class CacheTest extends TestBase {
 			assertEquals(response.getStatus(), 200);
 			assertEquals(response.getContent(), "Salomon:A");
 			assertEquals(Controller.autoHit, 1);
+		}
+	}
+
+	public void getRemove() throws Exception {
+		synchronized (this) { // Forcing serial testing
+			final int hit = Controller.removeHit;
+			getResponse(makeRequest("GET", "/remove_1"));
+			assertEquals(Controller.removeHit, hit + 1);
+			getResponse(makeRequest("GET", "/remove_1"));
+			assertEquals(Controller.removeHit, hit + 1);
+
+			getResponse(makeRequest("GET", "/remove_2"));
+
+			getResponse(makeRequest("GET", "/remove_1"));
+			assertEquals(Controller.removeHit, hit + 2);
+
+			getResponse(makeRequest("GET", "/remove_2"));
 		}
 	}
 
