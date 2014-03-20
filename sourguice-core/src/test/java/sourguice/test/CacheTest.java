@@ -12,7 +12,9 @@ import org.testng.annotations.Test;
 import com.github.sourguice.SourGuiceControlerModule;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.Writes;
+import com.github.sourguice.cache.HttpClientCache;
 import com.github.sourguice.cache.CacheService;
+import com.github.sourguice.cache.HttpClientCache.CacheInClient;
 import com.github.sourguice.cache.def.InMemoryCache;
 import com.github.sourguice.cache.def.InMemoryCacheFilter;
 import com.github.sourguice.cache.def.InMemoryCacheInterceptor.CacheInMemory;
@@ -74,7 +76,20 @@ public class CacheTest extends TestBase {
 			InMemoryCache.remove("/remove_1");
 		}
 
-    }
+		@RequestMapping(value = "/client_cache")
+		@CacheInClient(MaxAge = 60 * 5, SMaxAge = 60 * 10, NoStore = true, NoTransform = true)
+		@Writes
+		public String client_cache() {
+			return "Salomon:N";
+		}
+
+		@RequestMapping(value = "/client_private")
+		@CacheInClient(Private = "user", MustRevalidate = true, Extension = "coucou-le-monde")
+		@Writes
+		public String client_private() {
+			return "Salomon:N";
+		}
+}
 
     // ===================== MODULE =====================
 
@@ -83,6 +98,7 @@ public class CacheTest extends TestBase {
         protected void configureControllers() {
             control("/*").with(Controller.class);
             install(InMemoryCache.initialize(16));
+            install(HttpClientCache.module());
         }
     }
 
@@ -149,5 +165,24 @@ public class CacheTest extends TestBase {
 		}
 	}
 
+	public void getClientCache() throws Exception {
+		HttpTester request = makeRequest("GET", "/client_cache");
+		HttpTester response = getResponse(request);
+
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "Salomon:N");
+		assertEquals(response.getHeader("Pragma"), "public");
+		assertEquals(response.getHeader("Cache-Control"), "public,no-store,no-transform,max-age=300,s-maxage=600");
+	}
+
+	public void getClientPrivate() throws Exception {
+		HttpTester request = makeRequest("GET", "/client_private");
+		HttpTester response = getResponse(request);
+
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "Salomon:N");
+		assertEquals(response.getHeader("Pragma"), "private");
+		assertEquals(response.getHeader("Cache-Control"), "private=\"user\",must-revalidate,coucou-le-monde");
+	}
 }
 
