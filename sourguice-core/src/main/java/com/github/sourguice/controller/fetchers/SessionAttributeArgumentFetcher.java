@@ -1,6 +1,5 @@
 package com.github.sourguice.controller.fetchers;
 
-import java.lang.annotation.Annotation;
 import java.util.Map;
 
 import javax.annotation.CheckForNull;
@@ -71,14 +70,13 @@ public class SessionAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 	}
 
 	/**
-	 * @see ArgumentFetcher#ArgumentFetcher(TypeLiteral, Annotation[])
+	 * @see ArgumentFetcher#ArgumentFetcher(TypeLiteral)
 	 *
 	 * @param type The type of the argument to fetch
-	 * @param annotations Annotations that were found on the method's argument
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 */
-	public SessionAttributeArgumentFetcher(final TypeLiteral<T> type, final Annotation[] annotations, final SessionAttribute infos) {
-		super(type, annotations);
+	public SessionAttributeArgumentFetcher(final TypeLiteral<T> type, final SessionAttribute infos) {
+		super(type);
 		this.infos = infos;
 		if (type.getRawType().equals(Attribute.class)) {
 			this.isAccessor = true;
@@ -87,7 +85,7 @@ public class SessionAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) {
+	public @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) {
 		if (this.isAccessor) {
 			return (T) new SessionAttributeAccessor<>(req.getSession(true), this.infos.value());
 		}

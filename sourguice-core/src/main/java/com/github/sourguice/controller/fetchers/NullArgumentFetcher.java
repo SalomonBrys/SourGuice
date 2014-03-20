@@ -1,6 +1,5 @@
 package com.github.sourguice.controller.fetchers;
 
-import java.lang.annotation.Annotation;
 import java.util.Map;
 
 import javax.annotation.CheckForNull;
@@ -25,14 +24,14 @@ import com.google.inject.TypeLiteral;
 public class NullArgumentFetcher<T> extends ArgumentFetcher<T> {
 
 	/**
-	 * @see ArgumentFetcher#ArgumentFetcher(TypeLiteral, Annotation[])
+	 * @see ArgumentFetcher#ArgumentFetcher(TypeLiteral)
 	 */
-	public NullArgumentFetcher(final TypeLiteral<T> type, final Annotation[] annotations) {
-		super(type, annotations);
+	public NullArgumentFetcher(final TypeLiteral<T> type) {
+		super(type);
 	}
 
 	@Override
-	protected @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) {
+	public @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) {
 		return null;
 	}
 }

@@ -27,7 +27,6 @@ import com.github.sourguice.annotation.request.RequestParam;
 import com.github.sourguice.annotation.request.SessionAttribute;
 import com.github.sourguice.annotation.request.View;
 import com.github.sourguice.annotation.request.Writes;
-import com.github.sourguice.call.CalltimeArgumentFetcher;
 import com.github.sourguice.call.impl.PathVariablesProvider;
 import com.github.sourguice.controller.fetchers.ArgumentFetcher;
 import com.github.sourguice.controller.fetchers.InjectorArgumentFetcher;
@@ -121,32 +120,32 @@ public final class ControllerInvocation {
 
 		final RequestParam requestParam = annos.getAnnotation(RequestParam.class);
 		if (requestParam != null) {
-			return new RequestParamArgumentFetcher<>(type, annotations, requestParam);
+			return new RequestParamArgumentFetcher<>(type, requestParam);
 		}
 
 		final PathVariable pathVariable = annos.getAnnotation(PathVariable.class);
 		if (pathVariable != null) {
-			return new PathVariableArgumentFetcher<>(type, annotations, pathVariable, this.matchRef, this.mapping != null && this.mapping.value().length > 0);
+			return new PathVariableArgumentFetcher<>(type, pathVariable, this.matchRef, this.mapping != null && this.mapping.value().length > 0);
 		}
 
 		final RequestAttribute requestAttribute = annos.getAnnotation(RequestAttribute.class);
 		if (requestAttribute != null) {
-			return new RequestAttributeArgumentFetcher<>(type, annotations, requestAttribute);
+			return new RequestAttributeArgumentFetcher<>(type, requestAttribute);
 		}
 
 		final SessionAttribute sessionAttribute = annos.getAnnotation(SessionAttribute.class);
 		if (sessionAttribute != null) {
-			return new SessionAttributeArgumentFetcher<>(type, annotations, sessionAttribute);
+			return new SessionAttributeArgumentFetcher<>(type, sessionAttribute);
 		}
 
 		final RequestHeader requestHeader = annos.getAnnotation(RequestHeader.class);
 		if (requestHeader != null) {
-			return new RequestHeaderArgumentFetcher<>(type, annotations, requestHeader);
+			return new RequestHeaderArgumentFetcher<>(type, requestHeader);
 		}
 
 		final InterceptParam interceptParam = annos.getAnnotation(InterceptParam.class);
 		if (interceptParam != null) {
-			return new NullArgumentFetcher<>(type, annotations);
+			return new NullArgumentFetcher<>(type);
 		}
 
 		return new InjectorArgumentFetcher<>(type, annotations);
@@ -289,7 +288,6 @@ public final class ControllerInvocation {
 	 * @param req The current HTTP request
 	 * @param pathVariables Variables that were parsed from request URL
 	 * @param injector Guice injector
-	 * @param additionalFetchers Any additional fetcher provided at "call-time" directly by the user
 	 * @return What the method call returned
 	 * @throws NoSuchRequestParameterException In case of a parameter asked from request argument or path variable that does not exists
 	 * @throws InvocationTargetException Any thing that the method call might have thrown
@@ -297,8 +295,7 @@ public final class ControllerInvocation {
 	public @CheckForNull Object invoke(
 			final HttpServletRequest req,
 			final @PathVariablesMap Map<String, String> pathVariables,
-			final Injector injector,
-			final CalltimeArgumentFetcher<?>... additionalFetchers
+			final Injector injector
 			) throws NoSuchRequestParameterException, InvocationTargetException {
 
 		// Pushes path variables to the stack, this permits to have invocations inside invocations
@@ -309,7 +306,7 @@ public final class ControllerInvocation {
 			Object[] params = new Object[this.fetchers.length];
 			Object invocRet = null;
 			for (int n = 0; n < this.fetchers.length; ++n) {
-				params[n] = this.fetchers[n].get(req, pathVariables, injector, additionalFetchers);
+				params[n] = this.fetchers[n].getPrepared(req, pathVariables, injector);
 			}
 
 			try {
@@ -341,10 +338,9 @@ public final class ControllerInvocation {
 	public @CheckForNull Object invoke(
 			final HttpServletRequest req,
 			final MatchResult urlMatch,
-			final Injector injector,
-			final CalltimeArgumentFetcher<?>... additionalFetchers
+			final Injector injector
 			) throws NoSuchRequestParameterException, InvocationTargetException {
-		return invoke(req, PathVariablesProvider.fromMatch(urlMatch, this.matchRef), injector, additionalFetchers);
+		return invoke(req, PathVariablesProvider.fromMatch(urlMatch, this.matchRef), injector);
 	}
 
 	/**

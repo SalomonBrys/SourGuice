@@ -31,7 +31,6 @@ public interface SGCaller {
 	 * @param pathVariables The URIPathVariables object to use to retrieve @{@link PathVariable} annotated method parameters
 	 * @param throwWhenHandled throwWhenHandled Whether or not to throw a {@link HandledException} when an exception has been thrown AND handled by the Exception Service
 	 *        This should mainly be set to false. It should be set to true when you want to prevent treatment on the returned object when an exception has been thrown, even when handled.
-	 * @param additionalFetchers Additional {@link CalltimeArgumentFetcher} that will be used to retrieve arguments for methods
 	 * @return The object returned by the method
 	 *         If throwWhenHandled is false and an exception has been thrown AND handled, will return null
 	 * @throws HandledException Only when throwWhenHandled is true and an exception has been thrown AND handled
@@ -39,6 +38,6 @@ public interface SGCaller {
 	 * @throws InvocationTargetException Any exception thrown by the method being invoked
 	 * @throws IOException IO failure while writing the response
 	 */
-	public @CheckForNull Object call(Class<?> clazz, Method method, @CheckForNull @PathVariablesMap Map<String, String> pathVariables, boolean throwWhenHandled, CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchRequestParameterException, InvocationTargetException, IOException;
+	public @CheckForNull Object call(Class<?> clazz, Method method, @CheckForNull @PathVariablesMap Map<String, String> pathVariables, boolean throwWhenHandled) throws HandledException, NoSuchRequestParameterException, InvocationTargetException, IOException;
 
 }

@@ -1,6 +1,5 @@
 package com.github.sourguice.controller.fetchers;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.util.Enumeration;
@@ -80,14 +79,13 @@ public class RequestParamMapArgumentFetcher<T> extends ArgumentFetcher<T> {
 	}
 
 	/**
-	 * @see ArgumentFetcher#ArgumentFetcher(TypeLiteral, Annotation[])
+	 * @see ArgumentFetcher#ArgumentFetcher(TypeLiteral)
 	 *
 	 * @param type The type of the map argument to fetch
-	 * @param annotations Annotations that were found on the method's argument
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 */
-	public RequestParamMapArgumentFetcher(final TypeLiteral<T> type, final Annotation[] annotations, final RequestParam infos) {
-		super(type, annotations);
+	public RequestParamMapArgumentFetcher(final TypeLiteral<T> type, final RequestParam infos) {
+		super(type);
 		this.infos = infos;
 
 		try {
@@ -126,7 +124,7 @@ public class RequestParamMapArgumentFetcher<T> extends ArgumentFetcher<T> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) throws NoSuchRequestParameterException {
+	public @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) throws NoSuchRequestParameterException {
 		assert this.mapKeyType != null;
 		assert this.mapValueType != null;
 		assert this.mapProvider != null;

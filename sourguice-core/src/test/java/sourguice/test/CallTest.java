@@ -4,7 +4,6 @@ import static org.testng.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -13,7 +12,6 @@ import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import javax.annotation.CheckForNull;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -27,15 +25,10 @@ import com.github.sourguice.annotation.controller.Callable;
 import com.github.sourguice.annotation.controller.InterceptWith;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.Writes;
-import com.github.sourguice.call.CalltimeArgumentFetcher;
 import com.github.sourguice.call.SGCaller;
 import com.github.sourguice.exception.ExceptionHandler;
 import com.github.sourguice.throwable.service.exception.UnreachableExceptionHandlerException;
-import com.github.sourguice.utils.Annotations;
 import com.google.inject.Singleton;
-import com.google.inject.TypeLiteral;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 @Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
 @SuppressWarnings({"javadoc", "static-method", "PMD"})
@@ -90,14 +83,6 @@ public class CallTest extends TestBase {
     			throw e.getCause();
     		}
     		return "Salomon";
-    	}
-
-    	@RequestMapping("/callfetched")
-    	@Writes
-    	@SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
-    	public String callfetched(SGCaller caller) throws Throwable {
-    		Method method = this.getClass().getMethod("fetched", String.class);
-    		return (String) caller.call(this.getClass(), method, null, false, new NoArgumentFetcher(), new TestArgumentFetcher());
     	}
 
     	@Callable
@@ -155,24 +140,6 @@ public class CallTest extends TestBase {
     @Documented
     public static @interface TestArgument {
     	// Flag Annotation
-    }
-
-    public static class TestArgumentFetcher implements CalltimeArgumentFetcher<String> {
-		@Override public boolean canGet(TypeLiteral<?> type, Annotation[] annos) {
-			return type.getRawType() == String.class && Annotations.fromArray(annos).isAnnotationPresent(TestArgument.class);
-		}
-		@Override public String get(TypeLiteral<?> type, Annotation[] annos) {
-			return "Salomon";
-		}
-    }
-
-    public static class NoArgumentFetcher implements CalltimeArgumentFetcher<String> {
-		@Override public boolean canGet(TypeLiteral<?> type, Annotation[] annos) {
-			return false;
-		}
-		@Override @CheckForNull public String get(TypeLiteral<?> type, Annotation[] annos) {
-			return null;
-		}
     }
 
     // ===================== MODULE =====================
@@ -240,14 +207,5 @@ public class CallTest extends TestBase {
 
 		assertEquals(response.getStatus(), 500);
 		assertEquals(response.getReason(), "Choucroute");
-	}
-
-	public void getCallFetched() throws Exception {
-		HttpTester request = makeRequest("GET", "/callfetched");
-
-		HttpTester response = getResponse(request);
-
-		assertEquals(response.getStatus(), 200);
-		assertEquals(response.getContent(), "Salomon");
 	}
 }

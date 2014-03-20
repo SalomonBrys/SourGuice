@@ -1,6 +1,5 @@
 package com.github.sourguice.controller.fetchers;
 
-import java.lang.annotation.Annotation;
 import java.util.Map;
 
 import javax.annotation.CheckForNull;
@@ -28,16 +27,15 @@ public class PathVariableArgumentFetcher<T> extends ArgumentFetcher<T> {
 	private final PathVariable infos;
 
 	/**
-	 * @see ArgumentFetcher#ArgumentFetcher(TypeLiteral, Annotation[])
+	 * @see ArgumentFetcher#ArgumentFetcher(TypeLiteral)
 	 *
 	 * @param type The type of the argument to fetch
-	 * @param annotations Annotations that were found on the method's argument
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 * @param ref The reference map that links path variable name to their index when a url matches
 	 * @param check Whether or not to check that ref contains the reference to the path variable
 	 */
-	public PathVariableArgumentFetcher(final TypeLiteral<T> type, final Annotation[] annotations, final PathVariable infos, final Map<String, Integer> ref, final boolean check) {
-		super(type, annotations);
+	public PathVariableArgumentFetcher(final TypeLiteral<T> type, final PathVariable infos, final Map<String, Integer> ref, final boolean check) {
+		super(type);
 		this.infos = infos;
 		if (check && !ref.containsKey(infos.value())) {
 			throw new NoSuchPathVariableException(infos.value());
@@ -45,7 +43,7 @@ public class PathVariableArgumentFetcher<T> extends ArgumentFetcher<T> {
 	}
 
 	@Override
-	protected @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) throws NoSuchRequestParameterException {
+	public @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) throws NoSuchRequestParameterException {
 		if (pathVariables == null || pathVariables.get(this.infos.value()) == null) {
 			// This should never happen (I can't see a way to test it) since
 			//   1- Existence of the pathvariable key has been checked in constructor

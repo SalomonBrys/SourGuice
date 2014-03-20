@@ -12,11 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.github.sourguice.annotation.controller.Callable;
 import com.github.sourguice.annotation.request.PathVariablesMap;
-import com.github.sourguice.call.CalltimeArgumentFetcher;
 import com.github.sourguice.call.SGCaller;
 import com.github.sourguice.controller.ControllerHandlersRepository;
-import com.github.sourguice.controller.GuiceInstanceGetter;
 import com.github.sourguice.controller.ControllerInvocation;
+import com.github.sourguice.controller.GuiceInstanceGetter;
 import com.github.sourguice.exception.ExceptionHandler;
 import com.github.sourguice.exception.ExceptionService;
 import com.github.sourguice.throwable.invocation.HandledException;
@@ -79,7 +78,7 @@ public final class SGCallerImpl implements SGCaller {
 
 	@Override
 	@SuppressWarnings("PMD.EmptyCatchBlock")
-	public @CheckForNull Object call(Class<?> cls, Method method, final @CheckForNull @PathVariablesMap Map<String, String> pathVariables, final boolean throwWhenHandled, final CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchRequestParameterException, InvocationTargetException, IOException {
+	public @CheckForNull Object call(Class<?> cls, Method method, final @CheckForNull @PathVariablesMap Map<String, String> pathVariables, final boolean throwWhenHandled) throws HandledException, NoSuchRequestParameterException, InvocationTargetException, IOException {
 		if (cls.getSimpleName().contains("$$EnhancerByGuice$$")) {
 			cls = cls.getSuperclass();
 			try {
@@ -91,7 +90,7 @@ public final class SGCallerImpl implements SGCaller {
 		}
 		final GuiceInstanceGetter<?> controller = new GuiceInstanceGetter<>(Key.get(cls));
 		this.injector.injectMembers(controller);
-		return call(this.repo.get(controller).getInvocations(method), pathVariables, throwWhenHandled, additionalFetchers);
+		return call(this.repo.get(controller).getInvocations(method), pathVariables, throwWhenHandled);
 	}
 
 	/**
@@ -102,20 +101,19 @@ public final class SGCallerImpl implements SGCaller {
 	 * @param pathVariables The Path Variables Map
 	 * @param throwWhenHandled Whether to throw a {@link HandledException} when an exception has been caught and handled.
 	 *                         This allows to cancel all future work until the {@link HandledException} has been caught (and ignored).
-	 * @param additionalFetchers Any additional fetcher to use at call time
 	 * @return Whatever the call returned
 	 * @throws HandledException If an exception has been caught and handled. It is safe to ignore and used to cancel any depending work.
 	 * @throws NoSuchRequestParameterException In case of a parameter asked from request argument or path variable that does not exists
 	 * @throws InvocationTargetException Any exception thrown by the method call and that was not handled
 	 * @throws IOException IO failure while writing the response
-	 * @see SGCallerImpl#call(ControllerInvocation, Map, boolean, CalltimeArgumentFetcher...)
+	 * @see SGCallerImpl#call(ControllerInvocation, Map, boolean)
 	 */
-	public @CheckForNull Object call(final ControllerInvocation invoc, final @CheckForNull @PathVariablesMap Map<String, String> pathVariables, final boolean throwWhenHandled, final CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchRequestParameterException, InvocationTargetException, IOException {
+	public @CheckForNull Object call(final ControllerInvocation invoc, final @CheckForNull @PathVariablesMap Map<String, String> pathVariables, final boolean throwWhenHandled) throws HandledException, NoSuchRequestParameterException, InvocationTargetException, IOException {
 		try {
 			assert(this.req != null);
 			assert(this.res != null);
 			assert(this.injector != null);
-			return invoc.invoke(this.req, pathVariables, this.injector, additionalFetchers);
+			return invoc.invoke(this.req, pathVariables, this.injector);
 		}
 		catch (InvocationTargetException exception) {
 			handleException(exception, throwWhenHandled);
@@ -127,9 +125,9 @@ public final class SGCallerImpl implements SGCaller {
 	 * @see #call(ControllerInvocation, Map, boolean, CalltimeArgumentFetcher...)
 	 */
 	@SuppressWarnings("javadoc")
-	public @CheckForNull Object call(final ControllerInvocation invoc, final MatchResult urlMatch, final boolean throwWhenHandled, final CalltimeArgumentFetcher<?>... additionalFetchers) throws HandledException, NoSuchRequestParameterException, InvocationTargetException, IOException {
+	public @CheckForNull Object call(final ControllerInvocation invoc, final MatchResult urlMatch, final boolean throwWhenHandled) throws HandledException, NoSuchRequestParameterException, InvocationTargetException, IOException {
 		try {
-			return invoc.invoke(this.req, urlMatch, this.injector, additionalFetchers);
+			return invoc.invoke(this.req, urlMatch, this.injector);
 		}
 		catch (InvocationTargetException exception) {
 			handleException(exception, throwWhenHandled);

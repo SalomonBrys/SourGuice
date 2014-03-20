@@ -30,10 +30,13 @@ public class InjectorArgumentFetcher<T> extends ArgumentFetcher<T> {
 	private Key<T> key;
 
 	/**
-	 * @see ArgumentFetcher#ArgumentFetcher(TypeLiteral, Annotation[])
+	 * @see ArgumentFetcher#ArgumentFetcher(TypeLiteral)
+	 *
+	 * @param type The type of the argument to fetch
+	 * @param annotations Annotations that were found on the method's argument
 	 */
 	public InjectorArgumentFetcher(final TypeLiteral<T> type, final Annotation[] annotations) {
-		super(type, annotations);
+		super(type);
 
 		Annotation bindingAnnotation = Annotations.getOneAnnotated(BindingAnnotation.class, annotations);
 		if (bindingAnnotation == null) {
@@ -49,7 +52,7 @@ public class InjectorArgumentFetcher<T> extends ArgumentFetcher<T> {
 	}
 
 	@Override
-	protected @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) {
+	public @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) {
 		return injector.getInstance(this.key);
 	}
 }

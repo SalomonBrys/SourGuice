@@ -1,6 +1,5 @@
 package com.github.sourguice.controller.fetchers;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
@@ -108,14 +107,13 @@ public class RequestParamCollectionArgumentFetcher<T> extends ArgumentFetcher<T>
 	}
 
 	/**
-	 * @see ArgumentFetcher#ArgumentFetcher(TypeLiteral, Annotation[])
+	 * @see ArgumentFetcher#ArgumentFetcher(TypeLiteral)
 	 *
 	 * @param type The type of the collection argument to fetch
-	 * @param annotations Annotations that were found on the method's argument
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 */
-	public RequestParamCollectionArgumentFetcher(final TypeLiteral<T> type, final Annotation[] annotations, final RequestParam infos) {
-		super(type, annotations);
+	public RequestParamCollectionArgumentFetcher(final TypeLiteral<T> type, final RequestParam infos) {
+		super(type);
 		this.infos = infos;
 
 		try {
@@ -129,7 +127,7 @@ public class RequestParamCollectionArgumentFetcher<T> extends ArgumentFetcher<T>
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) throws NoSuchRequestParameterException {
+	public @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) throws NoSuchRequestParameterException {
 		assert this.collectionComponentType != null;
 		assert this.collectionProvider != null;
 		Object[] objs;
