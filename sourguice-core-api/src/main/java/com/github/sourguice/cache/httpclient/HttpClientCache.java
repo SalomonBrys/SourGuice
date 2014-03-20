@@ -1,10 +1,5 @@
-package com.github.sourguice.cache;
+package com.github.sourguice.cache.httpclient;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,60 +29,6 @@ public class HttpClientCache implements MethodInterceptor {
 	 */
 	@Inject
 	private @CheckForNull Provider<HttpServletResponse> responseProvider;
-
-	/**
-	 * Annotation that annotate any method whose response is to be cached
-	 */
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.METHOD)
-	@Documented
-	public static @interface CacheInClient {
-
-		/**
-		 * @return If true, set the public flag
-		 */
-		public boolean Public() default true;
-
-		/**
-		 * @return If empty, set the private flag. If non-empty, set the private field
-		 */
-		public String Private() default ValueConstants.DEFAULT_NONE;
-
-		/**
-		 * @return If empty, set the no-cache flag. If non-empty, set the no-cache field
-		 */
-		public String NoCache() default ValueConstants.DEFAULT_NONE;
-
-		/**
-		 * @return If true, set the no-store flag
-		 */
-		public boolean NoStore() default false;
-
-		/**
-		 * @return If true, set the no-transform flag
-		 */
-		public boolean NoTransform() default false;
-
-		/**
-		 * @return if true, set the must-revalidate flag
-		 */
-		public boolean MustRevalidate() default false;
-
-		/**
-		 * @return The max-age value (number of seconds until expiration)
-		 */
-		public int MaxAge() default -1;
-
-		/**
-		 * @return The s-max-age value (number of seconds the proxy is allowed to serve stale content)
-		 */
-		public int SMaxAge() default -1;
-
-		/**
-		 * @return Any extension to the Cache-Control calue
-		 */
-		public String Extension() default "";
-	}
 
 	/**
 	 * @return The module to install to enable this interceptor
@@ -178,7 +119,7 @@ public class HttpClientCache implements MethodInterceptor {
 	 * @param info The annotation
 	 * @param response The response to set the header on
 	 */
-	public static void setCacheControl(final CacheInClient info, final HttpServletResponse response) {
+	public static void setCacheControl(final HttpServletResponse response, final CacheInClient info) {
 		final List<String> cacheControl = new ArrayList<>();
 
 		setCacheControlProtection(cacheControl, info, response);
@@ -213,9 +154,8 @@ public class HttpClientCache implements MethodInterceptor {
 		}
 		final HttpServletResponse response = this.responseProvider.get();
 
-		setCacheControl(info, response);
+		setCacheControl(response, info);
 
 		return ret;
 	}
-
 }

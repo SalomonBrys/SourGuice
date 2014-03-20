@@ -10,7 +10,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.github.sourguice.SourGuiceControlerModule;
-import com.github.sourguice.StaticIgnoreSourGuiceFilter;
+import com.github.sourguice.StaticAwareSourGuiceFilter;
 import com.github.sourguice.annotation.controller.ViewDirectory;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.View;
@@ -79,7 +79,7 @@ public class JSPTest extends TestBase {
     @Override
 	protected void addServletTesterFilter(ServletTester tester) {
 		tester.setResourceBase("./src/test/resources");
-		tester.addFilter(StaticIgnoreSourGuiceFilter.class, "/*", 0);
+		tester.addFilter(StaticAwareSourGuiceFilter.class, "/*", 0);
 		tester.addServlet(JspServlet.class, "*.jsp");
 	}
 

@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
-public class StaticIgnoreSourGuiceFilter extends SourGuiceFilter {
+public class StaticAwareSourGuiceFilter extends SourGuiceFilter {
 
 	/**
 	 * Whether or not to allow any directory other than root to be listed

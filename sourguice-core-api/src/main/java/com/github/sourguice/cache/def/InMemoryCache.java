@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.github.sourguice.cache.Cache;
-import com.github.sourguice.cache.def.InMemoryCacheInterceptor.CacheInMemory;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.servlet.RequestScoped;
 import com.google.inject.servlet.ServletModule;

@@ -5,6 +5,8 @@ import static org.testng.Assert.assertEquals;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.eclipse.jetty.testing.HttpTester;
 import org.eclipse.jetty.testing.ServletTester;
 import org.testng.annotations.Test;
@@ -12,12 +14,13 @@ import org.testng.annotations.Test;
 import com.github.sourguice.SourGuiceControlerModule;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.Writes;
-import com.github.sourguice.cache.HttpClientCache;
 import com.github.sourguice.cache.CacheService;
-import com.github.sourguice.cache.HttpClientCache.CacheInClient;
+import com.github.sourguice.cache.def.CacheInMemory;
 import com.github.sourguice.cache.def.InMemoryCache;
 import com.github.sourguice.cache.def.InMemoryCacheFilter;
-import com.github.sourguice.cache.def.InMemoryCacheInterceptor.CacheInMemory;
+import com.github.sourguice.cache.httpclient.CacheInClient;
+import com.github.sourguice.cache.httpclient.CacheInClientBuilder;
+import com.github.sourguice.cache.httpclient.HttpClientCache;
 import com.google.inject.Singleton;
 
 @SuppressWarnings({"javadoc", "static-method", "PMD"})
@@ -87,6 +90,19 @@ public class CacheTest extends TestBase {
 		@CacheInClient(Private = "user", MustRevalidate = true, Extension = "coucou-le-monde")
 		@Writes
 		public String client_private() {
+			return "Salomon:N";
+		}
+
+		@RequestMapping(value = "/client_manual")
+		@Writes
+		public String client_manual(HttpServletResponse res) {
+			HttpClientCache.setCacheControl(res,
+				new CacheInClientBuilder()
+					.MaxAge(60 * 10)
+					.NoTransform(true)
+					.build()
+			);
+
 			return "Salomon:N";
 		}
 }
@@ -183,6 +199,16 @@ public class CacheTest extends TestBase {
 		assertEquals(response.getContent(), "Salomon:N");
 		assertEquals(response.getHeader("Pragma"), "private");
 		assertEquals(response.getHeader("Cache-Control"), "private=\"user\",must-revalidate,coucou-le-monde");
+	}
+
+	public void getClientManual() throws Exception {
+		HttpTester request = makeRequest("GET", "/client_manual");
+		HttpTester response = getResponse(request);
+
+		assertEquals(response.getStatus(), 200);
+		assertEquals(response.getContent(), "Salomon:N");
+		assertEquals(response.getHeader("Pragma"), "public");
+		assertEquals(response.getHeader("Cache-Control"), "public,no-transform,max-age=600");
 	}
 }
 
