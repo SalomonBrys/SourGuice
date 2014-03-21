@@ -7,19 +7,16 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.TreeSet;
 
 import javax.annotation.CheckForNull;
 import javax.servlet.http.HttpServletRequest;
 
-import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.annotation.request.RequestParam;
 import com.github.sourguice.conversion.ConversionService;
 import com.github.sourguice.throwable.SGRuntimeException;
 import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException;
 import com.github.sourguice.value.ValueConstants;
-import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -29,7 +26,7 @@ import com.google.inject.TypeLiteral;
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
-public class RequestParamCollectionArgumentFetcher<T> extends ArgumentFetcher<T> {
+public class RequestParamCollectionArgumentFetcher<T> implements RequestParamArgumentFetcher.Delegate<T> {
 
 	/**
 	 * The annotations containing needed informations to fetch the argument
@@ -107,13 +104,11 @@ public class RequestParamCollectionArgumentFetcher<T> extends ArgumentFetcher<T>
 	}
 
 	/**
-	 * @see ArgumentFetcher#ArgumentFetcher(TypeLiteral)
-	 *
 	 * @param type The type of the collection argument to fetch
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 */
 	public RequestParamCollectionArgumentFetcher(final TypeLiteral<T> type, final RequestParam infos) {
-		super(type);
+		super();
 		this.infos = infos;
 
 		try {
@@ -127,7 +122,7 @@ public class RequestParamCollectionArgumentFetcher<T> extends ArgumentFetcher<T>
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) throws NoSuchRequestParameterException {
+	public @CheckForNull T getPrepared(final HttpServletRequest req, final ConversionService conversionService) throws NoSuchRequestParameterException {
 		assert this.collectionComponentType != null;
 		assert this.collectionProvider != null;
 		Object[] objs;
@@ -143,7 +138,7 @@ public class RequestParamCollectionArgumentFetcher<T> extends ArgumentFetcher<T>
 		}
 		else {
 			// Gets converted array and returns it as list
-			objs = injector.getInstance(ConversionService.class).convertArray(this.collectionComponentType, req.getParameterValues(this.infos.value()));
+			objs = conversionService.convertArray(this.collectionComponentType, req.getParameterValues(this.infos.value()));
 		}
 		return (T) this.collectionProvider.get(Arrays.asList(objs));
 	}

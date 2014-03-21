@@ -13,7 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 import com.github.sourguice.annotation.controller.Callable;
 import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.call.SGCaller;
+import com.github.sourguice.controller.ControllerHandler;
 import com.github.sourguice.controller.ControllerHandlersRepository;
+import com.github.sourguice.controller.ControllerHandlersRepository.MembersInjector;
 import com.github.sourguice.controller.ControllerInvocation;
 import com.github.sourguice.controller.GuiceInstanceGetter;
 import com.github.sourguice.exception.ExceptionHandler;
@@ -61,7 +63,7 @@ public final class SGCallerImpl implements SGCaller {
 	/**
 	 * The Guice Injector from which to retrieve arguments
 	 */
-	private final Injector injector;
+	protected final Injector injector;
 
 	/**
 	 * Constructor with arguments to be injected by Guice
@@ -90,7 +92,12 @@ public final class SGCallerImpl implements SGCaller {
 		}
 		final GuiceInstanceGetter<?> controller = new GuiceInstanceGetter<>(Key.get(cls));
 		this.injector.injectMembers(controller);
-		return call(this.repo.get(controller).getInvocations(method), pathVariables, throwWhenHandled);
+		final ControllerHandler<?> handler = this.repo.get(controller, new MembersInjector() {
+			@Override public void injectMembers(final Object instance) {
+				SGCallerImpl.this.injector.injectMembers(instance);
+			}
+		});
+		return call(handler.getInvocations(method), pathVariables, throwWhenHandled);
 	}
 
 	/**
@@ -110,10 +117,9 @@ public final class SGCallerImpl implements SGCaller {
 	 */
 	public @CheckForNull Object call(final ControllerInvocation invoc, final @CheckForNull @PathVariablesMap Map<String, String> pathVariables, final boolean throwWhenHandled) throws HandledException, NoSuchRequestParameterException, InvocationTargetException, IOException {
 		try {
-			assert(this.req != null);
 			assert(this.res != null);
 			assert(this.injector != null);
-			return invoc.invoke(this.req, pathVariables, this.injector);
+			return invoc.invoke(pathVariables, this.injector);
 		}
 		catch (InvocationTargetException exception) {
 			handleException(exception, throwWhenHandled);
@@ -127,7 +133,7 @@ public final class SGCallerImpl implements SGCaller {
 	@SuppressWarnings("javadoc")
 	public @CheckForNull Object call(final ControllerInvocation invoc, final MatchResult urlMatch, final boolean throwWhenHandled) throws HandledException, NoSuchRequestParameterException, InvocationTargetException, IOException {
 		try {
-			return invoc.invoke(this.req, urlMatch, this.injector);
+			return invoc.invoke(urlMatch, this.injector);
 		}
 		catch (InvocationTargetException exception) {
 			handleException(exception, throwWhenHandled);

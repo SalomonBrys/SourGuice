@@ -1,15 +1,14 @@
 package com.github.sourguice.controller.fetchers;
 
-import java.util.Map;
-
 import javax.annotation.CheckForNull;
+import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.annotation.request.SessionAttribute;
+import com.github.sourguice.controller.ArgumentFetcher;
 import com.github.sourguice.request.Attribute;
-import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -19,7 +18,7 @@ import com.google.inject.TypeLiteral;
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
-public class SessionAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
+public class SessionAttributeArgumentFetcher<T> implements ArgumentFetcher<T> {
 
 	/**
 	 * The annotations containing needed informations to fetch the argument
@@ -30,6 +29,12 @@ public class SessionAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 	 * If the injection requires an {@link Attribute}, then this is true
 	 */
 	private boolean isAccessor = false;
+
+	/**
+	 * Provider for the current HTTP request
+	 */
+	@Inject
+	private @CheckForNull Provider<HttpServletRequest> requestProvider;
 
 	/**
 	 * Attribute accessor specialization for Session Attributes
@@ -70,13 +75,11 @@ public class SessionAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 	}
 
 	/**
-	 * @see ArgumentFetcher#ArgumentFetcher(TypeLiteral)
-	 *
 	 * @param type The type of the argument to fetch
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 */
 	public SessionAttributeArgumentFetcher(final TypeLiteral<T> type, final SessionAttribute infos) {
-		super(type);
+		super();
 		this.infos = infos;
 		if (type.getRawType().equals(Attribute.class)) {
 			this.isAccessor = true;
@@ -85,10 +88,14 @@ public class SessionAttributeArgumentFetcher<T> extends ArgumentFetcher<T> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) {
+	public @CheckForNull T getPrepared() {
+		assert this.requestProvider != null;
+		final HttpServletRequest req = this.requestProvider.get();
+
 		if (this.isAccessor) {
 			return (T) new SessionAttributeAccessor<>(req.getSession(true), this.infos.value());
 		}
+
 		return (T)req.getSession(true).getAttribute(this.infos.value());
 	}
 }

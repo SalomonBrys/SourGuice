@@ -10,13 +10,11 @@ import javax.annotation.CheckForNull;
 import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
 
-import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.annotation.request.RequestParam;
 import com.github.sourguice.conversion.ConversionService;
 import com.github.sourguice.throwable.SGRuntimeException;
 import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException;
 import com.github.sourguice.value.ValueConstants;
-import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -26,7 +24,7 @@ import com.google.inject.TypeLiteral;
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
-public class RequestParamMapArgumentFetcher<T> extends ArgumentFetcher<T> {
+public class RequestParamMapArgumentFetcher<T> implements RequestParamArgumentFetcher.Delegate<T> {
 
 	/**
 	 * The annotations containing needed informations to fetch the argument
@@ -79,13 +77,11 @@ public class RequestParamMapArgumentFetcher<T> extends ArgumentFetcher<T> {
 	}
 
 	/**
-	 * @see ArgumentFetcher#ArgumentFetcher(TypeLiteral)
-	 *
 	 * @param type The type of the map argument to fetch
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 */
 	public RequestParamMapArgumentFetcher(final TypeLiteral<T> type, final RequestParam infos) {
-		super(type);
+		super();
 		this.infos = infos;
 
 		try {
@@ -124,13 +120,12 @@ public class RequestParamMapArgumentFetcher<T> extends ArgumentFetcher<T> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) throws NoSuchRequestParameterException {
+	public @CheckForNull T getPrepared(final HttpServletRequest req, final ConversionService conversionService) throws NoSuchRequestParameterException {
 		assert this.mapKeyType != null;
 		assert this.mapValueType != null;
 		assert this.mapProvider != null;
 		final Map<Object, Object> ret = this.mapProvider.get();
 		final Enumeration<String> names = req.getParameterNames();
-		final ConversionService conversionService = injector.getInstance(ConversionService.class);
 		while (names.hasMoreElements()) {
 			final String name = names.nextElement();
 			if (name.startsWith(this.infos.value() + ":")) {

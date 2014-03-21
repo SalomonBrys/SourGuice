@@ -206,7 +206,11 @@ public class SGControlerModuleHelperImpl implements SGControlerModuleHelperProxy
 
 		// Registers a controller handler into the controller servlet
 		// The handler is retrived from the repository to avoid creating two handlers for the same controller class
-		servlet.addController(this.repository.get(controller));
+		servlet.addController(this.repository.get(controller, new ControllerHandlersRepository.MembersInjector() {
+			@Override public void injectMembers(final Object instance) {
+				SGControlerModuleHelperImpl.this.module.binder().requestInjection(instance);
+			}
+		}));
 	}
 
 	@Override

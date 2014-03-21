@@ -4,13 +4,14 @@ import java.util.Collection;
 import java.util.Map;
 
 import javax.annotation.CheckForNull;
+import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
 
-import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.annotation.request.RequestParam;
+import com.github.sourguice.conversion.ConversionService;
 import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException;
 import com.github.sourguice.value.ValueConstants;
-import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -20,7 +21,7 @@ import com.google.inject.TypeLiteral;
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
-public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
+public class RequestParamArgumentFetcher<T> extends AbstractArgumentFetcher<T> {
 
 	/**
 	 * The annotations containing needed informations to fetch the argument
@@ -30,10 +31,33 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 	/**
 	 * If this fetcher is supposed to fetch a collection or a map, then it's a specialized delegate that will handle it
 	 */
-	private @CheckForNull ArgumentFetcher<T> delegate = null;
+	private @CheckForNull Delegate<T> delegate = null;
 
 	/**
-	 * @see ArgumentFetcher#ArgumentFetcher(TypeLiteral)
+	 * Provider for the current HTTP request
+	 */
+	@Inject
+	private @CheckForNull Provider<HttpServletRequest> requestProvider;
+
+	/**
+	 * A delegate of {@link RequestParamArgumentFetcher}
+	 *
+	 * @param <T> The type of the argument to fetch
+	 */
+	public static interface Delegate<T> {
+		/**
+		 * This is where subclass fetch the argument
+		 *
+		 * @param req The HTTPRequest to get the variable from
+		 * @param conversionService The conversion service to use
+		 * @return The argument to be passed to the invocation
+		 * @throws NoSuchRequestParameterException In case of a parameter asked from request argument or path variable that does not exists
+		 */
+		public abstract T getPrepared(HttpServletRequest req, ConversionService conversionService) throws NoSuchRequestParameterException;
+	}
+
+	/**
+	 * @see AbstractArgumentFetcher#AbstractArgumentFetcher(TypeLiteral)
 	 *
 	 * @param type The type of the argument to fetch
 	 * @param infos The annotations containing needed informations to fetch the argument
@@ -52,23 +76,27 @@ public class RequestParamArgumentFetcher<T> extends ArgumentFetcher<T> {
 	}
 
 	@Override
-	public @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) throws NoSuchRequestParameterException {
+	public @CheckForNull T getPrepared() throws NoSuchRequestParameterException {
+		assert this.requestProvider != null;
+		final HttpServletRequest req = this.requestProvider.get();
+
 		// If there is a specialized delegate, let it handle the fetch
 		if (this.delegate != null) {
-			return this.delegate.getPrepared(req, pathVariables, injector);
+			assert this.conversionServiceProvider != null;
+			return this.delegate.getPrepared(req, this.conversionServiceProvider.get());
 		}
 
 		// If the parameter does not exists, returns the default value or, if there are none, throw an exception
 		if (req.getParameter(this.infos.value()) == null) {
 			if (!this.infos.defaultValue().equals(ValueConstants.DEFAULT_NONE)) {
-				return convert(injector, this.infos.defaultValue());
+				return convert(this.infos.defaultValue());
 			}
 			throw new NoSuchRequestParameterException(this.infos.value(), "request parameters");
 		}
 		// Returns the converted parameter value
 		if (req.getParameterValues(this.infos.value()).length == 1) {
-			return convert(injector, req.getParameter(this.infos.value()));
+			return convert(req.getParameter(this.infos.value()));
 		}
-		return convert(injector, req.getParameterValues(this.infos.value()));
+		return convert(req.getParameterValues(this.infos.value()));
 	}
 }

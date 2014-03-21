@@ -1,16 +1,11 @@
 package com.github.sourguice.controller.fetchers;
 
-import java.util.Map;
-
 import javax.annotation.CheckForNull;
-import javax.servlet.http.HttpServletRequest;
 
 import org.aopalliance.intercept.MethodInterceptor;
 
 import com.github.sourguice.annotation.request.InterceptParam;
-import com.github.sourguice.annotation.request.PathVariablesMap;
-import com.google.inject.Injector;
-import com.google.inject.TypeLiteral;
+import com.github.sourguice.controller.ArgumentFetcher;
 
 /**
  * Fetcher that will always return null
@@ -21,17 +16,10 @@ import com.google.inject.TypeLiteral;
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
-public class NullArgumentFetcher<T> extends ArgumentFetcher<T> {
-
-	/**
-	 * @see ArgumentFetcher#ArgumentFetcher(TypeLiteral)
-	 */
-	public NullArgumentFetcher(final TypeLiteral<T> type) {
-		super(type);
-	}
+public class NullArgumentFetcher<T> implements ArgumentFetcher<T> {
 
 	@Override
-	public @CheckForNull T getPrepared(final HttpServletRequest req, final @PathVariablesMap Map<String, String> pathVariables, final Injector injector) {
+	public @CheckForNull T getPrepared() {
 		return null;
 	}
 }
