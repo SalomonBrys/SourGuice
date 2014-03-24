@@ -6,7 +6,7 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.inject.Singleton;
 
-import com.github.sourguice.controller.InstanceGetter;
+import com.github.sourguice.controller.TypedProvider;
 import com.github.sourguice.exception.ExceptionHandler;
 import com.github.sourguice.exception.ExceptionService;
 import com.github.sourguice.throwable.service.exception.UnreachableExceptionHandlerException;
@@ -25,7 +25,7 @@ public class ExceptionServiceImpl implements ExceptionService {
 	/**
 	 * Map of Exception classes and their corresponding ExceptionHandlers
 	 */
-	private final Map<Class<? extends Exception>, InstanceGetter<? extends ExceptionHandler<? extends Exception>>> map = new LinkedHashMap<>();
+	private final Map<Class<? extends Exception>, TypedProvider<? extends ExceptionHandler<? extends Exception>>> map = new LinkedHashMap<>();
 
 	/**
 	 * Registers an exception class and its corresponding exception handler
@@ -35,7 +35,7 @@ public class ExceptionServiceImpl implements ExceptionService {
 	 * @throws UnreachableExceptionHandlerException When an ExceptionHandler will never be reached because a previous ExceptionHandler
 	 *                                              has been registered that already handles this class of exception
 	 */
-	public <T extends Exception> void register(final Class<? extends T> cls, final InstanceGetter<? extends ExceptionHandler<T>> handler) throws UnreachableExceptionHandlerException {
+	public <T extends Exception> void register(final Class<? extends T> cls, final TypedProvider<? extends ExceptionHandler<T>> handler) throws UnreachableExceptionHandlerException {
 		if (!this.map.containsKey(cls)) {
 			for (final Class<? extends Exception> sup : this.map.keySet()) {
 				if (sup.isAssignableFrom(cls)) {
@@ -56,7 +56,7 @@ public class ExceptionServiceImpl implements ExceptionService {
 	public @CheckForNull <T extends Exception> ExceptionHandler<? super T> getHandler(final Class<T> clazz) {
 		for (final Class<? extends Exception> cls : this.map.keySet()) {
 			if (cls.isAssignableFrom(clazz)) {
-				return (ExceptionHandler<? super T>) this.map.get(cls).getInstance();
+				return (ExceptionHandler<? super T>) this.map.get(cls).get();
 			}
 		}
 		return null;

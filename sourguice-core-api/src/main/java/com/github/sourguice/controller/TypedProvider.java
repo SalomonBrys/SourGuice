@@ -2,6 +2,8 @@ package com.github.sourguice.controller;
 
 import java.lang.annotation.Annotation;
 
+import javax.inject.Provider;
+
 import com.google.inject.TypeLiteral;
 
 /**
@@ -12,12 +14,7 @@ import com.google.inject.TypeLiteral;
  * @author Salomon BRYS <salomon.brys@gmail.com>
  * @param <T> The type of the instance this will get
  */
-public interface InstanceGetter<T> {
-
-	/**
-	 * @return an instance of type T
-	 */
-	T getInstance();
+public interface TypedProvider<T> extends Provider<T> {
 
 	/**
 	 * @return {@link Annotation} exact representation of the type of the instance

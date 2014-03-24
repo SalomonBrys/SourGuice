@@ -321,7 +321,7 @@ public final class ControllerInvocation {
 
 			try {
 				// Calls the method
-				final Object ret = this.method.invoke(this.controller.getInstance(), params);
+				final Object ret = this.method.invoke(this.controller.get(), params);
 
 				// If method did not returned void, gets what it returned
 				if (!this.method.getReturnType().equals(Void.TYPE) && !this.method.getReturnType().equals(void.class)) {

@@ -1,6 +1,6 @@
 package com.github.sourguice.view;
 
-import com.github.sourguice.controller.InstanceGetter;
+import com.github.sourguice.controller.TypedProvider;
 
 
 /**
@@ -18,6 +18,6 @@ public interface ViewRendererService {
 	 * @return the renderer to use or null if none were found
 	 * @throws NoViewRendererException If no renderer was found for this view
 	 */
-	public abstract InstanceGetter<? extends ViewRenderer> getRenderer(String viewName) throws NoViewRendererException;
+	public abstract TypedProvider<? extends ViewRenderer> getRenderer(String viewName) throws NoViewRendererException;
 
 }

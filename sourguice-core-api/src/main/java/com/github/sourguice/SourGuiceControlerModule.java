@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.controller.GivenInstanceGetter;
 import com.github.sourguice.controller.GuiceInstanceGetter;
-import com.github.sourguice.controller.InstanceGetter;
+import com.github.sourguice.controller.TypedProvider;
 import com.github.sourguice.conversion.Converter;
 import com.github.sourguice.exception.ExceptionHandler;
 import com.github.sourguice.request.ForwardableRequestFactory;
@@ -57,13 +57,13 @@ public abstract class SourGuiceControlerModule extends ServletModule {
 
 		public void configureServlets();
 
-		public void registerControl(String pattern, InstanceGetter<?> controller);
+		public void registerControl(String pattern, TypedProvider<?> controller);
 
-		public void registerConverter(Class<?> type, InstanceGetter<? extends Converter<?>> converter);
+		public void registerConverter(Class<?> type, TypedProvider<? extends Converter<?>> converter);
 
-		public <T extends Exception> void registerExceptionHandler(Class<? extends T> cls, InstanceGetter<? extends ExceptionHandler<T>> handler);
+		public <T extends Exception> void registerExceptionHandler(Class<? extends T> cls, TypedProvider<? extends ExceptionHandler<T>> handler);
 
-		public void registerViewRenderer(Pattern pattern, InstanceGetter<? extends ViewRenderer> renderer);
+		public void registerViewRenderer(Pattern pattern, TypedProvider<? extends ViewRenderer> renderer);
 	}
 
 	/**
@@ -201,7 +201,7 @@ public abstract class SourGuiceControlerModule extends ServletModule {
 		 */
 		@SuppressWarnings("synthetic-access")
 		public void with(final Key<? extends T> key) {
-			final InstanceGetter<? extends T> getter = new GuiceInstanceGetter<>(key);
+			final TypedProvider<? extends T> getter = new GuiceInstanceGetter<>(key);
 			requestInjection(getter);
 			register(getter);
 		}
@@ -230,16 +230,16 @@ public abstract class SourGuiceControlerModule extends ServletModule {
 		 * @param instance The object to register
 		 */
 		public void withInstance(final T instance) {
-			final InstanceGetter<? extends T> getter = new GivenInstanceGetter<>(instance);
+			final TypedProvider<? extends T> getter = new GivenInstanceGetter<>(instance);
 			register(getter);
 		}
 
 		/**
 		 * Makes the registration within the corresponding service.
 		 *
-		 * @param getter The {@link InstanceGetter} to register within the service.
+		 * @param getter The {@link TypedProvider} to register within the service.
 		 */
-		abstract protected void register(InstanceGetter<? extends T> getter);
+		abstract protected void register(TypedProvider<? extends T> getter);
 	}
 
 	/**
@@ -251,7 +251,7 @@ public abstract class SourGuiceControlerModule extends ServletModule {
 	 */
 	public final BindBuilder<Object> control(final String pattern, final String... patterns) {
 		return new BindBuilder<Object>() {
-			@Override protected void register(final InstanceGetter<? extends Object> controller) {
+			@Override protected void register(final TypedProvider<? extends Object> controller) {
 				SourGuiceControlerModule.this.helper.registerControl(pattern, controller);
 				for (final String addPattern : patterns) {
 					SourGuiceControlerModule.this.helper.registerControl(addPattern, controller);
@@ -299,7 +299,7 @@ public abstract class SourGuiceControlerModule extends ServletModule {
 	 */
 	public BindBuilder<ViewRenderer> renderViews(final String regex, final String... regexs) {
 		return new BindBuilder<ViewRenderer>() {
-			@Override protected void register(final InstanceGetter<? extends ViewRenderer> renderer) {
+			@Override protected void register(final TypedProvider<? extends ViewRenderer> renderer) {
 				SourGuiceControlerModule.this.helper.registerViewRenderer(Pattern.compile(regex), renderer);
 				for (final String addRegex : regexs) {
 					SourGuiceControlerModule.this.helper.registerViewRenderer(Pattern.compile(addRegex), renderer);
@@ -317,7 +317,7 @@ public abstract class SourGuiceControlerModule extends ServletModule {
 	 */
 	public final BindBuilder<Converter<?>> convertTo(final Class<?> toType, final Class<?>... toTypes) {
 		return new BindBuilder<Converter<?>>() {
-			@Override protected void register(final InstanceGetter<? extends Converter<?>> converter) {
+			@Override protected void register(final TypedProvider<? extends Converter<?>> converter) {
 				SourGuiceControlerModule.this.helper.registerConverter(toType, converter);
 				for (final Class<?> addToType : toTypes) {
 					SourGuiceControlerModule.this.helper.registerConverter(addToType, converter);
@@ -336,7 +336,7 @@ public abstract class SourGuiceControlerModule extends ServletModule {
 	@SafeVarargs
 	public final <T extends Exception> BindBuilder<ExceptionHandler<T>> handleException(final Class<? extends T> exc, final Class<? extends T>... excs) {
 		return new BindBuilder<ExceptionHandler<T>>() {
-			@Override protected void register(final InstanceGetter<? extends ExceptionHandler<T>> handler) {
+			@Override protected void register(final TypedProvider<? extends ExceptionHandler<T>> handler) {
 				SourGuiceControlerModule.this.helper.registerExceptionHandler(exc, handler);
 				for (final Class<? extends T> addExc : excs) {
 					SourGuiceControlerModule.this.helper.registerExceptionHandler(addExc, handler);

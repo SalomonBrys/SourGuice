@@ -9,7 +9,7 @@ import javax.inject.Singleton;
 
 import com.github.sourguice.annotation.ConverterCanConstructChild;
 import com.github.sourguice.controller.GivenInstanceGetter;
-import com.github.sourguice.controller.InstanceGetter;
+import com.github.sourguice.controller.TypedProvider;
 import com.github.sourguice.conversion.ConversionService;
 import com.github.sourguice.conversion.Converter;
 import com.github.sourguice.conversion.def.ArrayConverter;
@@ -31,7 +31,7 @@ public class ConversionServiceImpl implements ConversionService {
 	/**
 	 * Map of registered convertable classes and their associated converter
 	 */
-	private final Map<Class<?>, InstanceGetter<? extends Converter<?>>> converters = new ConcurrentHashMap<>();
+	private final Map<Class<?>, TypedProvider<? extends Converter<?>>> converters = new ConcurrentHashMap<>();
 
 	/**
 	 * Register a converter to be associated with the given type
@@ -40,7 +40,7 @@ public class ConversionServiceImpl implements ConversionService {
 	 * @param conv The converter to use when converting from String to the given type
 	 * @param type The type to associate the converter with
 	 */
-	public void register(final Class<?> type, final InstanceGetter<? extends Converter<?>> conv) {
+	public void register(final Class<?> type, final TypedProvider<? extends Converter<?>> conv) {
 		this.converters.put(type, conv);
 	}
 
@@ -85,7 +85,7 @@ public class ConversionServiceImpl implements ConversionService {
 	private @CheckForNull Class<?> getClosestType(final Class<?> cls) {
 		int closestDistance = Integer.MAX_VALUE;
 		Class<?> closestType = null;
-		for (final Map.Entry<Class<?>, InstanceGetter<? extends Converter<?>>> entry : this.converters.entrySet()) {
+		for (final Map.Entry<Class<?>, TypedProvider<? extends Converter<?>>> entry : this.converters.entrySet()) {
 			if (cls.isAssignableFrom(entry.getKey())) {
 				final int distance = classUtilDistance(entry.getKey(), cls, 0);
 				if (distance < closestDistance) {
@@ -117,22 +117,22 @@ public class ConversionServiceImpl implements ConversionService {
 	public @CheckForNull <T> Converter<T> getConverter(final Class<T> cls) {
 		// Maybe it has already been set, so we check
 		if (this.converters.containsKey(cls)) {
-			return (Converter<T>) this.converters.get(cls).getInstance();
+			return (Converter<T>) this.converters.get(cls).get();
 		}
 
 		// If it has not been set, we need to set it only once, so we wait for lock
 		synchronized (cls) {
 			// Maybe it has been set while we waited for lock, so we check again
 			if (this.converters.containsKey(cls)) {
-				return (Converter<T>) this.converters.get(cls).getInstance();
+				return (Converter<T>) this.converters.get(cls).get();
 			}
 
 			final Class<?> closestType = getClosestType(cls);
 
 			if (closestType != null) {
-				final InstanceGetter<? extends Converter<?>> converter = this.converters.get(closestType);
+				final TypedProvider<? extends Converter<?>> converter = this.converters.get(closestType);
 				this.converters.put(cls, converter);
-				return (Converter<T>)converter.getInstance();
+				return (Converter<T>)converter.get();
 			}
 
 			return null;
@@ -200,7 +200,7 @@ public class ConversionServiceImpl implements ConversionService {
 				if (compConv != null) {
 					final GivenInstanceGetter<? extends Converter<?>> arrayConverter = new GivenInstanceGetter<>(new ArrayConverter<>(compConv));
 					register(toType.getRawType(), arrayConverter);
-					conv = (Converter<T>) arrayConverter.getInstance();
+					conv = (Converter<T>) arrayConverter.get();
 				}
 			}
 			if (conv == null) {

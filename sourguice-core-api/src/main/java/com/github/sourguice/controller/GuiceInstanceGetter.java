@@ -13,7 +13,7 @@ import com.google.inject.TypeLiteral;
  * @author Salomon BRYS <salomon.brys@gmail.com>
  * @param <T> The type of the instance it will ask guice
  */
-public class GuiceInstanceGetter<T> implements InstanceGetter<T> {
+public class GuiceInstanceGetter<T> implements TypedProvider<T> {
 
 	/**
 	 * The key to retrieve an instance in Guice
@@ -42,7 +42,7 @@ public class GuiceInstanceGetter<T> implements InstanceGetter<T> {
 	}
 
 	@Override
-	public T getInstance() {
+	public T get() {
 		assert this.provider != null;
 		return this.provider.get();
 	}

@@ -18,7 +18,7 @@ public final class ControllerHandlersRepository {
 	/**
 	 * All classes registered and their corresponding {@link ControllerHandler}
 	 */
-	private final Map<InstanceGetter<?>, ControllerHandler<?>> map = new HashMap<>();
+	private final Map<TypedProvider<?>, ControllerHandler<?>> map = new HashMap<>();
 
 	/**
 	 * Gets the {@link ControllerHandler} for a given class and creates one if none is yet registered for this class
@@ -28,7 +28,7 @@ public final class ControllerHandlersRepository {
 	 * @return The handler for the given class
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> ControllerHandler<T> get(final InstanceGetter<T> controller, final MembersInjectionRequest membersInjector) {
+	public <T> ControllerHandler<T> get(final TypedProvider<T> controller, final MembersInjectionRequest membersInjector) {
 		if (this.map.containsKey(controller)) {
 			return (ControllerHandler<T>) this.map.get(controller);
 		}

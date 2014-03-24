@@ -19,7 +19,7 @@ import com.github.sourguice.call.impl.SGCallerImpl;
 import com.github.sourguice.controller.ControllerHandlersRepository;
 import com.github.sourguice.controller.ControllerInterceptor;
 import com.github.sourguice.controller.ControllersServlet;
-import com.github.sourguice.controller.InstanceGetter;
+import com.github.sourguice.controller.TypedProvider;
 import com.github.sourguice.controller.InterceptWithMatcher;
 import com.github.sourguice.controller.MembersInjectionRequest;
 import com.github.sourguice.conversion.ConversionService;
@@ -189,7 +189,7 @@ public class SGControlerModuleHelperImpl implements SGControlerModuleHelperProxy
 	 * @param controller The controller class to register
 	 */
 	@Override
-	public void registerControl(final String pattern, final InstanceGetter<?> controller) {
+	public void registerControl(final String pattern, final TypedProvider<?> controller) {
 		// Registers all filters that are declared by the @FilterThrough annotation of this class and of all its parents
 		final Map<String, String> initParams = new HashMap<>();
 		initParams.put("pattern", pattern);
@@ -217,17 +217,17 @@ public class SGControlerModuleHelperImpl implements SGControlerModuleHelperProxy
 	}
 
 	@Override
-	public void registerViewRenderer(final Pattern pattern, final InstanceGetter<? extends ViewRenderer> renderer) {
+	public void registerViewRenderer(final Pattern pattern, final TypedProvider<? extends ViewRenderer> renderer) {
 		this.rendererService.register(pattern, renderer);
 	}
 
 	@Override
-	public void registerConverter(final Class<?> type, final InstanceGetter<? extends Converter<?>> converter) {
+	public void registerConverter(final Class<?> type, final TypedProvider<? extends Converter<?>> converter) {
 		this.conversionService.register(type, converter);
 	}
 
 	@Override
-	public <T extends Exception> void registerExceptionHandler(final Class<? extends T> cls, final InstanceGetter<? extends ExceptionHandler<T>> handler) {
+	public <T extends Exception> void registerExceptionHandler(final Class<? extends T> cls, final TypedProvider<? extends ExceptionHandler<T>> handler) {
 		this.exceptionService.register(cls, handler);
 	}
 

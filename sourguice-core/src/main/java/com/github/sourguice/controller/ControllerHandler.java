@@ -39,11 +39,11 @@ import com.google.inject.TypeLiteral;
  * @author Salomon BRYS <salomon.brys@gmail.com>
  * @param <T> The controller class to handle
  */
-public final class ControllerHandler<T> implements InstanceGetter<T> {
+public final class ControllerHandler<T> implements TypedProvider<T> {
     /**
      * The Class object of the controller class to handle
      */
-    private final InstanceGetter<T> controller;
+    private final TypedProvider<T> controller;
 
     /**
      * List of available invocations for this controller
@@ -63,7 +63,7 @@ public final class ControllerHandler<T> implements InstanceGetter<T> {
     /**
      * Cache that associate a view to a renderer, so each view will look for its renderer only once
      */
-    private final Map<String, InstanceGetter<? extends ViewRenderer>> rendererCache = new ConcurrentHashMap<>();
+    private final Map<String, TypedProvider<? extends ViewRenderer>> rendererCache = new ConcurrentHashMap<>();
 
     /**
      * Provider for the {@link ViewRendererService}
@@ -87,7 +87,7 @@ public final class ControllerHandler<T> implements InstanceGetter<T> {
      * @param controller The controller getter to handle
      * @param membersInjector Responsible for injecting newly created {@link ArgumentFetcher}
      */
-    public ControllerHandler(final InstanceGetter<T> controller, final MembersInjectionRequest membersInjector) {
+    public ControllerHandler(final TypedProvider<T> controller, final MembersInjectionRequest membersInjector) {
         this.controller = controller;
 
         final ViewDirectory vdAnno = Annotations.getOneTreeRecursive(ViewDirectory.class, controller.getTypeLiteral().getRawType());
@@ -167,7 +167,7 @@ public final class ControllerHandler<T> implements InstanceGetter<T> {
         }
 
         // Maybe it has already been set, so we look for it
-        InstanceGetter<? extends ViewRenderer> renderer = this.rendererCache.get(view);
+        TypedProvider<? extends ViewRenderer> renderer = this.rendererCache.get(view);
 
         // If it has not been set, we need to set it only once, so we get a synchronized lock
         if (renderer == null) {
@@ -194,12 +194,12 @@ public final class ControllerHandler<T> implements InstanceGetter<T> {
         }
 
         assert this.modelProvider != null;
-        renderer.getInstance().render(view, this.modelProvider.get().asMap());
+        renderer.get().render(view, this.modelProvider.get().asMap());
     }
 
     @Override
-    public T getInstance() {
-        return this.controller.getInstance();
+    public T get() {
+        return this.controller.get();
     }
 
     @Override

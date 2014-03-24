@@ -8,7 +8,7 @@ import com.google.inject.TypeLiteral;
  * @author Salomon BRYS <salomon.brys@gmail.com>
  * @param <T> The type of the instance this will hold
  */
-public class GivenInstanceGetter<T> implements InstanceGetter<T> {
+public class GivenInstanceGetter<T> implements TypedProvider<T> {
 
 	/**
 	 * The instance to hold and give back when asked
@@ -24,7 +24,7 @@ public class GivenInstanceGetter<T> implements InstanceGetter<T> {
 	}
 
 	@Override
-	public T getInstance() {
+	public T get() {
 		return this.instance;
 	}
 
