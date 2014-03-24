@@ -4,8 +4,6 @@ import java.util.regex.MatchResult;
 
 import javax.annotation.CheckForNull;
 
-import com.github.sourguice.annotation.request.View;
-
 /**
  * Information of a specific invocation
  * Used to compare different invocation and to carry with the invocation, request matching intels
@@ -26,11 +24,6 @@ public class ControllerInvocationInfos {
 	 * The match result after parsing the request URL
 	 */
 	public @CheckForNull MatchResult urlMatch = null;
-
-	/**
-	 * The default view delcared on the method using {@link View}
-	 */
-	public @CheckForNull String defaultView = null;
 
 	/**
 	 * @param invocation The invocation on which calculates informations

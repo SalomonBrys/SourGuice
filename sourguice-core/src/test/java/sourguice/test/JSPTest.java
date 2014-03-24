@@ -55,6 +55,7 @@ public class JSPTest extends TestBase {
     	}
 
     	@RequestMapping("/unknown")
+    	@View
     	public String unknown() {
     		return "unknown.jsp";
     	}

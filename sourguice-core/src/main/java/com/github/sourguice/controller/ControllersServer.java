@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.github.sourguice.annotation.controller.HttpError;
 import com.github.sourguice.annotation.request.Redirects;
+import com.github.sourguice.annotation.request.View;
 import com.github.sourguice.annotation.request.Writes;
 import com.github.sourguice.call.impl.SGCallerImpl;
 import com.github.sourguice.request.wrapper.NoJsessionidHttpRequest;
@@ -162,6 +163,43 @@ public final class ControllersServer {
 	}
 
 	/**
+	 * Check if the invocation being processed has a {@link View} annotation and handles the request accordingly
+	 *
+	 * @param infos The infos of the invocation being processed
+	 * @param ret Whatever the invocation has returned
+	 * @return Whether there was an {@link Writes} and it was handled, or not.
+	 * @throws NoViewRendererException If the invocation gave a view that no view renderer could render
+	 * @throws ViewRenderingException If the invocation gave a view that fail to render
+	 * @throws IOException IO failure while manipulating the response
+	 */
+	private static boolean checkView(final ControllerInvocationInfos infos, final Object ret) throws NoViewRendererException, ViewRenderingException, IOException {
+		final View view = infos.invocation.getView();
+		if (view == null) {
+			return false;
+		}
+
+		String name = view.value();
+
+		// If the method returned a view, sets the view to it
+		if (ret != null) {
+			if (name.contains("{}")) {
+				name = name.replace("{}", ret.toString());
+			}
+			else {
+				name = ret.toString();
+			}
+		}
+
+		// If there is a view to display
+		if (!name.isEmpty()) {
+			infos.invocation.getController().renderView(name);
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Excecutes the call on the given invocation
 	 *
 	 * @param infos The infos of the invocation to call
@@ -180,32 +218,11 @@ public final class ControllersServer {
 		// Invoke the invocation using the MethodCaller registered in Guice
 		final Object ret = this.callerProvider.get().call(infos.invocation, infos.urlMatch, true);
 
-		// Sets the view to the default default view
-		String view = infos.defaultView;
+		if (checkView(infos, ret)) { return ; }
+		if (checkWrites(infos, ret, res)) { return ; }
+		if (checkRedirects(infos, ret, res)) { return ; }
+		if (checkHttpError(infos, ret, res)) { return ; }
 
-		if (	view == null
-			&&	(	checkHttpError(infos, ret, res)
-				||	checkRedirects(infos, ret, res)
-				||	checkWrites(infos, ret, res)
-				)
-			) {
-				return ;
-		}
-
-		// If the method returned a view, sets the view to it
-		if (ret != null) {
-			if (view != null && view.contains("{}")) {
-				view = view.replace("{}", ret.toString());
-			}
-			else {
-				view = ret.toString();
-			}
-		}
-
-		// If there is a view to display
-		if (view != null) {
-			infos.invocation.getController().renderView(view);
-		}
 	}
 
 	/**

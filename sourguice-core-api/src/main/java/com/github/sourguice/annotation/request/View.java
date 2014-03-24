@@ -24,5 +24,5 @@ public @interface View {
 	/**
 	 * The name of the view to be displayed
 	 */
-	public String value();
+	public String value() default "";
 }

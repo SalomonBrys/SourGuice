@@ -93,6 +93,7 @@ public class ViewTest extends TestBase {
         }
 
         @RequestMapping("/returnview")
+        @View
         public String returnview(Model model) {
         	model.put("name", "Salomon");
         	return "RV.view";
