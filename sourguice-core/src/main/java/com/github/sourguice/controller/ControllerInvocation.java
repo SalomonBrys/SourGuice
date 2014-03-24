@@ -13,6 +13,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.annotation.CheckForNull;
+import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
 
 import com.github.sourguice.annotation.controller.HttpError;
@@ -27,8 +29,7 @@ import com.github.sourguice.annotation.request.RequestParam;
 import com.github.sourguice.annotation.request.SessionAttribute;
 import com.github.sourguice.annotation.request.View;
 import com.github.sourguice.annotation.request.Writes;
-import com.github.sourguice.call.impl.PathVariablesProvider;
-import com.github.sourguice.controller.ControllerHandlersRepository.MembersInjector;
+import com.github.sourguice.call.impl.PathVariablesHolder;
 import com.github.sourguice.controller.fetchers.InjectorArgumentFetcher;
 import com.github.sourguice.controller.fetchers.NullArgumentFetcher;
 import com.github.sourguice.controller.fetchers.PathVariableArgumentFetcher;
@@ -109,6 +110,12 @@ public final class ControllerInvocation {
 	private final ControllerHandler<?> controller;
 
 	/**
+	 * Provider for {@link PathVariablesHolder}
+	 */
+	@Inject
+	private @CheckForNull Provider<PathVariablesHolder> pathVariablesProvider;
+
+	/**
 	 * Creates the appropriate fetcher for the given argument
 	 *
 	 * @param type The argument's type
@@ -158,7 +165,7 @@ public final class ControllerInvocation {
 	 * @param method The method to call
      * @param membersInjector Responsible for injecting newly created {@link ArgumentFetcher}
 	 */
-	public ControllerInvocation(final ControllerHandler<?> controller, final @CheckForNull RequestMapping mapping, final Method method, final MembersInjector membersInjector) {
+	public ControllerInvocation(final ControllerHandler<?> controller, final @CheckForNull RequestMapping mapping, final Method method, final MembersInjectionRequest membersInjector) {
 		// Set properties
 		this.controller = controller;
 		this.mapping = mapping;
@@ -194,8 +201,10 @@ public final class ControllerInvocation {
 		this.fetchers = new ArgumentFetcher<?>[parameterTypes.size()];
 		for (int n = 0; n < parameterTypes.size(); ++n) {
 			this.fetchers[n] = createFetcher(parameterTypes.get(n), annotations[n]);
-			membersInjector.injectMembers(this.fetchers[n]);
+			membersInjector.requestMembersInjection(this.fetchers[n]);
 		}
+
+		membersInjector.requestMembersInjection(this);
 	}
 
 	/**
@@ -289,18 +298,18 @@ public final class ControllerInvocation {
 	 * This is where the magic happens: This will invoke the method by fetching all of its arguments and call it
 	 *
 	 * @param pathVariables Variables that were parsed from request URL
-	 * @param injector Guice injector
 	 * @return What the method call returned
 	 * @throws NoSuchRequestParameterException In case of a parameter asked from request argument or path variable that does not exists
 	 * @throws InvocationTargetException Any thing that the method call might have thrown
 	 */
 	public @CheckForNull Object invoke(
-			final @PathVariablesMap Map<String, String> pathVariables,
-			final Injector injector
+			final @PathVariablesMap Map<String, String> pathVariables
 			) throws NoSuchRequestParameterException, InvocationTargetException {
 
+		assert this.pathVariablesProvider != null;
+
 		// Pushes path variables to the stack, this permits to have invocations inside invocations
-		injector.getInstance(PathVariablesProvider.class).push(pathVariables);
+		this.pathVariablesProvider.get().push(pathVariables);
 
 		try {
 			// Fetches all arguments
@@ -328,7 +337,7 @@ public final class ControllerInvocation {
 		}
 		finally {
 			// Pops path variables from the stack, this invocation is over
-			injector.getInstance(PathVariablesProvider.class).pop();
+			this.pathVariablesProvider.get().pop();
 		}
 	}
 
@@ -337,10 +346,9 @@ public final class ControllerInvocation {
 	 */
 	@SuppressWarnings("javadoc")
 	public @CheckForNull Object invoke(
-			final MatchResult urlMatch,
-			final Injector injector
+			final MatchResult urlMatch
 			) throws NoSuchRequestParameterException, InvocationTargetException {
-		return invoke(PathVariablesProvider.fromMatch(urlMatch, this.matchRef), injector);
+		return invoke(PathVariablesHolder.fromMatch(urlMatch, this.matchRef));
 	}
 
 	/**

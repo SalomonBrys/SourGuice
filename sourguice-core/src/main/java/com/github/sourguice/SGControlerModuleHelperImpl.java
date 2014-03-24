@@ -14,13 +14,14 @@ import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.cache.CacheService;
 import com.github.sourguice.cache.impl.CacheServiceImpl;
 import com.github.sourguice.call.SGCaller;
+import com.github.sourguice.call.impl.PathVariablesHolder;
 import com.github.sourguice.call.impl.SGCallerImpl;
-import com.github.sourguice.call.impl.PathVariablesProvider;
 import com.github.sourguice.controller.ControllerHandlersRepository;
 import com.github.sourguice.controller.ControllerInterceptor;
 import com.github.sourguice.controller.ControllersServlet;
 import com.github.sourguice.controller.InstanceGetter;
 import com.github.sourguice.controller.InterceptWithMatcher;
+import com.github.sourguice.controller.MembersInjectionRequest;
 import com.github.sourguice.conversion.ConversionService;
 import com.github.sourguice.conversion.Converter;
 import com.github.sourguice.conversion.def.BooleanConverter;
@@ -151,7 +152,7 @@ public class SGControlerModuleHelperImpl implements SGControlerModuleHelperProxy
 
 		// Binds method calling related classes
 		this.module.binder().bind(SGCaller.class).to(SGCallerImpl.class).in(RequestScoped.class);
-		this.module.binder().bind(new TypeLiteral<Map<String, String>>() {/**/}).annotatedWith(PathVariablesMap.class).toProvider(PathVariablesProvider.class).in(RequestScoped.class);
+		this.module.binder().bind(new TypeLiteral<Map<String, String>>() {/**/}).annotatedWith(PathVariablesMap.class).toProvider(PathVariablesHolder.class).in(RequestScoped.class);
 
 		// Creates a controllerHandler repository and registers it in guice
 		// We create it because we need to handle it directly in this method
@@ -193,6 +194,12 @@ public class SGControlerModuleHelperImpl implements SGControlerModuleHelperProxy
 		final Map<String, String> initParams = new HashMap<>();
 		initParams.put("pattern", pattern);
 
+		final MembersInjectionRequest membersInjector = new MembersInjectionRequest() {
+			@Override public void requestMembersInjection(final Object instance) {
+				SGControlerModuleHelperImpl.this.module.binder().requestInjection(instance);
+			}
+		};
+
 		// Creates a controller servlet for this pattern or gets it if this pattern has already been registered
 		ControllersServlet servlet;
 		assert this.servlets != null;
@@ -200,17 +207,13 @@ public class SGControlerModuleHelperImpl implements SGControlerModuleHelperProxy
 			servlet = this.servlets.get(pattern);
 		}
 		else {
-			servlet = new ControllersServlet();
+			servlet = new ControllersServlet(membersInjector);
 			this.servlets.put(pattern, servlet);
 		}
 
 		// Registers a controller handler into the controller servlet
 		// The handler is retrived from the repository to avoid creating two handlers for the same controller class
-		servlet.addController(this.repository.get(controller, new ControllerHandlersRepository.MembersInjector() {
-			@Override public void injectMembers(final Object instance) {
-				SGControlerModuleHelperImpl.this.module.binder().requestInjection(instance);
-			}
-		}));
+		servlet.addController(this.repository.get(controller, membersInjector));
 	}
 
 	@Override

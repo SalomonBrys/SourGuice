@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.regex.MatchResult;
 
 import javax.annotation.CheckForNull;
+import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -15,9 +16,9 @@ import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.call.SGCaller;
 import com.github.sourguice.controller.ControllerHandler;
 import com.github.sourguice.controller.ControllerHandlersRepository;
-import com.github.sourguice.controller.ControllerHandlersRepository.MembersInjector;
 import com.github.sourguice.controller.ControllerInvocation;
 import com.github.sourguice.controller.GuiceInstanceGetter;
+import com.github.sourguice.controller.MembersInjectionRequest;
 import com.github.sourguice.exception.ExceptionHandler;
 import com.github.sourguice.exception.ExceptionService;
 import com.github.sourguice.throwable.invocation.HandledException;
@@ -53,12 +54,12 @@ public final class SGCallerImpl implements SGCaller {
 	/**
 	 * The repository containing all ControllerHandlers, used to get a ControllerHandler from a controller class
 	 */
-	private final ControllerHandlersRepository repo;
+	private final Provider<ControllerHandlersRepository> repoProvider;
 
 	/**
 	 * The exception service (taken from Guice) to handle any exception thrown by the method called
 	 */
-	private final ExceptionService exceptionService;
+	private final Provider<ExceptionService> exceptionServiceProvider;
 
 	/**
 	 * The Guice Injector from which to retrieve arguments
@@ -74,8 +75,8 @@ public final class SGCallerImpl implements SGCaller {
 		this.req = req;
 		this.res = res;
 		this.injector = injector;
-		this.repo = injector.getInstance(ControllerHandlersRepository.class);
-		this.exceptionService = injector.getInstance(ExceptionService.class);
+		this.repoProvider = injector.getProvider(ControllerHandlersRepository.class);
+		this.exceptionServiceProvider = injector.getProvider(ExceptionService.class);
 	}
 
 	@Override
@@ -92,8 +93,8 @@ public final class SGCallerImpl implements SGCaller {
 		}
 		final GuiceInstanceGetter<?> controller = new GuiceInstanceGetter<>(Key.get(cls));
 		this.injector.injectMembers(controller);
-		final ControllerHandler<?> handler = this.repo.get(controller, new MembersInjector() {
-			@Override public void injectMembers(final Object instance) {
+		final ControllerHandler<?> handler = this.repoProvider.get().get(controller, new MembersInjectionRequest() {
+			@Override public void requestMembersInjection(final Object instance) {
 				SGCallerImpl.this.injector.injectMembers(instance);
 			}
 		});
@@ -118,8 +119,7 @@ public final class SGCallerImpl implements SGCaller {
 	public @CheckForNull Object call(final ControllerInvocation invoc, final @CheckForNull @PathVariablesMap Map<String, String> pathVariables, final boolean throwWhenHandled) throws HandledException, NoSuchRequestParameterException, InvocationTargetException, IOException {
 		try {
 			assert(this.res != null);
-			assert(this.injector != null);
-			return invoc.invoke(pathVariables, this.injector);
+			return invoc.invoke(pathVariables);
 		}
 		catch (InvocationTargetException exception) {
 			handleException(exception, throwWhenHandled);
@@ -133,7 +133,7 @@ public final class SGCallerImpl implements SGCaller {
 	@SuppressWarnings("javadoc")
 	public @CheckForNull Object call(final ControllerInvocation invoc, final MatchResult urlMatch, final boolean throwWhenHandled) throws HandledException, NoSuchRequestParameterException, InvocationTargetException, IOException {
 		try {
-			return invoc.invoke(urlMatch, this.injector);
+			return invoc.invoke(urlMatch);
 		}
 		catch (InvocationTargetException exception) {
 			handleException(exception, throwWhenHandled);
@@ -160,7 +160,7 @@ public final class SGCallerImpl implements SGCaller {
 			throw (HandledException) thrown;
 		}
 		final Exception exception = (Exception) thrown;
-		final ExceptionHandler<Exception> handler = (ExceptionHandler<Exception>) this.exceptionService.getHandler(exception.getClass());
+		final ExceptionHandler<Exception> handler = (ExceptionHandler<Exception>) this.exceptionServiceProvider.get().getHandler(exception.getClass());
 		if (handler != null && handler.handle(exception, this.req, this.res)) {
 			if (throwWhenHandled) {
 				throw new HandledException(exception);

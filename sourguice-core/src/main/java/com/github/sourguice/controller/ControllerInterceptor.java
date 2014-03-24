@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.CheckForNull;
+import javax.inject.Provider;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -57,7 +58,7 @@ public class ControllerInterceptor implements MethodInterceptor {
 		/**
 		 * The class of the interceptor. An instance will be asked to guice when proceeding
 		 */
-		private final Class<? extends MethodInterceptor> interceptorClass;
+		private final Provider<? extends MethodInterceptor> interceptorProvider;
 
 		/**
 		 * @param invocation The original MethodInvocation
@@ -66,7 +67,8 @@ public class ControllerInterceptor implements MethodInterceptor {
 		InterceptorInvocation(final MethodInvocation invocation, final Class<? extends MethodInterceptor> interceptor) {
 			super();
 			this.invocation = invocation;
-			this.interceptorClass = interceptor;
+			assert ControllerInterceptor.this.injector != null;
+			this.interceptorProvider = ControllerInterceptor.this.injector.getProvider(interceptor);
 		}
 
 		/**
@@ -94,8 +96,7 @@ public class ControllerInterceptor implements MethodInterceptor {
 		 */
 		@Override
 		public Object proceed() throws Throwable {
-			assert ControllerInterceptor.this.injector != null;
-			return ControllerInterceptor.this.injector.getInstance(this.interceptorClass).invoke(this.invocation);
+			return this.interceptorProvider.get().invoke(this.invocation);
 		}
 
 	}

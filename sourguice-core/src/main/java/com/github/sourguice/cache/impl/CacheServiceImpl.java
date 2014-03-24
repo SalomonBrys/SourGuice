@@ -2,6 +2,7 @@ package com.github.sourguice.cache.impl;
 
 import java.io.IOException;
 
+import javax.annotation.CheckForNull;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
@@ -22,12 +23,19 @@ import com.google.inject.Injector;
 public class CacheServiceImpl implements CacheService {
 
 	/**
-	 * Guice Injector.
-	 *
-	 * We use the injector rather than {@link Provider} because {@link Cache} may have not been bound
-	 * and it's OK as long as {@link #cacheRequest()} (without argument) is not called
+	 * Cache provider
 	 */
-	private final Injector injector;
+	private final Provider<Cache> cacheProvider;
+
+	/**
+	 * Request provider
+	 */
+	private final Provider<HttpServletRequest> requestProvider;
+
+	/**
+	 * Response provider
+	 */
+	private final Provider<HttpServletResponse> responseProvider;
 
 	/**
 	 * Constructor
@@ -37,22 +45,34 @@ public class CacheServiceImpl implements CacheService {
 	@Inject
 	public CacheServiceImpl(final Injector injector) {
 		super();
-		this.injector = injector;
+		this.requestProvider = injector.getProvider(HttpServletRequest.class);
+		this.responseProvider = injector.getProvider(HttpServletResponse.class);
+
+		// We use this "proxy" provider because Cache may have not been bound in Guice.
+		// It's OK as long as cacheRequest() (without argument) is not called.
+		// This is why we can't ask directly for the real provider but wait for the first request.
+		this.cacheProvider = new Provider<Cache>() {
+			@CheckForNull Provider<Cache> realProvider = null;
+			@Override public Cache get() {
+				if (this.realProvider == null) {
+					this.realProvider = injector.getProvider(Cache.class);
+				}
+				return this.realProvider.get();
+			}
+		};
 	}
 
 	@Override
 	public <T extends Cache> T cacheRequest(final T cache) throws IOException {
-		final HttpServletRequest request = this.injector.getInstance(HttpServletRequest.class);
-		final SGResponse response = SGResponse.getSourGuice(this.injector.getInstance(HttpServletResponse.class));
-		cache.begin(request);
-		response.setCache(cache);
+		cache.begin(this.requestProvider.get());
+		SGResponse.getSourGuice(this.responseProvider.get()).setCache(cache);
 		return cache;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends Cache> T cacheRequest() throws IOException {
-		return (T) cacheRequest(this.injector.getInstance(Cache.class));
+		return (T) cacheRequest(this.cacheProvider.get());
 	}
 
 }

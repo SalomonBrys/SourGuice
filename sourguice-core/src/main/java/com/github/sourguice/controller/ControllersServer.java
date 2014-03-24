@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.annotation.CheckForNull;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,7 +26,6 @@ import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException
 import com.github.sourguice.value.ValueConstants;
 import com.github.sourguice.view.NoViewRendererException;
 import com.github.sourguice.view.ViewRenderingException;
-import com.google.inject.Injector;
 
 /**
  * Servlet that will handle a request and transmit it to the relevant controller's invocation
@@ -44,17 +44,8 @@ public final class ControllersServer {
 	/**
 	 * The guice injector that will be used to get different SourGuice implementations
 	 */
-	@CheckForNull private Injector injector;
-
-	/**
-	 * Method for injecting the injector
-	 *
-	 * @param injector The guice injector that will be used to get different SourGuice implementations
-	 */
 	@Inject
-	public void setInjector(final Injector injector) {
-		this.injector = injector;
-	}
+	private @CheckForNull Provider<SGCallerImpl> callerProvider;
 
 	/**
 	 * Adds a controller to this servlet's path
@@ -183,11 +174,11 @@ public final class ControllersServer {
 	 * @throws InvocationTargetException Any exception thrown by the method being called
 	 */
 	private void makeCall(final ControllerInvocationInfos infos, final HttpServletResponse res) throws HandledException, NoViewRendererException, ViewRenderingException, IOException, InvocationTargetException, NoSuchRequestParameterException {
-		assert this.injector != null;
+		assert this.callerProvider != null;
 		assert infos.urlMatch != null;
 
 		// Invoke the invocation using the MethodCaller registered in Guice
-		final Object ret = this.injector.getInstance(SGCallerImpl.class).call(infos.invocation, infos.urlMatch, true);
+		final Object ret = this.callerProvider.get().call(infos.invocation, infos.urlMatch, true);
 
 		// Sets the view to the default default view
 		String view = infos.defaultView;
@@ -213,7 +204,7 @@ public final class ControllersServer {
 
 		// If there is a view to display
 		if (view != null) {
-			infos.invocation.getController().renderView(view, this.injector);
+			infos.invocation.getController().renderView(view);
 		}
 	}
 
@@ -232,7 +223,6 @@ public final class ControllersServer {
 
 		assert req != null;
 		assert res != null;
-		assert this.injector != null;
 
 		// Removes JSESSIONID from the request path if it is there
 		if (req.getPathInfo() != null) {

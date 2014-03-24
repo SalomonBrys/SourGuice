@@ -5,6 +5,7 @@ import java.lang.annotation.Annotation;
 import javax.annotation.CheckForNull;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
 
 import com.github.sourguice.controller.ArgumentFetcher;
 import com.github.sourguice.utils.Annotations;
@@ -24,15 +25,14 @@ import com.google.inject.TypeLiteral;
 public class InjectorArgumentFetcher<T> implements ArgumentFetcher<T> {
 
 	/**
-	 * A Guice {@link BindingAnnotation}, if there is one
+	 * The key of the instance to retrieve via Guice
 	 */
 	private Key<T> key;
 
 	/**
-	 * Guice injector, later used to retrieve instances
+	 * The Provider
 	 */
-	@Inject
-	private @CheckForNull Injector injector;
+	private @CheckForNull Provider<T> provider;
 
 	/**
 	 * @param type The type of the argument to fetch
@@ -54,9 +54,18 @@ public class InjectorArgumentFetcher<T> implements ArgumentFetcher<T> {
 		}
 	}
 
+	/**
+	 * @param injector Guice injector, used to create {@link #provider}
+	 */
+	@Inject
+	public void setInjector(final Injector injector) {
+		this.provider = injector.getProvider(this.key);
+	}
+
+
 	@Override
 	public @CheckForNull T getPrepared() {
-		assert this.injector != null;
-		return this.injector.getInstance(this.key);
+		assert this.provider != null;
+		return this.provider.get();
 	}
 }

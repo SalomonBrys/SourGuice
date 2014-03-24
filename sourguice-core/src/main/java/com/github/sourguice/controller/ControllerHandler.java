@@ -8,6 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import javax.annotation.CheckForNull;
+import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
 
 import com.github.sourguice.SourGuiceControlerModule;
@@ -17,15 +19,14 @@ import com.github.sourguice.annotation.controller.ViewRendered;
 import com.github.sourguice.annotation.controller.ViewRenderedWith;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.View;
-import com.github.sourguice.controller.ControllerHandlersRepository.MembersInjector;
 import com.github.sourguice.utils.Annotations;
 import com.github.sourguice.view.Model;
 import com.github.sourguice.view.NoViewRendererException;
 import com.github.sourguice.view.ViewRenderer;
 import com.github.sourguice.view.ViewRendererService;
 import com.github.sourguice.view.ViewRenderingException;
-import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.MembersInjector;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -65,10 +66,28 @@ public final class ControllerHandler<T> implements InstanceGetter<T> {
     private final Map<String, InstanceGetter<? extends ViewRenderer>> rendererCache = new ConcurrentHashMap<>();
 
     /**
+     * Provider for the {@link ViewRendererService}
+     */
+    @Inject
+    private @CheckForNull Provider<ViewRendererService> viewRendererServiceProvider;
+
+    /**
+     * Provider for the request's {@link Model}
+     */
+    @Inject
+    private @CheckForNull Provider<Model> modelProvider;
+
+    /**
+     * Injects {@link GuiceInstanceGetter}'s members
+     */
+    @Inject
+    private @CheckForNull MembersInjector<GuiceInstanceGetter<?>> getterInjector;
+
+    /**
      * @param controller The controller getter to handle
      * @param membersInjector Responsible for injecting newly created {@link ArgumentFetcher}
      */
-    public ControllerHandler(final InstanceGetter<T> controller, final MembersInjector membersInjector) {
+    public ControllerHandler(final InstanceGetter<T> controller, final MembersInjectionRequest membersInjector) {
         this.controller = controller;
 
         final ViewDirectory vdAnno = Annotations.getOneTreeRecursive(ViewDirectory.class, controller.getTypeLiteral().getRawType());
@@ -92,6 +111,8 @@ public final class ControllerHandler<T> implements InstanceGetter<T> {
                 this.invocations.put(method, new ControllerInvocation(this, Annotations.getOneRecursive(RequestMapping.class, method.getAnnotations()), method, membersInjector));
             }
         }
+
+        membersInjector.requestMembersInjection(this);
     }
 
     /**
@@ -134,12 +155,11 @@ public final class ControllerHandler<T> implements InstanceGetter<T> {
      * Renders a specific view with the current request and model informations
      *
      * @param view The view to render
-     * @param injector The Guice injector to fecth all needed intel
      * @throws NoViewRendererException When no view renderer has been found for this view
      * @throws ViewRenderingException If anything went wrong during rendering
      * @throws IOException IO failure
      */
-    public void renderView(String view, final Injector injector) throws NoViewRendererException, ViewRenderingException, IOException {
+    public void renderView(String view) throws NoViewRendererException, ViewRenderingException, IOException {
 
         // If a view directory were set, prefixes the view with it
         if (view.charAt(0) != '/' && !this.viewDirectory.isEmpty()) {
@@ -159,19 +179,22 @@ public final class ControllerHandler<T> implements InstanceGetter<T> {
                     for (final ViewRenderedWith rdw : this.viewRenderers) {
                         if (Pattern.matches(rdw.regex(), view)) {
                             renderer = new GuiceInstanceGetter<>(Key.get(rdw.renderer()));
-                            injector.injectMembers(renderer);
+                            assert this.getterInjector != null;
+							this.getterInjector.injectMembers((GuiceInstanceGetter<?>) renderer);
                             break ;
                         }
                     }
                     if (renderer == null) {
-                        renderer = injector.getInstance(ViewRendererService.class).getRenderer(view);
+                    	assert this.viewRendererServiceProvider != null;
+                        renderer = this.viewRendererServiceProvider.get().getRenderer(view);
                     }
                     this.rendererCache.put(view, renderer);
                 }
             }
         }
 
-        renderer.getInstance().render(view, injector.getInstance(Model.class).asMap());
+        assert this.modelProvider != null;
+        renderer.getInstance().render(view, this.modelProvider.get().asMap());
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.github.sourguice.controller;
 
 import javax.annotation.CheckForNull;
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -22,7 +23,7 @@ public class GuiceInstanceGetter<T> implements InstanceGetter<T> {
 	/**
 	 * Guice injector
 	 */
-	private @Inject @CheckForNull Injector injector;
+	private @CheckForNull Provider<T> provider;
 
 	/**
 	 * @param key The key to retrieve an instance in Guice
@@ -32,10 +33,18 @@ public class GuiceInstanceGetter<T> implements InstanceGetter<T> {
 		this.key = key;
 	}
 
+	/**
+	 * @param injector Guice injector to get {@link #provider}
+	 */
+	@Inject
+	public void setInjector(final Injector injector) {
+		this.provider = injector.getProvider(this.key);
+	}
+
 	@Override
 	public T getInstance() {
-		assert this.injector != null;
-		return this.injector.getInstance(this.key);
+		assert this.provider != null;
+		return this.provider.get();
 	}
 
 	@Override

@@ -21,18 +21,6 @@ public final class ControllerHandlersRepository {
 	private final Map<InstanceGetter<?>, ControllerHandler<?>> map = new HashMap<>();
 
 	/**
-	 * Class responsible for injecting newly created {@link ArgumentFetcher}
-	 */
-	public static interface MembersInjector {
-		/**
-		 * Injects (or requests injection) on the given instance
-		 *
-		 * @param instance The object to inject
-		 */
-		void injectMembers(Object instance);
-	}
-
-	/**
 	 * Gets the {@link ControllerHandler} for a given class and creates one if none is yet registered for this class
 	 *
 	 * @param controller The controller getter on which to get / create a {@link ControllerHandler}
@@ -40,7 +28,7 @@ public final class ControllerHandlersRepository {
 	 * @return The handler for the given class
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> ControllerHandler<T> get(final InstanceGetter<T> controller, final MembersInjector membersInjector) {
+	public <T> ControllerHandler<T> get(final InstanceGetter<T> controller, final MembersInjectionRequest membersInjector) {
 		if (this.map.containsKey(controller)) {
 			return (ControllerHandler<T>) this.map.get(controller);
 		}

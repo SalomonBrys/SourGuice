@@ -19,7 +19,7 @@ import com.google.inject.servlet.RequestScoped;
  * This class should only be used internally
  */
 @RequestScoped
-public final class PathVariablesProvider implements Provider<Map<String, String>> {
+public final class PathVariablesHolder implements Provider<Map<String, String>> {
 
 	/**
 	 * The stack of URIPathVariables

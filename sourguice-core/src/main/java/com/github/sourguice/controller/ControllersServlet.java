@@ -2,13 +2,10 @@ package com.github.sourguice.controller;
 
 import java.io.IOException;
 
-import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.google.inject.Injector;
 
 /**
  * Servlet that will handle a request and transmit it to the relevant controller's invocation
@@ -27,6 +24,16 @@ public final class ControllersServlet extends HttpServlet {
 	private final ControllersServer server = new ControllersServer();
 
 	/**
+	 * Constructor
+	 *
+	 * @param membersInjector Responsible for injecting newly created {@link ControllersServer}
+	 */
+	public ControllersServlet(final MembersInjectionRequest membersInjector) {
+		super();
+		membersInjector.requestMembersInjection(this.server);
+	}
+
+	/**
 	 * Adds a controller to this servlet's path
 	 * This means that the given controller is registered on the same path as the servlet
 	 *
@@ -34,16 +41,6 @@ public final class ControllersServlet extends HttpServlet {
 	 */
 	public <T> void addController(final ControllerHandler<T> handler) {
 		this.server.addController(handler);
-	}
-
-	/**
-	 * Method for injecting the injector
-	 *
-	 * @param injector The guice injector that will be used to get different SourGuice implementations
-	 */
-	@Inject
-	public void setInjector(final Injector injector) {
-		this.server.setInjector(injector);
 	}
 
 	@Override protected void doGet(final HttpServletRequest req, final HttpServletResponse res) throws ServletException, IOException {
