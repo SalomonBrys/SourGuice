@@ -162,7 +162,6 @@ public abstract class TestBase {
 	public static void main(String[] args) {
 		TestNG testng = new TestNG();
 		testng.setTestClasses(new Class<?>[] {
-			CallTest.class,
 			ConversionTest.class,
 			CustomConvertorTest.class,
 			ExceptionTest.class,

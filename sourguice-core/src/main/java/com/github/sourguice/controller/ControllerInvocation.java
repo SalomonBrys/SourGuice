@@ -1,48 +1,35 @@
 package com.github.sourguice.controller;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.annotation.CheckForNull;
-import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
 
 import com.github.sourguice.annotation.controller.HttpError;
-import com.github.sourguice.annotation.request.InterceptParam;
 import com.github.sourguice.annotation.request.PathVariable;
-import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.annotation.request.Redirects;
-import com.github.sourguice.annotation.request.RequestAttribute;
-import com.github.sourguice.annotation.request.RequestHeader;
 import com.github.sourguice.annotation.request.RequestMapping;
-import com.github.sourguice.annotation.request.RequestParam;
-import com.github.sourguice.annotation.request.SessionAttribute;
 import com.github.sourguice.annotation.request.View;
 import com.github.sourguice.annotation.request.Writes;
-import com.github.sourguice.call.impl.PathVariablesHolder;
-import com.github.sourguice.controller.fetchers.InjectorArgumentFetcher;
-import com.github.sourguice.controller.fetchers.NullArgumentFetcher;
+import com.github.sourguice.call.ArgumentFetcher;
+import com.github.sourguice.call.ArgumentFetcherFactory;
+import com.github.sourguice.call.SGInvocation;
+import com.github.sourguice.call.SGInvocationFactory;
 import com.github.sourguice.controller.fetchers.PathVariableArgumentFetcher;
-import com.github.sourguice.controller.fetchers.RequestAttributeArgumentFetcher;
-import com.github.sourguice.controller.fetchers.RequestHeaderArgumentFetcher;
-import com.github.sourguice.controller.fetchers.RequestParamArgumentFetcher;
-import com.github.sourguice.controller.fetchers.SessionAttributeArgumentFetcher;
+import com.github.sourguice.throwable.invocation.HandledException;
 import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException;
 import com.github.sourguice.utils.Annotations;
 import com.github.sourguice.utils.Arrays;
 import com.github.sourguice.utils.HttpStrings;
 import com.github.sourguice.value.RequestMethod;
-import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -51,7 +38,7 @@ import com.google.inject.TypeLiteral;
  *
  * @author Salomon BRYS <salomon.brys@gmail.com>
  */
-public final class ControllerInvocation {
+public final class ControllerInvocation implements ArgumentFetcherFactory {
 
 	/**
 	 * Pattern to detect a variable in a url string
@@ -68,16 +55,6 @@ public final class ControllerInvocation {
 	 * The Annotation of a controller's method
 	 */
 	private final @CheckForNull RequestMapping mapping;
-
-	/**
-	 * All fetchers for each arguments of the method
-	 */
-	private final ArgumentFetcher<?>[] fetchers;
-
-	/**
-	 * The method of this Invocation
-	 */
-	private final Method method;
 
 	/**
 	 * View annotation if defined on the method
@@ -102,7 +79,7 @@ public final class ControllerInvocation {
 	/**
 	 * The reference of each path variable name and their position in the url regex
 	 */
-	private final Map<String, Integer> matchRef = new HashMap<>();
+	protected final Map<String, Integer> matchRef = new HashMap<>();
 
 	/**
 	 * The handler of the controller of the method
@@ -110,66 +87,23 @@ public final class ControllerInvocation {
 	private final ControllerHandler<?> controller;
 
 	/**
-	 * Provider for {@link PathVariablesHolder}
+	 * The invocation itself (method & argument fetchers)
 	 */
-	@Inject
-	private @CheckForNull Provider<PathVariablesHolder> pathVariablesProvider;
+	private final SGInvocation invocation;
 
 	/**
-	 * Creates the appropriate fetcher for the given argument
+	 * Constructor
 	 *
-	 * @param type The argument's type
-	 * @param annotations The argument's annotation
-	 * @return The appropriate argument fetcher
-	 */
-	private <T> ArgumentFetcher<T> createFetcher(final TypeLiteral<T> type, final Annotation[] annotations) {
-		final AnnotatedElement annos = Annotations.fromArray(annotations);
-
-		final RequestParam requestParam = annos.getAnnotation(RequestParam.class);
-		if (requestParam != null) {
-			return new RequestParamArgumentFetcher<>(type, requestParam);
-		}
-
-		final PathVariable pathVariable = annos.getAnnotation(PathVariable.class);
-		if (pathVariable != null) {
-			final boolean check = this.mapping != null && this.mapping.value().length > 0;
-			return new PathVariableArgumentFetcher<>(type, pathVariable, check ? this.matchRef : null);
-		}
-
-		final RequestAttribute requestAttribute = annos.getAnnotation(RequestAttribute.class);
-		if (requestAttribute != null) {
-			return new RequestAttributeArgumentFetcher<>(type, requestAttribute);
-		}
-
-		final SessionAttribute sessionAttribute = annos.getAnnotation(SessionAttribute.class);
-		if (sessionAttribute != null) {
-			return new SessionAttributeArgumentFetcher<>(type, sessionAttribute);
-		}
-
-		final RequestHeader requestHeader = annos.getAnnotation(RequestHeader.class);
-		if (requestHeader != null) {
-			return new RequestHeaderArgumentFetcher<>(type, requestHeader);
-		}
-
-		final InterceptParam interceptParam = annos.getAnnotation(InterceptParam.class);
-		if (interceptParam != null) {
-			return new NullArgumentFetcher<>();
-		}
-
-		return new InjectorArgumentFetcher<>(type, annotations);
-	}
-
-	/**
 	 * @param mapping The annotation that must be present on each invocation method
 	 * @param controller The controller on witch to call the method
 	 * @param method The method to call
      * @param membersInjector Responsible for injecting newly created {@link ArgumentFetcher}
+     * @param invocationFactory The factory responsible for creating new invocations
 	 */
-	public ControllerInvocation(final ControllerHandler<?> controller, final @CheckForNull RequestMapping mapping, final Method method, final MembersInjectionRequest membersInjector) {
+	public ControllerInvocation(final ControllerHandler<?> controller, final @CheckForNull RequestMapping mapping, final Method method, final MembersInjectionRequest membersInjector, final SGInvocationFactory invocationFactory) {
 		// Set properties
 		this.controller = controller;
 		this.mapping = mapping;
-		this.method = method;
 
 		this.view = Annotations.getOneTreeRecursive(View.class, method);
 
@@ -193,16 +127,7 @@ public final class ControllerInvocation {
 			}
 		}
 
-		// Registers all fetchers
-		// Fetchers are configured in constructor so they are constructed only once
-		// If no fetcher is suitable, then uses the guice fetcher
-		final List<TypeLiteral<?>> parameterTypes = controller.getTypeLiteral().getParameterTypes(method);
-		final Annotation[][] annotations = method.getParameterAnnotations();
-		this.fetchers = new ArgumentFetcher<?>[parameterTypes.size()];
-		for (int n = 0; n < parameterTypes.size(); ++n) {
-			this.fetchers[n] = createFetcher(parameterTypes.get(n), annotations[n]);
-			membersInjector.requestMembersInjection(this.fetchers[n]);
-		}
+		this.invocation = invocationFactory.newInvocation(controller.getTypeLiteral(), method, this);
 
 		membersInjector.requestMembersInjection(this);
 	}
@@ -295,67 +220,18 @@ public final class ControllerInvocation {
 	}
 
 	/**
-	 * This is where the magic happens: This will invoke the method by fetching all of its arguments and call it
+	 * Invoke the method on the controller
 	 *
-	 * @param pathVariables Variables that were parsed from request URL
+	 * @param throwWhenHandled Whether to throw a {@link HandledException} when an exception has been caught and handled.
+	 *                         This allows to cancel all future work until the {@link HandledException} has been caught (and ignored).
 	 * @return What the method call returned
 	 * @throws NoSuchRequestParameterException In case of a parameter asked from request argument or path variable that does not exists
 	 * @throws InvocationTargetException Any thing that the method call might have thrown
+	 * @throws HandledException If an exception has been caught and handled. It is safe to ignore and used to cancel any depending work.
+	 * @throws IOException IO failure while writing the response
 	 */
-	public @CheckForNull Object invoke(
-			final @PathVariablesMap Map<String, String> pathVariables
-			) throws NoSuchRequestParameterException, InvocationTargetException {
-
-		assert this.pathVariablesProvider != null;
-
-		// Pushes path variables to the stack, this permits to have invocations inside invocations
-		this.pathVariablesProvider.get().push(pathVariables);
-
-		try {
-			// Fetches all arguments
-			Object[] params = new Object[this.fetchers.length];
-			Object invocRet = null;
-			for (int n = 0; n < this.fetchers.length; ++n) {
-				params[n] = this.fetchers[n].getPrepared();
-			}
-
-			try {
-				// Calls the method
-				final Object ret = this.method.invoke(this.controller.get(), params);
-
-				// If method did not returned void, gets what it returned
-				if (!this.method.getReturnType().equals(Void.TYPE) && !this.method.getReturnType().equals(void.class)) {
-					invocRet = ret;
-				}
-			}
-			catch (IllegalAccessException e) {
-				throw new UnsupportedOperationException(e);
-			}
-
-			// Returns whatever the method call returned
-			return invocRet;
-		}
-		finally {
-			// Pops path variables from the stack, this invocation is over
-			this.pathVariablesProvider.get().pop();
-		}
-	}
-
-	/**
-	 * @see #invoke(HttpServletRequest, Map, Injector, CalltimeArgumentFetcher...)
-	 */
-	@SuppressWarnings("javadoc")
-	public @CheckForNull Object invoke(
-			final MatchResult urlMatch
-			) throws NoSuchRequestParameterException, InvocationTargetException {
-		return invoke(PathVariablesHolder.fromMatch(urlMatch, this.matchRef));
-	}
-
-	/**
-	 * @return The invocation's method's name
-	 */
-	public Method getMethod() {
-		return this.method;
+	public @CheckForNull Object invoke(final boolean throwWhenHandled) throws NoSuchRequestParameterException, InvocationTargetException, HandledException, IOException {
+		return this.invocation.invoke(this.controller.get(), throwWhenHandled);
 	}
 
 	/**
@@ -391,5 +267,15 @@ public final class ControllerInvocation {
 	 */
 	public @CheckForNull Redirects getRedirects() {
 		return this.redirects;
+	}
+
+	@Override
+	public ArgumentFetcher<?> create(final Method method, final int position, final TypeLiteral<?> argType) {
+		final PathVariable pathVariable = Annotations.fromArray(method.getParameterAnnotations()[position]).getAnnotation(PathVariable.class);
+		if (pathVariable != null) {
+			final boolean check = this.mapping != null && this.mapping.value().length > 0;
+			return new PathVariableArgumentFetcher<>(argType, pathVariable, check ? this.matchRef : null);
+		}
+		return null;
 	}
 }

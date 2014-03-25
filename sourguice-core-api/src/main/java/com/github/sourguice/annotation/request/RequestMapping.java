@@ -7,7 +7,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import com.github.sourguice.annotation.controller.Callable;
-import com.github.sourguice.call.SGCaller;
 import com.github.sourguice.value.RequestMethod;
 
 /**

@@ -4,7 +4,7 @@ import javax.annotation.CheckForNull;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-import com.github.sourguice.controller.ArgumentFetcher;
+import com.github.sourguice.call.ArgumentFetcher;
 import com.github.sourguice.conversion.ConversionService;
 import com.google.inject.TypeLiteral;
 

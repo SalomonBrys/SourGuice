@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import com.github.sourguice.annotation.request.SessionAttribute;
-import com.github.sourguice.controller.ArgumentFetcher;
+import com.github.sourguice.call.ArgumentFetcher;
 import com.github.sourguice.request.Attribute;
 import com.google.inject.TypeLiteral;
 

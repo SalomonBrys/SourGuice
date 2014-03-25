@@ -1,10 +1,12 @@
 package sourguice.test;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.testing.HttpTester;
@@ -63,15 +65,31 @@ public class ExceptionTest extends TestBase {
     }
 
     public static class CustomExceptionHandler implements ExceptionHandler<CustomException> {
-		@Override public boolean handle(CustomException exception, HttpServletRequest req, HttpServletResponse res) throws IOException {
-			res.getWriter().write("Boom:" + exception.getMessage() + "!");
+    	Provider<HttpServletResponse> responseProvider;
+
+    	@Inject
+		public CustomExceptionHandler(Provider<HttpServletResponse> responseProvider) {
+			super();
+			this.responseProvider = responseProvider;
+		}
+
+		@Override public boolean handle(CustomException exception) throws IOException {
+			this.responseProvider.get().getWriter().write("Boom:" + exception.getMessage() + "!");
 			return true;
 		}
     }
 
     public static class SubCustomExceptionHandler implements ExceptionHandler<SubCustomException> {
-		@Override public boolean handle(SubCustomException exception, HttpServletRequest req, HttpServletResponse res) throws IOException {
-			res.getWriter().write("SubBoom:" + exception.getMessage() + "!");
+    	Provider<HttpServletResponse> responseProvider;
+
+    	@Inject
+		public SubCustomExceptionHandler(Provider<HttpServletResponse> responseProvider) {
+			super();
+			this.responseProvider = responseProvider;
+		}
+
+		@Override public boolean handle(SubCustomException exception) throws IOException {
+			this.responseProvider.get().getWriter().write("SubBoom:" + exception.getMessage() + "!");
 			return true;
 		}
     }

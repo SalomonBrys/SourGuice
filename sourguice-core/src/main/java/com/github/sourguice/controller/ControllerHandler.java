@@ -18,6 +18,8 @@ import com.github.sourguice.annotation.controller.ViewDirectory;
 import com.github.sourguice.annotation.controller.ViewRendered;
 import com.github.sourguice.annotation.controller.ViewRenderedWith;
 import com.github.sourguice.annotation.request.RequestMapping;
+import com.github.sourguice.call.ArgumentFetcher;
+import com.github.sourguice.call.SGInvocationFactory;
 import com.github.sourguice.utils.Annotations;
 import com.github.sourguice.view.Model;
 import com.github.sourguice.view.NoViewRendererException;
@@ -83,10 +85,13 @@ public final class ControllerHandler<T> implements TypedProvider<T> {
     private @CheckForNull MembersInjector<GuiceInstanceGetter<?>> getterInjector;
 
     /**
+     * Constructor
+     *
      * @param controller The controller getter to handle
      * @param membersInjector Responsible for injecting newly created {@link ArgumentFetcher}
+     * @param invocationFactory The factory responsible for creating new invocations
      */
-    public ControllerHandler(final TypedProvider<T> controller, final MembersInjectionRequest membersInjector) {
+    public ControllerHandler(final TypedProvider<T> controller, final MembersInjectionRequest membersInjector, final SGInvocationFactory invocationFactory) {
         this.controller = controller;
 
         final ViewDirectory vdAnno = Annotations.getOneTreeRecursive(ViewDirectory.class, controller.getTypeLiteral().getRawType());
@@ -107,7 +112,7 @@ public final class ControllerHandler<T> implements TypedProvider<T> {
 
         for (final Method method : controller.getTypeLiteral().getRawType().getMethods()) {
             if (Annotations.getOneTreeRecursive(Callable.class, method) != null) {
-                this.invocations.put(method, new ControllerInvocation(this, Annotations.getOneRecursive(RequestMapping.class, method.getAnnotations()), method, membersInjector));
+                this.invocations.put(method, new ControllerInvocation(this, Annotations.getOneRecursive(RequestMapping.class, method.getAnnotations()), method, membersInjector, invocationFactory));
             }
         }
 

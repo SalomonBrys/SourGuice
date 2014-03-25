@@ -20,7 +20,7 @@ import com.github.sourguice.annotation.controller.HttpError;
 import com.github.sourguice.annotation.request.Redirects;
 import com.github.sourguice.annotation.request.View;
 import com.github.sourguice.annotation.request.Writes;
-import com.github.sourguice.call.impl.SGCallerImpl;
+import com.github.sourguice.call.impl.PathVariablesHolder;
 import com.github.sourguice.request.wrapper.NoJsessionidHttpRequest;
 import com.github.sourguice.throwable.invocation.HandledException;
 import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException;
@@ -43,10 +43,10 @@ public final class ControllersServer {
 	private final List<ControllerHandler<?>> handlers = new LinkedList<>();
 
 	/**
-	 * The guice injector that will be used to get different SourGuice implementations
+	 * {@link PathVariablesHolder} provider
 	 */
 	@Inject
-	private @CheckForNull Provider<SGCallerImpl> callerProvider;
+	private @CheckForNull Provider<PathVariablesHolder> pathVariablesProvider;
 
 	/**
 	 * Adds a controller to this servlet's path
@@ -212,17 +212,18 @@ public final class ControllersServer {
 	 * @throws InvocationTargetException Any exception thrown by the method being called
 	 */
 	private void makeCall(final ControllerInvocationInfos infos, final HttpServletResponse res) throws HandledException, NoViewRendererException, ViewRenderingException, IOException, InvocationTargetException, NoSuchRequestParameterException {
-		assert this.callerProvider != null;
 		assert infos.urlMatch != null;
+		assert this.pathVariablesProvider != null;
+
+		this.pathVariablesProvider.get().set(infos.urlMatch, infos.invocation.matchRef);
 
 		// Invoke the invocation using the MethodCaller registered in Guice
-		final Object ret = this.callerProvider.get().call(infos.invocation, infos.urlMatch, true);
+		final Object ret = infos.invocation.invoke(true);
 
 		if (checkView(infos, ret)) { return ; }
 		if (checkWrites(infos, ret, res)) { return ; }
 		if (checkRedirects(infos, ret, res)) { return ; }
 		if (checkHttpError(infos, ret, res)) { return ; }
-
 	}
 
 	/**

@@ -1,4 +1,4 @@
-package com.github.sourguice.controller;
+package com.github.sourguice.call;
 
 import com.github.sourguice.conversion.ConversionService;
 import com.github.sourguice.throwable.invocation.NoSuchRequestParameterException;

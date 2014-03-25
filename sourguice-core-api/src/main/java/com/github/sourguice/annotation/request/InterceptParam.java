@@ -9,7 +9,6 @@ import java.lang.annotation.Target;
 import javax.annotation.CheckForNull;
 import javax.annotation.meta.TypeQualifierNickname;
 
-import com.github.sourguice.call.SGCaller;
 import com.github.sourguice.utils.SGCallInterceptSetter;
 
 /**

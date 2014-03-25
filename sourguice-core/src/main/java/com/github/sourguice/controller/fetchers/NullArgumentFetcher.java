@@ -5,7 +5,7 @@ import javax.annotation.CheckForNull;
 import org.aopalliance.intercept.MethodInterceptor;
 
 import com.github.sourguice.annotation.request.InterceptParam;
-import com.github.sourguice.controller.ArgumentFetcher;
+import com.github.sourguice.call.ArgumentFetcher;
 
 /**
  * Fetcher that will always return null

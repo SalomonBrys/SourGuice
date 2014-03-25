@@ -13,15 +13,14 @@ import com.github.sourguice.SourGuiceControlerModule.SGControlerModuleHelperProx
 import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.cache.CacheService;
 import com.github.sourguice.cache.impl.CacheServiceImpl;
-import com.github.sourguice.call.SGCaller;
 import com.github.sourguice.call.impl.PathVariablesHolder;
-import com.github.sourguice.call.impl.SGCallerImpl;
+import com.github.sourguice.call.impl.SGInvocationFactoryImpl;
 import com.github.sourguice.controller.ControllerHandlersRepository;
 import com.github.sourguice.controller.ControllerInterceptor;
 import com.github.sourguice.controller.ControllersServlet;
-import com.github.sourguice.controller.TypedProvider;
 import com.github.sourguice.controller.InterceptWithMatcher;
 import com.github.sourguice.controller.MembersInjectionRequest;
+import com.github.sourguice.controller.TypedProvider;
 import com.github.sourguice.conversion.ConversionService;
 import com.github.sourguice.conversion.Converter;
 import com.github.sourguice.conversion.def.BooleanConverter;
@@ -125,7 +124,7 @@ public class SGControlerModuleHelperImpl implements SGControlerModuleHelperProxy
 
 		// Registers default exception handlers
 		try {
-			this.module.handleException(SGResponseException.class).withInstance(new SGResponseExceptionHandler());
+			this.module.handleException(SGResponseException.class).with(SGResponseExceptionHandler.class);
 		}
 		catch (UnreachableExceptionHandlerException e) {
 			throw new SGRuntimeException(e);
@@ -151,7 +150,6 @@ public class SGControlerModuleHelperImpl implements SGControlerModuleHelperProxy
 		this.module.binder().bind(Model.class).in(ServletScopes.REQUEST);
 
 		// Binds method calling related classes
-		this.module.binder().bind(SGCaller.class).to(SGCallerImpl.class).in(RequestScoped.class);
 		this.module.binder().bind(new TypeLiteral<Map<String, String>>() {/**/}).annotatedWith(PathVariablesMap.class).toProvider(PathVariablesHolder.class).in(RequestScoped.class);
 
 		// Creates a controllerHandler repository and registers it in guice
@@ -213,7 +211,7 @@ public class SGControlerModuleHelperImpl implements SGControlerModuleHelperProxy
 
 		// Registers a controller handler into the controller servlet
 		// The handler is retrived from the repository to avoid creating two handlers for the same controller class
-		servlet.addController(this.repository.get(controller, membersInjector));
+		servlet.addController(this.repository.get(controller, membersInjector, new SGInvocationFactoryImpl(this.module.binder())));
 	}
 
 	@Override

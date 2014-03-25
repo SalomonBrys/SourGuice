@@ -5,6 +5,9 @@ import java.util.Map;
 
 import javax.inject.Singleton;
 
+import com.github.sourguice.call.ArgumentFetcher;
+import com.github.sourguice.call.SGInvocationFactory;
+
 
 /**
  * Class that holds all {@link ControllerHandler} existing in this server instance
@@ -25,14 +28,15 @@ public final class ControllerHandlersRepository {
 	 *
 	 * @param controller The controller getter on which to get / create a {@link ControllerHandler}
      * @param membersInjector Responsible for injecting newly created {@link ArgumentFetcher}
+     * @param invocationFactory The factory responsible for creating new invocations
 	 * @return The handler for the given class
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> ControllerHandler<T> get(final TypedProvider<T> controller, final MembersInjectionRequest membersInjector) {
+	public <T> ControllerHandler<T> get(final TypedProvider<T> controller, final MembersInjectionRequest membersInjector, final SGInvocationFactory invocationFactory) {
 		if (this.map.containsKey(controller)) {
 			return (ControllerHandler<T>) this.map.get(controller);
 		}
-		final ControllerHandler<T> handler = new ControllerHandler<>(controller, membersInjector);
+		final ControllerHandler<T> handler = new ControllerHandler<>(controller, membersInjector, invocationFactory);
 		this.map.put(controller, handler);
 		return handler;
 	}

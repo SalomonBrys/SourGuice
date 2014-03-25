@@ -7,7 +7,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 
-import com.github.sourguice.controller.ArgumentFetcher;
+import com.github.sourguice.call.ArgumentFetcher;
 import com.github.sourguice.utils.Annotations;
 import com.google.inject.BindingAnnotation;
 import com.google.inject.Injector;
