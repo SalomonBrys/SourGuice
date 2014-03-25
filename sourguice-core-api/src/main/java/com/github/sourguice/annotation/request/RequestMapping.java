@@ -7,6 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import com.github.sourguice.annotation.controller.Callable;
+import com.github.sourguice.call.SGInvocation;
 import com.github.sourguice.value.RequestMethod;
 
 /**
@@ -34,7 +35,7 @@ public @interface RequestMapping {
 
 	/**
 	 * The most important information : the path on which this method is registered
-	 * When absent, the method CANNOT be called directly from an HTTP request (but may be called manually via {@link SGCaller})
+	 * When absent, the method CANNOT be called directly from an HTTP request (but may be called manually via an {@link SGInvocation})
 	 */
 	String[] value();
 
