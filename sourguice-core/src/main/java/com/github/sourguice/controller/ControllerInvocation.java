@@ -54,7 +54,7 @@ public final class ControllerInvocation implements ArgumentFetcherFactory {
 	/**
 	 * The Annotation of a controller's method
 	 */
-	private final @CheckForNull RequestMapping mapping;
+	private final RequestMapping mapping;
 
 	/**
 	 * View annotation if defined on the method
@@ -100,7 +100,7 @@ public final class ControllerInvocation implements ArgumentFetcherFactory {
      * @param membersInjector Responsible for injecting newly created {@link ArgumentFetcher}
      * @param invocationFactory The factory responsible for creating new invocations
 	 */
-	public ControllerInvocation(final ControllerHandler<?> controller, final @CheckForNull RequestMapping mapping, final Method method, final MembersInjectionRequest membersInjector, final SGInvocationFactory invocationFactory) {
+	public ControllerInvocation(final ControllerHandler<?> controller, final RequestMapping mapping, final Method method, final MembersInjectionRequest membersInjector, final SGInvocationFactory invocationFactory) {
 		// Set properties
 		this.controller = controller;
 		this.mapping = mapping;
@@ -114,17 +114,15 @@ public final class ControllerInvocation implements ArgumentFetcherFactory {
 		this.redirects = Annotations.getOneRecursive(Redirects.class, method.getAnnotations());
 
 		// Transform URL like "/foo-{bar}" into /foo-[^/]+ and registers "bar" as match 1
-		if (this.mapping != null) {
-			for (String location : this.mapping.value()) {
-				final Matcher matcher = SEARCH.matcher(location);
-				int pos = 1;
-				while (matcher.find()) {
-					this.matchRef.put(matcher.group(1), Integer.valueOf(pos));
-					++pos;
-				}
-				location = matcher.replaceAll("([^/]+)");
-				this.patterns.add(Pattern.compile(location));
+		for (String location : this.mapping.value()) {
+			final Matcher matcher = SEARCH.matcher(location);
+			int pos = 1;
+			while (matcher.find()) {
+				this.matchRef.put(matcher.group(1), Integer.valueOf(pos));
+				++pos;
 			}
+			location = matcher.replaceAll("([^/]+)");
+			this.patterns.add(Pattern.compile(location));
 		}
 
 		this.invocation = invocationFactory.newInvocation(controller.getTypeLiteral(), method, this);
@@ -140,10 +138,6 @@ public final class ControllerInvocation implements ArgumentFetcherFactory {
 	 */
 	@SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.NPathComplexity"})
 	public @CheckForNull ControllerInvocationInfos canServe(final HttpServletRequest req) {
-		if (this.mapping == null) {
-			return null;
-		}
-
 		ControllerInvocationInfos ret = new ControllerInvocationInfos(this);
 
 		// Checks if the URL declared in @RequestMapping matches. This is mandatory
@@ -273,8 +267,7 @@ public final class ControllerInvocation implements ArgumentFetcherFactory {
 	public ArgumentFetcher<?> create(final Method method, final int position, final TypeLiteral<?> argType) {
 		final PathVariable pathVariable = Annotations.fromArray(method.getParameterAnnotations()[position]).getAnnotation(PathVariable.class);
 		if (pathVariable != null) {
-			final boolean check = this.mapping != null && this.mapping.value().length > 0;
-			return new PathVariableArgumentFetcher<>(argType, pathVariable, check ? this.matchRef : null);
+			return new PathVariableArgumentFetcher<>(argType, pathVariable, this.matchRef);
 		}
 		return null;
 	}

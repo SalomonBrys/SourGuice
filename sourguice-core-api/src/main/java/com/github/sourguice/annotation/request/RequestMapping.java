@@ -6,7 +6,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.github.sourguice.annotation.controller.Callable;
 import com.github.sourguice.call.SGInvocation;
 import com.github.sourguice.value.RequestMethod;
 
@@ -30,7 +29,6 @@ import com.github.sourguice.value.RequestMethod;
 @Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Callable
 public @interface RequestMapping {
 
 	/**

@@ -37,10 +37,10 @@ public class PathVariableArgumentFetcher<T> extends AbstractArgumentFetcher<T> {
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 * @param ref The reference map that links path variable name to their index when a url matches
 	 */
-	public PathVariableArgumentFetcher(final TypeLiteral<T> type, final PathVariable infos, final @CheckForNull Map<String, Integer> ref) {
+	public PathVariableArgumentFetcher(final TypeLiteral<T> type, final PathVariable infos, final Map<String, Integer> ref) {
 		super(type);
 		this.infos = infos;
-		if (ref != null && !ref.containsKey(infos.value())) {
+		if (!ref.containsKey(infos.value())) {
 			throw new NoSuchPathVariableException(infos.value());
 		}
 	}

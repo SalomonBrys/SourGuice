@@ -13,7 +13,6 @@ import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
 
 import com.github.sourguice.SourGuiceControlerModule;
-import com.github.sourguice.annotation.controller.Callable;
 import com.github.sourguice.annotation.controller.ViewDirectory;
 import com.github.sourguice.annotation.controller.ViewRendered;
 import com.github.sourguice.annotation.controller.ViewRenderedWith;
@@ -111,8 +110,9 @@ public final class ControllerHandler<T> implements TypedProvider<T> {
         }
 
         for (final Method method : controller.getTypeLiteral().getRawType().getMethods()) {
-            if (Annotations.getOneTreeRecursive(Callable.class, method) != null) {
-                this.invocations.put(method, new ControllerInvocation(this, Annotations.getOneRecursive(RequestMapping.class, method.getAnnotations()), method, membersInjector, invocationFactory));
+        	final RequestMapping mapping = Annotations.getOneRecursive(RequestMapping.class, method.getAnnotations());
+            if (mapping != null) {
+                this.invocations.put(method, new ControllerInvocation(this, mapping, method, membersInjector, invocationFactory));
             }
         }
 

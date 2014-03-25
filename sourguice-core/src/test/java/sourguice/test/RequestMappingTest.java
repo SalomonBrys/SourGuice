@@ -1,6 +1,6 @@
 package sourguice.test;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 
 import org.eclipse.jetty.testing.HttpTester;
 import org.eclipse.jetty.testing.ServletTester;
@@ -8,7 +8,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.github.sourguice.SourGuiceControlerModule;
-import com.github.sourguice.annotation.controller.Callable;
 import com.github.sourguice.annotation.request.PathVariable;
 import com.github.sourguice.annotation.request.RequestHeader;
 import com.github.sourguice.annotation.request.RequestMapping;
@@ -69,9 +68,6 @@ public class RequestMappingTest extends TestBase {
 
 		@RequestMapping(value = "/simple", produces = {"x-sj-nothing"})
 		public void simpleProducesIgnored() {/**/}
-
-		@Callable
-		public void callableIgnored() {/**/}
 
 		@RequestMapping({"/match-{var}"})
         @Writes
