@@ -78,10 +78,10 @@ public final class ControllerHandler<T> implements TypedProvider<T> {
     private @CheckForNull Provider<Model> modelProvider;
 
     /**
-     * Injects {@link GuiceInstanceGetter}'s members
+     * Injects {@link GuiceTypedProvider}'s members
      */
     @Inject
-    private @CheckForNull MembersInjector<GuiceInstanceGetter<?>> getterInjector;
+    private @CheckForNull MembersInjector<GuiceTypedProvider<?>> getterInjector;
 
     /**
      * Constructor
@@ -175,9 +175,9 @@ public final class ControllerHandler<T> implements TypedProvider<T> {
                     // Gets the view renderer either from the controller class or from Guice
                     for (final ViewRenderedWith rdw : this.viewRenderers) {
                         if (Pattern.matches(rdw.regex(), view)) {
-                            renderer = new GuiceInstanceGetter<>(Key.get(rdw.renderer()));
+                            renderer = new GuiceTypedProvider<>(Key.get(rdw.renderer()));
                             assert this.getterInjector != null;
-							this.getterInjector.injectMembers((GuiceInstanceGetter<?>) renderer);
+							this.getterInjector.injectMembers((GuiceTypedProvider<?>) renderer);
                             break ;
                         }
                     }

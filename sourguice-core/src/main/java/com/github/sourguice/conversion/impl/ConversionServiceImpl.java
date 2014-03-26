@@ -8,7 +8,7 @@ import javax.annotation.CheckForNull;
 import javax.inject.Singleton;
 
 import com.github.sourguice.annotation.ConverterCanConstructChild;
-import com.github.sourguice.controller.GivenInstanceGetter;
+import com.github.sourguice.controller.InstanceTypedProvider;
 import com.github.sourguice.controller.TypedProvider;
 import com.github.sourguice.conversion.ConversionService;
 import com.github.sourguice.conversion.Converter;
@@ -198,7 +198,7 @@ public class ConversionServiceImpl implements ConversionService {
 			if (conv == null && toType.getRawType().isArray()) {
 				final Converter<T> compConv = (Converter<T>) this.getConverter(toType.getRawType().getComponentType());
 				if (compConv != null) {
-					final GivenInstanceGetter<? extends Converter<?>> arrayConverter = new GivenInstanceGetter<>(new ArrayConverter<>(compConv));
+					final InstanceTypedProvider<? extends Converter<?>> arrayConverter = new InstanceTypedProvider<>(new ArrayConverter<>(compConv));
 					register(toType.getRawType(), arrayConverter);
 					conv = (Converter<T>) arrayConverter.get();
 				}

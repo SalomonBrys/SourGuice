@@ -14,8 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.github.sourguice.annotation.request.RequestMapping;
-import com.github.sourguice.controller.GivenInstanceGetter;
-import com.github.sourguice.controller.GuiceInstanceGetter;
+import com.github.sourguice.controller.InstanceTypedProvider;
+import com.github.sourguice.controller.GuiceTypedProvider;
 import com.github.sourguice.controller.TypedProvider;
 import com.github.sourguice.conversion.Converter;
 import com.github.sourguice.exception.ExceptionHandler;
@@ -201,7 +201,7 @@ public abstract class SourGuiceControlerModule extends ServletModule {
 		 */
 		@SuppressWarnings("synthetic-access")
 		public void with(final Key<? extends T> key) {
-			final TypedProvider<? extends T> getter = new GuiceInstanceGetter<>(key);
+			final TypedProvider<? extends T> getter = new GuiceTypedProvider<>(key);
 			requestInjection(getter);
 			register(getter);
 		}
@@ -230,7 +230,18 @@ public abstract class SourGuiceControlerModule extends ServletModule {
 		 * @param instance The object to register
 		 */
 		public void withInstance(final T instance) {
-			final TypedProvider<? extends T> getter = new GivenInstanceGetter<>(instance);
+			final TypedProvider<? extends T> getter = new InstanceTypedProvider<>(instance);
+			register(getter);
+		}
+
+		/**
+		 * Registers a pre-created instance
+		 *
+		 * @param instance The object to register
+		 * @param type The exact type of the object to register
+		 */
+		public void withInstance(final T instance, final TypeLiteral<T> type) {
+			final TypedProvider<? extends T> getter = new InstanceTypedProvider<>(instance, type);
 			register(getter);
 		}
 

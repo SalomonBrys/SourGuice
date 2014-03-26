@@ -13,7 +13,7 @@ import com.google.inject.TypeLiteral;
  * @author Salomon BRYS <salomon.brys@gmail.com>
  * @param <T> The type of the instance it will ask guice
  */
-public class GuiceInstanceGetter<T> implements TypedProvider<T> {
+public class GuiceTypedProvider<T> implements TypedProvider<T> {
 
 	/**
 	 * The key to retrieve an instance in Guice
@@ -28,7 +28,7 @@ public class GuiceInstanceGetter<T> implements TypedProvider<T> {
 	/**
 	 * @param key The key to retrieve an instance in Guice
 	 */
-	public GuiceInstanceGetter(final Key<T> key) {
+	public GuiceTypedProvider(final Key<T> key) {
 		super();
 		this.key = key;
 	}
@@ -54,7 +54,7 @@ public class GuiceInstanceGetter<T> implements TypedProvider<T> {
 
 	@Override
 	public boolean equals(final Object obj) {
-		return obj instanceof GuiceInstanceGetter && this.key.equals(((GuiceInstanceGetter<?>)obj).key);
+		return obj instanceof GuiceTypedProvider && this.key.equals(((GuiceTypedProvider<?>)obj).key);
 	}
 
 	@Override

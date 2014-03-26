@@ -188,7 +188,6 @@ public class SGControlerModuleHelperImpl implements SGControlerModuleHelperProxy
 	 */
 	@Override
 	public void registerControl(final String pattern, final TypedProvider<?> controller) {
-		// Registers all filters that are declared by the @FilterThrough annotation of this class and of all its parents
 		final Map<String, String> initParams = new HashMap<>();
 		initParams.put("pattern", pattern);
 
