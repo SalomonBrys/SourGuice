@@ -11,7 +11,7 @@ import org.eclipse.jetty.testing.HttpTester;
 import org.eclipse.jetty.testing.ServletTester;
 import org.testng.annotations.Test;
 
-import com.github.sourguice.SourGuiceControlerModule;
+import com.github.sourguice.SourGuice;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.Writes;
 import com.github.sourguice.cache.CacheService;
@@ -21,7 +21,9 @@ import com.github.sourguice.cache.def.InMemoryCacheFilter;
 import com.github.sourguice.cache.httpclient.CacheInClient;
 import com.github.sourguice.cache.httpclient.CacheInClientBuilder;
 import com.github.sourguice.cache.httpclient.HttpClientCache;
+import com.google.inject.Module;
 import com.google.inject.Singleton;
+import com.google.inject.servlet.ServletModule;
 
 @SuppressWarnings({"javadoc", "static-method", "PMD"})
 @Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
@@ -109,17 +111,19 @@ public class CacheTest extends TestBase {
 
     // ===================== MODULE =====================
 
-    public static class ControllerModule extends SourGuiceControlerModule {
+    public static class ControllerModule extends ServletModule {
         @Override
-        protected void configureControllers() {
-            control("/*").with(Controller.class);
+        protected void configureServlets() {
+        	SourGuice sg = new SourGuice();
+        	sg.control("/*").with(Controller.class);
             install(InMemoryCache.initialize(16));
             install(HttpClientCache.module());
+            install(sg.module());
         }
     }
 
     @Override
-    protected SourGuiceControlerModule module() {
+    protected Module module() {
         return new ControllerModule();
     }
 

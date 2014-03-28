@@ -19,10 +19,10 @@ import org.testng.TestNG;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
-import com.github.sourguice.SourGuiceControlerModule;
 import com.github.sourguice.SourGuiceFilter;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import com.google.inject.servlet.GuiceServletContextListener;
 
 @SuppressWarnings({"javadoc", "static-method", "PMD"})
@@ -31,18 +31,11 @@ public abstract class TestBase {
 	public static final int INVOCATION_COUNT = 3;
 	public static final int THREAD_POOL_SIZE = 4;
 
-	public static class StandardContextListener<T extends SourGuiceControlerModule> extends GuiceServletContextListener {
-
-		private Injector injector;
-
-		public StandardContextListener(T module) {
-			super();
-			this.injector = Guice.createInjector(module);
-		}
+	public class StandardContextListener extends GuiceServletContextListener {
 
 		@Override
 		protected Injector getInjector() {
-			return this.injector;
+			return Guice.createInjector(TestBase.this.module());
 		}
 
 	}
@@ -51,7 +44,8 @@ public abstract class TestBase {
 
 	@BeforeClass
 	public void startupServletTester() throws Exception {
-		StandardContextListener<SourGuiceControlerModule> scl = new StandardContextListener<>(module());
+
+		StandardContextListener scl = new StandardContextListener();
 		for (int i = 0; i < THREAD_POOL_SIZE; ++i) {
 			ServletTester tester = new ServletTester();
 			tester.setContextPath("/");
@@ -157,7 +151,7 @@ public abstract class TestBase {
 		}
 	}
 
-	abstract protected SourGuiceControlerModule module();
+	abstract protected Module module();
 
 	public static void main(String[] args) {
 		TestNG testng = new TestNG();

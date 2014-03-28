@@ -27,6 +27,11 @@ public class PathVariableArgumentFetcher<T> extends AbstractArgumentFetcher<T> {
 	private final PathVariable infos;
 
 	/**
+	 * The method whose argument we are fetching
+	 */
+	private final String methodName;
+
+	/**
 	 * The provider for the path variable map, from which the result will be found
 	 */
 	@Inject
@@ -36,12 +41,14 @@ public class PathVariableArgumentFetcher<T> extends AbstractArgumentFetcher<T> {
 	 * @param type The type of the argument to fetch
 	 * @param infos The annotations containing needed informations to fetch the argument
 	 * @param ref The reference map that links path variable name to their index when a url matches
+	 * @param methodName The name of the method whose argument we are fetching
 	 */
-	public PathVariableArgumentFetcher(final TypeLiteral<T> type, final PathVariable infos, final Map<String, Integer> ref) {
+	public PathVariableArgumentFetcher(final TypeLiteral<T> type, final PathVariable infos, final Map<String, Integer> ref, final String methodName) {
 		super(type);
 		this.infos = infos;
+		this.methodName = methodName;
 		if (!ref.containsKey(infos.value())) {
-			throw new NoSuchPathVariableException(infos.value());
+			throw new NoSuchPathVariableException(infos.value(), methodName);
 		}
 	}
 
@@ -53,7 +60,7 @@ public class PathVariableArgumentFetcher<T> extends AbstractArgumentFetcher<T> {
 			// This should never happen (I can't see a way to test it) since
 			//   1- Existence of the pathvariable key has been checked in constructor
 			//   2- If we are here, it means that the URL has matched the regex with the corresponding key
-			throw new NoSuchRequestParameterException(this.infos.value(), "path variables");
+			throw new NoSuchRequestParameterException(this.infos.value(), "path variables", this.methodName);
 		}
 		return convert(pathVariables.get(this.infos.value()));
 	}

@@ -60,7 +60,8 @@ public final class SGInvocationFactoryImpl implements SGInvocationFactory {
 				}
 			}
 			if (fetchers[arg] == null) {
-				fetchers[arg] = createFetcher(argType, method.getParameterAnnotations()[arg]);
+				final String methodName = method.getDeclaringClass().getCanonicalName() + "." + method.getName();
+				fetchers[arg] = createFetcher(argType, method.getParameterAnnotations()[arg], methodName);
 			}
 			this.binder.requestInjection(fetchers[arg]);
 		}
@@ -75,14 +76,15 @@ public final class SGInvocationFactoryImpl implements SGInvocationFactory {
 	 *
 	 * @param type The argument's type
 	 * @param annotations The argument's annotation
+	 * @param methodName The name of the method whose argument we are fetching
 	 * @return The appropriate argument fetcher
 	 */
-	private static <T> ArgumentFetcher<T> createFetcher(final TypeLiteral<T> type, final Annotation[] annotations) {
+	private static <T> ArgumentFetcher<T> createFetcher(final TypeLiteral<T> type, final Annotation[] annotations, final String methodName) {
 		final AnnotatedElement annos = Annotations.fromArray(annotations);
 
 		final RequestParam requestParam = annos.getAnnotation(RequestParam.class);
 		if (requestParam != null) {
-			return new RequestParamArgumentFetcher<>(type, requestParam);
+			return new RequestParamArgumentFetcher<>(type, requestParam, methodName);
 		}
 
 		final RequestAttribute requestAttribute = annos.getAnnotation(RequestAttribute.class);
@@ -97,7 +99,7 @@ public final class SGInvocationFactoryImpl implements SGInvocationFactory {
 
 		final RequestHeader requestHeader = annos.getAnnotation(RequestHeader.class);
 		if (requestHeader != null) {
-			return new RequestHeaderArgumentFetcher<>(type, requestHeader);
+			return new RequestHeaderArgumentFetcher<>(type, requestHeader, methodName);
 		}
 
 		final InterceptParam interceptParam = annos.getAnnotation(InterceptParam.class);

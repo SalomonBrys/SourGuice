@@ -47,6 +47,11 @@ public class RequestParamMapArgumentFetcher<T> implements RequestParamArgumentFe
 	private @CheckForNull TypeLiteral<?> mapValueType;
 
 	/**
+	 * The method whose argument we are fetching
+	 */
+	private final String methodName;
+
+	/**
 	 * Create the map provider corresponding to the given type
 	 *
 	 * @param rawType The type of the map to create
@@ -79,10 +84,12 @@ public class RequestParamMapArgumentFetcher<T> implements RequestParamArgumentFe
 	/**
 	 * @param type The type of the map argument to fetch
 	 * @param infos The annotations containing needed informations to fetch the argument
+	 * @param methodName The name of the method whose argument we are fetching
 	 */
-	public RequestParamMapArgumentFetcher(final TypeLiteral<T> type, final RequestParam infos) {
+	public RequestParamMapArgumentFetcher(final TypeLiteral<T> type, final RequestParam infos, final String methodName) {
 		super();
 		this.infos = infos;
+		this.methodName = methodName;
 
 		try {
 			final ParameterizedType mapType = (ParameterizedType) type.getSupertype(Map.class).getType();
@@ -143,7 +150,7 @@ public class RequestParamMapArgumentFetcher<T> implements RequestParamArgumentFe
 		}
 		if (ret.isEmpty()) {
 			if (this.infos.defaultValue().equals(ValueConstants.DEFAULT_NONE)) {
-				throw new NoSuchRequestParameterException(this.infos.value(), "request parameters");
+				throw new NoSuchRequestParameterException(this.infos.value(), "request parameters", this.methodName);
 			}
 			fillMapWithDefaults(ret, conversionService);
 		}

@@ -9,13 +9,15 @@ import org.testng.SkipException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.github.sourguice.SourGuiceControlerModule;
+import com.github.sourguice.SourGuice;
 import com.github.sourguice.StaticAwareSourGuiceFilter;
 import com.github.sourguice.annotation.controller.ViewDirectory;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.View;
 import com.github.sourguice.view.Model;
+import com.google.inject.Module;
 import com.google.inject.Singleton;
+import com.google.inject.servlet.ServletModule;
 
 @SuppressWarnings({"javadoc", "static-method", "PMD"})
 @Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
@@ -63,15 +65,17 @@ public class JSPTest extends TestBase {
 
     // ===================== MODULE =====================
 
-    public static class ControllerModule extends SourGuiceControlerModule {
-        @Override
-        protected void configureControllers() {
-            control("/*").with(Controller.class);
+    public static class ControllerModule extends ServletModule {
+		@Override
+        protected void configureServlets() {
+        	SourGuice sg = new SourGuice();
+        	sg.control("/*").with(Controller.class);
+            install(sg.module());
         }
     }
 
     @Override
-    protected SourGuiceControlerModule module() {
+    protected Module module() {
         return new ControllerModule();
     }
 

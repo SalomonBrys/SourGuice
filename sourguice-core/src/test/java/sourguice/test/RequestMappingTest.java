@@ -7,14 +7,16 @@ import org.eclipse.jetty.testing.ServletTester;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.github.sourguice.SourGuiceControlerModule;
+import com.github.sourguice.SourGuice;
 import com.github.sourguice.annotation.request.PathVariable;
 import com.github.sourguice.annotation.request.RequestHeader;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.RequestParam;
 import com.github.sourguice.annotation.request.Writes;
 import com.github.sourguice.value.RequestMethod;
+import com.google.inject.Module;
 import com.google.inject.Singleton;
+import com.google.inject.servlet.ServletModule;
 
 @SuppressWarnings({"javadoc", "static-method", "PMD"})
 @Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
@@ -106,17 +108,19 @@ public class RequestMappingTest extends TestBase {
 
 	// ===================== MODULE =====================
 
-	public static class ControllerModule extends SourGuiceControlerModule {
+    public static class ControllerModule extends ServletModule {
 		@Override
-		protected void configureControllers() {
-			control("/a/*").with(Controller1.class);
-			control("/a/*").withInstance(new Controller2());
-			control("/b/*").with(Controller1.class);
+        protected void configureServlets() {
+        	SourGuice sg = new SourGuice();
+        	sg.control("/a/*").with(Controller1.class);
+        	sg.control("/a/*").withInstance(new Controller2());
+        	sg.control("/b/*").with(Controller1.class);
+            install(sg.module());
 		}
 	}
 
 	@Override
-	protected SourGuiceControlerModule module() {
+    protected Module module() {
 		return new ControllerModule();
 	}
 

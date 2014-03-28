@@ -12,11 +12,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.testing.HttpTester;
 import org.testng.annotations.Test;
 
-import com.github.sourguice.SourGuiceControlerModule;
+import com.github.sourguice.SourGuice;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.exception.ExceptionHandler;
 import com.github.sourguice.throwable.service.exception.UnreachableExceptionHandlerException;
+import com.google.inject.Module;
 import com.google.inject.Singleton;
+import com.google.inject.servlet.ServletModule;
 
 @SuppressWarnings({"javadoc", "static-method", "PMD"})
 @Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
@@ -96,31 +98,33 @@ public class ExceptionTest extends TestBase {
 
     // ===================== MODULE =====================
 
-    public static class ControllerModule extends SourGuiceControlerModule {
+    public static class ControllerModule extends ServletModule {
 
     	public static boolean exceptionCaught = false;
 
-        @Override
-        protected void configureControllers() {
-            control("/*").with(Controller.class);
+		@Override
+        protected void configureServlets() {
+        	SourGuice sg = new SourGuice();
+        	sg.control("/*").with(Controller.class);
             try {
-            	handleException(CustomException.class).with(CustomExceptionHandler.class);
+            	sg.handleException(CustomException.class).with(CustomExceptionHandler.class);
             }
             catch (UnreachableExceptionHandlerException e) {
             	throw new RuntimeException(e);
             }
 
             try {
-            	handleException(SubCustomException.class).with(SubCustomExceptionHandler.class);
+            	sg.handleException(SubCustomException.class).with(SubCustomExceptionHandler.class);
             }
             catch (UnreachableExceptionHandlerException e) {
             	exceptionCaught = true;
             }
+            install(sg.module());
         }
     }
 
     @Override
-    protected SourGuiceControlerModule module() {
+    protected Module module() {
         return new ControllerModule();
     }
 

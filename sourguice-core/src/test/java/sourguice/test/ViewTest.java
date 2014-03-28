@@ -14,14 +14,16 @@ import org.eclipse.jetty.testing.HttpTester;
 import org.eclipse.jetty.testing.ServletTester;
 import org.testng.annotations.Test;
 
-import com.github.sourguice.SourGuiceControlerModule;
-import com.github.sourguice.annotation.controller.ViewRenderedWith;
+import com.github.sourguice.SourGuice;
 import com.github.sourguice.annotation.controller.ViewDirectory;
+import com.github.sourguice.annotation.controller.ViewRenderedWith;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.View;
 import com.github.sourguice.view.Model;
 import com.github.sourguice.view.def.BasicViewRenderer;
+import com.google.inject.Module;
 import com.google.inject.Singleton;
+import com.google.inject.servlet.ServletModule;
 
 @SuppressWarnings({"javadoc", "static-method", "PMD"})
 @Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
@@ -126,17 +128,19 @@ public class ViewTest extends TestBase {
 
     // ===================== MODULE =====================
 
-    public static class ControllerModule extends SourGuiceControlerModule {
+    public static class ControllerModule extends ServletModule {
         @Override
-        protected void configureControllers() {
-            control("/a/*").with(AController.class);
-            control("/d/*").with(DController.class);
-            renderViews(".*").with(DefaultTestRenderer.class);
+        protected void configureServlets() {
+        	SourGuice sg = new SourGuice();
+        	sg.control("/a/*").with(AController.class);
+        	sg.control("/d/*").with(DController.class);
+        	sg.renderViews(".*").with(DefaultTestRenderer.class);
+            install(sg.module());
         }
     }
 
     @Override
-    protected SourGuiceControlerModule module() {
+    protected Module module() {
         return new ControllerModule();
     }
 

@@ -32,14 +32,21 @@ public class RequestHeaderArgumentFetcher<T> extends AbstractArgumentFetcher<T> 
 	private @CheckForNull Provider<HttpServletRequest> requestProvider;
 
 	/**
+	 * The method whose argument we are fetching
+	 */
+	private final String methodName;
+
+	/**
 	 * @see AbstractArgumentFetcher#AbstractArgumentFetcher(TypeLiteral)
 	 *
 	 * @param type The type of the argument to fetch
 	 * @param infos The annotations containing needed informations to fetch the argument
+	 * @param methodName The name of the method whose argument we are fetching
 	 */
-	public RequestHeaderArgumentFetcher(final TypeLiteral<T> type, final RequestHeader infos) {
+	public RequestHeaderArgumentFetcher(final TypeLiteral<T> type, final RequestHeader infos, final String methodName) {
 		super(type);
 		this.infos = infos;
+		this.methodName = methodName;
 	}
 
 	@Override
@@ -51,7 +58,7 @@ public class RequestHeaderArgumentFetcher<T> extends AbstractArgumentFetcher<T> 
 			if (!this.infos.defaultValue().equals(ValueConstants.DEFAULT_NONE)) {
 				return convert(this.infos.defaultValue());
 			}
-			throw new NoSuchRequestParameterException(this.infos.value(), "header");
+			throw new NoSuchRequestParameterException(this.infos.value(), "header", this.methodName);
 		}
 
 		return convert(req.getHeader(this.infos.value()));

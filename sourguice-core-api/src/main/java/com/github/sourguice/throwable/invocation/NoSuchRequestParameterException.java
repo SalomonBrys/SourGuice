@@ -27,9 +27,10 @@ public class NoSuchRequestParameterException extends Exception {
 	/**
 	 * @param name The name of the missing parameter
 	 * @param type The type of the missing parameter
+	 * @param methodName The name of the method whose parameter could not be found
 	 */
-	public NoSuchRequestParameterException(final String name, final String type) {
-		super("Missing " + type + ": " + name);
+	public NoSuchRequestParameterException(final String name, final String type, final String methodName) {
+		super("Missing " + type + ": " + name + " in " + methodName);
 		this.name = name;
 		this.type = type;
 	}

@@ -17,8 +17,9 @@ public class NoSuchPathVariableException extends RuntimeException {
 
 	/**
 	 * @param name The name of the undeclared path variable
+	 * @param methodName The name of the method whose parameter could not be found
 	 */
-	public NoSuchPathVariableException(final String name) {
-		super("@PathVariable " + name + " is not declared in @RequestMapping");
+	public NoSuchPathVariableException(final String name, final String methodName) {
+		super(	"@PathVariable " + name + " is not declared in @RequestMapping " + methodName);
 	}
 }

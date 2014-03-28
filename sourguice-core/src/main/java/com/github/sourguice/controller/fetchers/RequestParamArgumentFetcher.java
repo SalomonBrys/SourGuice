@@ -40,6 +40,11 @@ public class RequestParamArgumentFetcher<T> extends AbstractArgumentFetcher<T> {
 	private @CheckForNull Provider<HttpServletRequest> requestProvider;
 
 	/**
+	 * The method whose argument we are fetching
+	 */
+	private final String methodName;
+
+	/**
 	 * A delegate of {@link RequestParamArgumentFetcher}
 	 *
 	 * @param <T> The type of the argument to fetch
@@ -61,17 +66,19 @@ public class RequestParamArgumentFetcher<T> extends AbstractArgumentFetcher<T> {
 	 *
 	 * @param type The type of the argument to fetch
 	 * @param infos The annotations containing needed informations to fetch the argument
+	 * @param methodName The name of the method whose argument we are fetching
 	 */
-	public RequestParamArgumentFetcher(final TypeLiteral<T> type, final RequestParam infos) {
+	public RequestParamArgumentFetcher(final TypeLiteral<T> type, final RequestParam infos, final String methodName) {
 		super(type);
 		this.infos = infos;
+		this.methodName = methodName;
 
 		final Class<? super T> rawType = type.getRawType();
 		if (Collection.class.isAssignableFrom(rawType)) {
-			this.delegate = new RequestParamCollectionArgumentFetcher<>(type, infos);
+			this.delegate = new RequestParamCollectionArgumentFetcher<>(type, infos, methodName);
 		}
 		else if (Map.class.isAssignableFrom(rawType)) {
-			this.delegate = new RequestParamMapArgumentFetcher<>(type, infos);
+			this.delegate = new RequestParamMapArgumentFetcher<>(type, infos, methodName);
 		}
 	}
 
@@ -91,7 +98,7 @@ public class RequestParamArgumentFetcher<T> extends AbstractArgumentFetcher<T> {
 			if (!this.infos.defaultValue().equals(ValueConstants.DEFAULT_NONE)) {
 				return convert(this.infos.defaultValue());
 			}
-			throw new NoSuchRequestParameterException(this.infos.value(), "request parameters");
+			throw new NoSuchRequestParameterException(this.infos.value(), "request parameters", this.methodName);
 		}
 		// Returns the converted parameter value
 		if (req.getParameterValues(this.infos.value()).length == 1) {

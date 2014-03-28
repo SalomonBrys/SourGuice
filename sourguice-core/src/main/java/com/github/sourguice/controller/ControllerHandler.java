@@ -12,7 +12,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
 
-import com.github.sourguice.SourGuiceControlerModule;
+import com.github.sourguice.SourGuice;
 import com.github.sourguice.annotation.controller.ViewDirectory;
 import com.github.sourguice.annotation.controller.ViewRendered;
 import com.github.sourguice.annotation.controller.ViewRenderedWith;
@@ -31,7 +31,7 @@ import com.google.inject.TypeLiteral;
 
 /**
  * Handles a controller class.
- * A controller class can be any class that is declared in {@link SourGuiceControlerModule} configureControllers method
+ * A controller class can be any class that is declared in {@link SourGuice} configureControllers method
  * using the syntax control(pattern).with(controller.class)
  * This class is responsible for creating and managing all possible invocations for the given class
  *   (which are all methods annotated with @{@link RequestMapping})

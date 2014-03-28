@@ -44,6 +44,11 @@ public class RequestParamCollectionArgumentFetcher<T> implements RequestParamArg
 	private @CheckForNull TypeLiteral<?> collectionComponentType;
 
 	/**
+	 * The method whose argument we are fetching
+	 */
+	private final String methodName;
+
+	/**
 	 * A collection provider is responsible to create the collection
 	 *
 	 * @param <T> The real type of the collection to create
@@ -106,10 +111,12 @@ public class RequestParamCollectionArgumentFetcher<T> implements RequestParamArg
 	/**
 	 * @param type The type of the collection argument to fetch
 	 * @param infos The annotations containing needed informations to fetch the argument
+	 * @param methodName The name of the method whose argument we are fetching
 	 */
-	public RequestParamCollectionArgumentFetcher(final TypeLiteral<T> type, final RequestParam infos) {
+	public RequestParamCollectionArgumentFetcher(final TypeLiteral<T> type, final RequestParam infos, final String methodName) {
 		super();
 		this.infos = infos;
+		this.methodName = methodName;
 
 		try {
 			this.collectionComponentType = TypeLiteral.get(((ParameterizedType)type.getSupertype(Collection.class).getType()).getActualTypeArguments()[0]);
@@ -129,7 +136,7 @@ public class RequestParamCollectionArgumentFetcher<T> implements RequestParamArg
 		if (req.getParameterValues(this.infos.value()) == null || req.getParameterValues(this.infos.value()).length == 0) {
 			// If there are no value and not default value, throws the exception
 			if (this.infos.defaultValue().equals(ValueConstants.DEFAULT_NONE)) {
-				throw new NoSuchRequestParameterException(this.infos.value(), "request parameters");
+				throw new NoSuchRequestParameterException(this.infos.value(), "request parameters", this.methodName);
 			}
 			if (this.infos.defaultValue().isEmpty()) {
 				return (T) this.collectionProvider.get(new ArrayList<>());

@@ -18,8 +18,7 @@ import org.eclipse.jetty.testing.ServletTester;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.github.sourguice.SourGuiceControlerModule;
-import com.github.sourguice.annotation.request.PathVariable;
+import com.github.sourguice.SourGuice;
 import com.github.sourguice.annotation.request.PathVariablesMap;
 import com.github.sourguice.annotation.request.RequestHeader;
 import com.github.sourguice.annotation.request.RequestMapping;
@@ -27,10 +26,11 @@ import com.github.sourguice.annotation.request.RequestParam;
 import com.github.sourguice.annotation.request.SessionAttribute;
 import com.github.sourguice.annotation.request.Writes;
 import com.github.sourguice.request.Attribute;
-import com.github.sourguice.throwable.invocation.NoSuchPathVariableException;
 import com.github.sourguice.utils.Arrays;
 import com.github.sourguice.value.RequestMethod;
+import com.google.inject.Module;
 import com.google.inject.Singleton;
+import com.google.inject.servlet.ServletModule;
 
 @SuppressWarnings({"javadoc", "static-method", "PMD"})
 @Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
@@ -211,32 +211,20 @@ public class InjectionTest extends TestBase {
 
     }
 
-    public static class BadPathVariableController {
-        @RequestMapping("/badpathvariable-{var}")
-        @Writes
-        public String badpathvariable(@PathVariable("war") String war) {
-            return ":" + war;
-        }
-    }
-
     // ===================== MODULE =====================
 
-    public static class ControllerModule extends SourGuiceControlerModule {
-    	public static boolean exceptionCaught = false;
-        @Override
-        protected void configureControllers() {
-            control("/*").with(Controller.class);
-            try {
-            	control("/*").with(BadPathVariableController.class);
-            }
-            catch (NoSuchPathVariableException e) {
-            	exceptionCaught = true;
-            }
-        }
+    public static class ControllerModule extends ServletModule {
+
+    	@Override
+        protected void configureServlets() {
+        	SourGuice sg = new SourGuice();
+        	sg.control("/*").with(Controller.class);
+            install(sg.module());
+    	}
     }
 
     @Override
-    protected SourGuiceControlerModule module() {
+    protected Module module() {
         return new ControllerModule();
     }
 
@@ -518,11 +506,6 @@ public class InjectionTest extends TestBase {
 
 		assertEquals(response.getStatus(), 400);
         assertEquals(response.getReason(), "Missing header: x-choucroute");
-    }
-
-
-    public void getBadPathVariable() {
-    	assertTrue(ControllerModule.exceptionCaught);
     }
 
 

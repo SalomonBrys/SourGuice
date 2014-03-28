@@ -267,7 +267,8 @@ public final class ControllerInvocation implements ArgumentFetcherFactory {
 	public ArgumentFetcher<?> create(final Method method, final int position, final TypeLiteral<?> argType) {
 		final PathVariable pathVariable = Annotations.fromArray(method.getParameterAnnotations()[position]).getAnnotation(PathVariable.class);
 		if (pathVariable != null) {
-			return new PathVariableArgumentFetcher<>(argType, pathVariable, this.matchRef);
+			final String methodName = method.getDeclaringClass().getCanonicalName() + "." + method.getName();
+			return new PathVariableArgumentFetcher<>(argType, pathVariable, this.matchRef, methodName);
 		}
 		return null;
 	}

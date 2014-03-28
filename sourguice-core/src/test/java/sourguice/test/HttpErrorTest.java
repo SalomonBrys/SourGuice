@@ -5,12 +5,14 @@ import static org.testng.Assert.*;
 import org.eclipse.jetty.testing.HttpTester;
 import org.testng.annotations.Test;
 
-import com.github.sourguice.SourGuiceControlerModule;
+import com.github.sourguice.SourGuice;
 import com.github.sourguice.annotation.controller.HttpError;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.throwable.controller.SGResponseException;
 import com.github.sourguice.throwable.controller.SGResponseStatusCode;
+import com.google.inject.Module;
 import com.google.inject.Singleton;
+import com.google.inject.servlet.ServletModule;
 
 @SuppressWarnings({"javadoc", "static-method", "PMD"})
 @Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
@@ -57,15 +59,17 @@ public class HttpErrorTest extends TestBase {
 
     // ===================== MODULE =====================
 
-    public static class ControllerModule extends SourGuiceControlerModule {
-        @Override
-        protected void configureControllers() {
-            control("/*").with(Controller.class);
+    public static class ControllerModule extends ServletModule {
+		@Override
+        protected void configureServlets() {
+        	SourGuice sg = new SourGuice();
+        	sg.control("/*").with(Controller.class);
+            install(sg.module());
         }
     }
 
     @Override
-    protected SourGuiceControlerModule module() {
+    protected Module module() {
         return new ControllerModule();
     }
 

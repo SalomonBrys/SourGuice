@@ -5,12 +5,14 @@ import static org.testng.Assert.*;
 import org.eclipse.jetty.testing.HttpTester;
 import org.testng.annotations.Test;
 
-import com.github.sourguice.SourGuiceControlerModule;
+import com.github.sourguice.SourGuice;
 import com.github.sourguice.annotation.request.Redirects;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.throwable.controller.SGResponseException;
 import com.github.sourguice.throwable.controller.SGResponseRedirect;
+import com.google.inject.Module;
 import com.google.inject.Singleton;
+import com.google.inject.servlet.ServletModule;
 
 @SuppressWarnings({"javadoc", "static-method", "PMD"})
 @Test(invocationCount = TestBase.INVOCATION_COUNT, threadPoolSize = TestBase.THREAD_POOL_SIZE)
@@ -63,16 +65,18 @@ public class RedirectTest extends TestBase {
 
     // ===================== MODULE =====================
 
-    public static class ControllerModule extends SourGuiceControlerModule {
+    public static class ControllerModule extends ServletModule {
         @Override
-        protected void configureControllers() {
-            control("/*").with(Controller.class);
-            redirect("/defined").to("/go/to/hell");
+        protected void configureServlets() {
+        	SourGuice sg = new SourGuice();
+            sg.control("/*").with(Controller.class);
+            sg.redirect("/defined").to("/go/to/hell");
+            install(sg.module());
         }
     }
 
     @Override
-    protected SourGuiceControlerModule module() {
+    protected Module module() {
         return new ControllerModule();
     }
 

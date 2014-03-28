@@ -10,10 +10,12 @@ import java.io.Reader;
 import org.eclipse.jetty.testing.HttpTester;
 import org.testng.annotations.Test;
 
-import com.github.sourguice.SourGuiceControlerModule;
+import com.github.sourguice.SourGuice;
 import com.github.sourguice.annotation.request.RequestMapping;
 import com.github.sourguice.annotation.request.Writes;
+import com.google.inject.Module;
 import com.google.inject.Singleton;
+import com.google.inject.servlet.ServletModule;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -52,15 +54,17 @@ public class WriteTest extends TestBase {
 
     // ===================== MODULE =====================
 
-    public static class ControllerModule extends SourGuiceControlerModule {
+    public static class ControllerModule extends ServletModule {
         @Override
-        protected void configureControllers() {
-            control("/*").with(Controller.class);
+        protected void configureServlets() {
+        	SourGuice sg = new SourGuice();
+            sg.control("/*").with(Controller.class);
+            install(sg.module());
         }
     }
 
     @Override
-    protected SourGuiceControlerModule module() {
+    protected Module module() {
         return new ControllerModule();
     }
 
