@@ -1,8 +1,9 @@
 package com.github.sourguice;
 
+import com.github.sourguice.call.SGInvocationFactory;
 import com.github.sourguice.conversion.Converter;
 import com.github.sourguice.exception.ExceptionHandler;
-import com.github.sourguice.view.ViewRenderer;
+import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.servlet.ServletModule;
 
@@ -32,19 +33,29 @@ public class SourGuice implements SourGuiceModule {
 	 * The helper proxy on which every implementation call will be forwarded
 	 * Found by reflexivity in the core jar.
 	 */
-	protected SourGuiceModule base;
+	private final SourGuiceModule implementation;
 
 	/**
-	 * This will check that the implementation jar is actually in the classpath
+	 * @param implementation The SourGuice core implementation
+	 */
+	public SourGuice(final SourGuice implementation) {
+		super();
+		this.implementation = implementation;
+	}
+
+	/**
+	 * Usual constructor
+	 *
+	 * This will check that the implementation jar is actually in the classpath and find the implementation
 	 */
 	public SourGuice() {
 		super();
 		try {
-			this.base = (SourGuiceModule)
-						Class
-							.forName("com.github.sourguice.SourGuiceModuleImpl")
-							.getConstructor()
-							.newInstance();
+			this.implementation = (SourGuiceModule)
+					Class
+						.forName("com.github.sourguice.SourGuiceModuleImpl")
+						.getConstructor()
+						.newInstance();
 		}
 		catch (ReflectiveOperationException e) {
 			throw new UnsupportedOperationException("Cannot find SourGuice Implementation, make sure it is deployed with your application", e);
@@ -52,34 +63,24 @@ public class SourGuice implements SourGuiceModule {
 	}
 
 	@Override
-	public final BindBuilder<Object> control(final String pattern, final String... patterns) {
-		return this.base.control(pattern, patterns);
-	}
-
-	@Override
-	public final RedirectBuilder redirect(final String pattern, final String... patterns) {
-		return this.base.redirect(pattern, patterns);
-	}
-
-	@Override
-	public BindBuilder<ViewRenderer> renderViews(final String regex, final String... regexs) {
-		return this.base.renderViews(regex, regexs);
-	}
-
-	@Override
 	public final BindBuilder<Converter<?>> convertTo(final Class<?> toType, final Class<?>... toTypes) {
-		return this.base.convertTo(toType, toTypes);
+		return this.implementation.convertTo(toType, toTypes);
 	}
 
 	@Override
 	@SafeVarargs
 	public final <T extends Exception> BindBuilder<ExceptionHandler<T>> handleException(final Class<? extends T> exc, final Class<? extends T>... excs) {
-		return this.base.handleException(exc, excs);
+		return this.implementation.handleException(exc, excs);
+	}
+
+	@Override
+	public SGInvocationFactory newInvocationFactory(final Binder binder) {
+		return this.implementation.newInvocationFactory(binder);
 	}
 
 	@Override
 	public Module module() {
-		return this.base.module();
+		return this.implementation.module();
 	}
 
 }

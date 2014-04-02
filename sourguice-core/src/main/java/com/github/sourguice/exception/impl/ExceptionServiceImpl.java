@@ -6,10 +6,10 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.inject.Singleton;
 
-import com.github.sourguice.controller.TypedProvider;
 import com.github.sourguice.exception.ExceptionHandler;
 import com.github.sourguice.exception.ExceptionService;
-import com.github.sourguice.throwable.service.exception.UnreachableExceptionHandlerException;
+import com.github.sourguice.provider.TypedProvider;
+import com.github.sourguice.throwable.exception.UnreachableExceptionHandlerException;
 
 /**
  * Exception service on which to register exception handlers

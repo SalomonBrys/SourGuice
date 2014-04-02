@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 
 import com.github.sourguice.conversion.Converter;
-import com.github.sourguice.throwable.service.converter.CannotConvertToPrimitiveException;
+import com.github.sourguice.throwable.converter.CannotConvertToPrimitiveException;
 import com.google.inject.TypeLiteral;
 /**
  * Converts a coma separated array of string into an array of value of type T

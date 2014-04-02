@@ -8,14 +8,14 @@ import javax.annotation.CheckForNull;
 import javax.inject.Singleton;
 
 import com.github.sourguice.annotation.ConverterCanConstructChild;
-import com.github.sourguice.controller.InstanceTypedProvider;
-import com.github.sourguice.controller.TypedProvider;
 import com.github.sourguice.conversion.ConversionService;
 import com.github.sourguice.conversion.Converter;
 import com.github.sourguice.conversion.def.ArrayConverter;
-import com.github.sourguice.throwable.service.converter.CannotConvertToPrimitiveException;
-import com.github.sourguice.throwable.service.converter.NoConverterException;
-import com.github.sourguice.throwable.service.converter.NotAStringException;
+import com.github.sourguice.provider.InstanceTypedProvider;
+import com.github.sourguice.provider.TypedProvider;
+import com.github.sourguice.throwable.converter.CannotConvertToPrimitiveException;
+import com.github.sourguice.throwable.converter.NoConverterException;
+import com.github.sourguice.throwable.converter.NotAStringException;
 import com.google.inject.TypeLiteral;
 
 /**

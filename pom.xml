@@ -116,5 +116,9 @@
 	<modules>
 		<module>sourguice-core-api</module>
 		<module>sourguice-core</module>
+		<module>sourguice-mvc-api</module>
+		<module>sourguice-mvc</module>
+		<module>sourguice-cache-client</module>
+		<module>sourguice-cache-server</module>
 	</modules>
 </project>

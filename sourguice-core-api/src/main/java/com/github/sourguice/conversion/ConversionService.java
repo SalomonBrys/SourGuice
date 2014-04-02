@@ -2,7 +2,7 @@ package com.github.sourguice.conversion;
 
 import javax.annotation.CheckForNull;
 
-import com.github.sourguice.throwable.service.converter.NoConverterException;
+import com.github.sourguice.throwable.converter.NoConverterException;
 import com.google.inject.TypeLiteral;
 
 /**
