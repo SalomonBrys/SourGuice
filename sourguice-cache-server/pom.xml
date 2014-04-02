@@ -20,15 +20,14 @@
 			<groupId>com.github.sourguice</groupId>
 			<artifactId>sourguice-mvc</artifactId>
 			<version>[0,)</version>
-			<type>test-jar</type>
-			<scope>test</scope>
+			<scope>testing</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.github.sourguice</groupId>
 			<artifactId>sourguice-mvc</artifactId>
 			<version>[0,)</version>
-			<scope>test</scope>
-			<type>jar</type>
+			<type>test-jar</type>
+			<scope>testing</scope>
 		</dependency>
 	</dependencies>
 
