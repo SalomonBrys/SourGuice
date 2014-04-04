@@ -1,6 +1,7 @@
 package com.github.sourguice.mvc;
 
-import com.github.sourguice.SourGuiceModule.BindBuilder;
+import com.github.sourguice.MultipleBindBuilder;
+import com.github.sourguice.SingleBindBuilder;
 import com.github.sourguice.mvc.view.ViewRenderer;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -32,7 +33,7 @@ public interface SourGuiceMvcModule {
 	 * @param patterns Any additional patterns to register
 	 * @return BindBuilder on which with() or withInstance() must be called
 	 */
-	public abstract BindBuilder<Object> control(String pattern, String... patterns);
+	public abstract MultipleBindBuilder<Object> control(String pattern, String... patterns);
 
 	/**
 	 * First method of the syntax redirect(pattern).to(path)
@@ -50,7 +51,7 @@ public interface SourGuiceMvcModule {
 	 * @param regexs Any additional name regular expression to register
 	 * @return BindBuilder on which with() or withInstance() must be called
 	 */
-	public abstract BindBuilder<ViewRenderer> renderViews(String regex, String... regexs);
+	public abstract SingleBindBuilder<ViewRenderer> renderViews(String regex, String... regexs);
 
 	/**
 	 * Module to install once you have fully configured SourGuice MVC.

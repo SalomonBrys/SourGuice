@@ -1,0 +1,35 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.github.sourguice</groupId>
+		<artifactId>sourguice-parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>sourguice-ws</artifactId>
+	<name>SourGuice - Web Services</name>
+	<description>
+		The Web Services plugin allows you to easily define and implement java based web services.
+		Once the web services are generated, they can be accessed throw a straightforward JSON interface OR through RPC generated code for various client languages
+	</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.github.sourguice</groupId>
+			<artifactId>sourguice-core-api</artifactId>
+			<version>[0,)</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.2.4</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.findbugs</groupId>
+			<artifactId>jsr305</artifactId>
+			<version>2.0.3</version>
+		</dependency>
+	</dependencies>
+</project>

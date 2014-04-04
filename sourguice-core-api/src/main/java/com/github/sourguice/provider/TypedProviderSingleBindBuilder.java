@@ -2,16 +2,16 @@ package com.github.sourguice.provider;
 
 import javax.annotation.CheckForNull;
 
-import com.github.sourguice.SourGuiceModule.BindBuilder;
+import com.github.sourguice.SingleBindBuilder;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
 /**
- * Basic implementation of {@link BindBuilder} alowing 5 methods to be bottlenecked into one
+ * Basic implementation of {@link SingleBindBuilder} alowing 5 methods to be bottlenecked into one
  *
  * @param <T> The type of instance to register
  */
-public abstract class TypedProviderBindBuilder<T> implements BindBuilder<T> {
+public abstract class TypedProviderSingleBindBuilder<T> implements SingleBindBuilder<T> {
 
 	/**
 	 * {@link GuiceTypedProvider} factory (needed because those must be injected)
@@ -23,7 +23,7 @@ public abstract class TypedProviderBindBuilder<T> implements BindBuilder<T> {
 	 *
 	 * @param gtpFactory {@link GuiceTypedProvider} factory (needed because those must be injected)
 	 */
-	public TypedProviderBindBuilder(final @CheckForNull GTPModuleFactory gtpFactory) {
+	public TypedProviderSingleBindBuilder(final @CheckForNull GTPModuleFactory gtpFactory) {
 		super();
 		if (gtpFactory == null) {
 			throw new UnsupportedOperationException("You cannot register anything after calling install(sourguice.module())");

@@ -14,12 +14,11 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 
+import com.github.sourguice.MultipleBindBuilder;
+import com.github.sourguice.SingleBindBuilder;
 import com.github.sourguice.SourGuice;
-import com.github.sourguice.SourGuiceModule.BindBuilder;
 import com.github.sourguice.call.SGInvocation;
 import com.github.sourguice.call.SGInvocationFactory;
-import com.github.sourguice.mvc.SourGuiceMvc;
-import com.github.sourguice.mvc.SourGuiceMvcModule;
 import com.github.sourguice.mvc.annotation.request.PathVariablesMap;
 import com.github.sourguice.mvc.annotation.request.RequestMapping;
 import com.github.sourguice.mvc.controller.ControllerHandlersRepository;
@@ -36,9 +35,10 @@ import com.github.sourguice.mvc.view.ViewRenderer;
 import com.github.sourguice.mvc.view.ViewRendererService;
 import com.github.sourguice.mvc.view.def.JSPViewRenderer;
 import com.github.sourguice.mvc.view.impl.ViewRendererServiceImpl;
-import com.github.sourguice.provider.TypedProvider;
-import com.github.sourguice.provider.TypedProviderBindBuilder;
 import com.github.sourguice.provider.GTPModuleFactory;
+import com.github.sourguice.provider.TypedProvider;
+import com.github.sourguice.provider.TypedProviderMultipleBindBuilder;
+import com.github.sourguice.provider.TypedProviderSingleBindBuilder;
 import com.github.sourguice.throwable.SGRuntimeException;
 import com.github.sourguice.throwable.exception.UnreachableExceptionHandlerException;
 import com.google.inject.Module;
@@ -199,7 +199,7 @@ public class SourGuiceMvcModuleImpl extends ServletModule implements SourGuiceMv
 
 	/**
 	 * Registers a pattern to a controller class
-	 * This is called by {@link BindBuilder#with(Class)}
+	 * This is called by {@link SingleBindBuilder#with(Class)}
 	 *
 	 * @param pattern The pattern on which to register to controller
 	 * @param controller The controller class to register
@@ -225,8 +225,8 @@ public class SourGuiceMvcModuleImpl extends ServletModule implements SourGuiceMv
 	}
 
 	@Override
-	public final BindBuilder<Object> control(final String pattern, final String... patterns) {
-		return new TypedProviderBindBuilder<Object>(this.gtpFactory) {
+	public final MultipleBindBuilder<Object> control(final String pattern, final String... patterns) {
+		return new TypedProviderMultipleBindBuilder<Object>(this.gtpFactory) {
 			@Override protected void register(final TypedProvider<? extends Object> controller) {
 				if (SourGuiceMvcModuleImpl.this.patternControllers == null) {
 					throw new UnsupportedOperationException("You cannot register new controllers after calling install(sourguice.module())");
@@ -254,8 +254,8 @@ public class SourGuiceMvcModuleImpl extends ServletModule implements SourGuiceMv
 	}
 
 	@Override
-	public BindBuilder<ViewRenderer> renderViews(final String regex, final String... regexs) {
-		return new TypedProviderBindBuilder<ViewRenderer>(this.gtpFactory) {
+	public SingleBindBuilder<ViewRenderer> renderViews(final String regex, final String... regexs) {
+		return new TypedProviderSingleBindBuilder<ViewRenderer>(this.gtpFactory) {
 			@Override protected void register(final TypedProvider<? extends ViewRenderer> renderer) {
 				SourGuiceMvcModuleImpl.this.rendererService.register(Pattern.compile(regex), renderer);
 				for (final String addRegex : regexs) {

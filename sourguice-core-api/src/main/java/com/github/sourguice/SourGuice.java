@@ -63,13 +63,13 @@ public class SourGuice implements SourGuiceModule {
 	}
 
 	@Override
-	public final BindBuilder<Converter<?>> convertTo(final Class<?> toType, final Class<?>... toTypes) {
+	public final SingleBindBuilder<Converter<?>> convertTo(final Class<?> toType, final Class<?>... toTypes) {
 		return this.implementation.convertTo(toType, toTypes);
 	}
 
 	@Override
 	@SafeVarargs
-	public final <T extends Exception> BindBuilder<ExceptionHandler<T>> handleException(final Class<? extends T> exc, final Class<? extends T>... excs) {
+	public final <T extends Exception> SingleBindBuilder<ExceptionHandler<T>> handleException(final Class<? extends T> exc, final Class<? extends T>... excs) {
 		return this.implementation.handleException(exc, excs);
 	}
 

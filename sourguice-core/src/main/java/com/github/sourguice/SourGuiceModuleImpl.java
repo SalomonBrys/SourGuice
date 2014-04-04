@@ -29,7 +29,7 @@ import com.github.sourguice.exception.impl.ExceptionServiceImpl;
 import com.github.sourguice.intercept.InterceptWithInterceptor;
 import com.github.sourguice.intercept.InterceptWithMatcher;
 import com.github.sourguice.provider.TypedProvider;
-import com.github.sourguice.provider.TypedProviderBindBuilder;
+import com.github.sourguice.provider.TypedProviderSingleBindBuilder;
 import com.github.sourguice.provider.GTPModuleFactory;
 import com.github.sourguice.utils.SGCallInterceptSetter;
 import com.github.sourguice.value.RequestMethod;
@@ -152,8 +152,8 @@ public class SourGuiceModuleImpl extends AbstractModule implements SourGuiceModu
 	}
 
 	@Override
-	public final BindBuilder<Converter<?>> convertTo(final Class<?> toType, final Class<?>... toTypes) {
-		return new TypedProviderBindBuilder<Converter<?>>(this.gtpFactory) {
+	public final SingleBindBuilder<Converter<?>> convertTo(final Class<?> toType, final Class<?>... toTypes) {
+		return new TypedProviderSingleBindBuilder<Converter<?>>(this.gtpFactory) {
 			@Override protected void register(final TypedProvider<? extends Converter<?>> converter) {
 				SourGuiceModuleImpl.this.conversionService.register(toType, converter);
 				for (final Class<?> addToType : toTypes) {
@@ -164,8 +164,8 @@ public class SourGuiceModuleImpl extends AbstractModule implements SourGuiceModu
 	}
 
 	@Override @SafeVarargs
-	public final <T extends Exception> BindBuilder<ExceptionHandler<T>> handleException(final Class<? extends T> exc, final Class<? extends T>... excs) {
-		return new TypedProviderBindBuilder<ExceptionHandler<T>>(this.gtpFactory) {
+	public final <T extends Exception> SingleBindBuilder<ExceptionHandler<T>> handleException(final Class<? extends T> exc, final Class<? extends T>... excs) {
+		return new TypedProviderSingleBindBuilder<ExceptionHandler<T>>(this.gtpFactory) {
 			@Override protected void register(final TypedProvider<? extends ExceptionHandler<T>> handler) {
 				SourGuiceModuleImpl.this.exceptionService.register(exc, handler);
 				for (final Class<? extends T> addExc : excs) {

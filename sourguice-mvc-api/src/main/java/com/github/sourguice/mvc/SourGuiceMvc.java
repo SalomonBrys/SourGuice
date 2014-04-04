@@ -1,5 +1,7 @@
 package com.github.sourguice.mvc;
 
+import com.github.sourguice.MultipleBindBuilder;
+import com.github.sourguice.SingleBindBuilder;
 import com.github.sourguice.SourGuice;
 import com.github.sourguice.mvc.view.ViewRenderer;
 import com.google.inject.Module;
@@ -53,7 +55,7 @@ public class SourGuiceMvc extends SourGuice implements SourGuiceMvcModule {
 	}
 
 	@Override
-	public final BindBuilder<Object> control(final String pattern, final String... patterns) {
+	public final MultipleBindBuilder<Object> control(final String pattern, final String... patterns) {
 		return this.implementation.control(pattern, patterns);
 	}
 
@@ -63,7 +65,7 @@ public class SourGuiceMvc extends SourGuice implements SourGuiceMvcModule {
 	}
 
 	@Override
-	public final BindBuilder<ViewRenderer> renderViews(final String regex, final String... regexs) {
+	public final SingleBindBuilder<ViewRenderer> renderViews(final String regex, final String... regexs) {
 		return this.implementation.renderViews(regex, regexs);
 	}
 
