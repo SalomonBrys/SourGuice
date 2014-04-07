@@ -1,4 +1,4 @@
-package sourguice.test;
+package sourguice.test.mvc;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -405,7 +405,7 @@ public class InjectionTest extends TestBase {
         HttpTester response = getResponse(request);
 
 		assertEquals(response.getStatus(), 400);
-        assertEquals(response.getReason(), "Missing request parameters: var in sourguice.test.InjectionTest.Controller.list");
+        assertEquals(response.getReason(), "Missing request parameters: var in sourguice.test.mvc.InjectionTest.Controller.list");
     }
 
 
@@ -475,7 +475,7 @@ public class InjectionTest extends TestBase {
         HttpTester response = getResponse(request);
 
 		assertEquals(response.getStatus(), 400);
-        assertEquals(response.getReason(), "Missing request parameters: var in sourguice.test.InjectionTest.Controller.map");
+        assertEquals(response.getReason(), "Missing request parameters: var in sourguice.test.mvc.InjectionTest.Controller.map");
     }
 
 
@@ -506,7 +506,7 @@ public class InjectionTest extends TestBase {
         HttpTester response = getResponse(request);
 
 		assertEquals(response.getStatus(), 400);
-        assertEquals(response.getReason(), "Missing header: x-choucroute in sourguice.test.InjectionTest.Controller.noheader");
+        assertEquals(response.getReason(), "Missing header: x-choucroute in sourguice.test.mvc.InjectionTest.Controller.noheader");
     }
 
 

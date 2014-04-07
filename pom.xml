@@ -120,5 +120,6 @@
 		<module>sourguice-mvc</module>
 		<module>sourguice-cache-client</module>
 		<module>sourguice-cache-server</module>
+		<module>sourguice-ws</module>
 	</modules>
 </project>

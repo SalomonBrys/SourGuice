@@ -1,4 +1,4 @@
-package sourguice.test;
+package sourguice.test.mvc;
 
 import static org.testng.Assert.assertEquals;
 
@@ -245,7 +245,7 @@ public class ConversionTest extends TestBase {
 		HttpTester response = getResponse(request);
 
 		assertEquals(response.getStatus(), 500);
-		assertEquals(response.getReason(), "Could not find converter for sourguice.test.ConversionTest$Weird");
+		assertEquals(response.getReason(), "Could not find converter for sourguice.test.mvc.ConversionTest$Weird");
 	}
 
 

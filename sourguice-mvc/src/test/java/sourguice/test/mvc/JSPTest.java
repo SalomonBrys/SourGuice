@@ -1,4 +1,4 @@
-package sourguice.test;
+package sourguice.test.mvc;
 
 import static org.testng.Assert.assertEquals;
 
@@ -91,19 +91,30 @@ public class JSPTest extends TestBase {
 
     // ===================== TESTS =====================
 
-	public void testIndex() throws Exception {
-		if (this.travisSkip)
-			throw new TravisSkipException();
+    public void testHTMLIndex() throws Exception {
+        if (this.travisSkip)
+            throw new TravisSkipException();
 
-		HttpTester request = makeRequest("GET", "/Hello.jsp");
-		HttpTester response = getResponse(request);
+        HttpTester request = makeRequest("GET", "/Test.html");
+        HttpTester response = getResponse(request);
 
-		assertEquals(response.getStatus(), 200);
-		assertEquals(response.getContent(), "\n\nHello World!\n");
-	}
+        assertEquals(response.getStatus(), 200);
+        assertEquals(response.getContent(), "\nHTML resource test\n");
+    }
+
+    public void testJSPIndex() throws Exception {
+        if (this.travisSkip)
+            throw new TravisSkipException();
+
+        HttpTester request = makeRequest("GET", "/Hello.jsp");
+        HttpTester response = getResponse(request);
+
+        assertEquals(response.getStatus(), 200);
+        assertEquals(response.getContent(), "\n\nHello World!\n");
+    }
 
 
-	public void testHi() throws Exception {
+    public void testHi() throws Exception {
 		if (this.travisSkip)
 			throw new TravisSkipException();
 

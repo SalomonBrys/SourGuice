@@ -1,4 +1,4 @@
-package sourguice.test;
+package sourguice.test.mvc;
 
 import static org.testng.Assert.assertEquals;
 
@@ -211,7 +211,7 @@ public class ViewTest extends TestBase {
         HttpTester response = getResponse(request);
 
 		assertEquals(response.getStatus(), 500);
-		assertEquals(response.getReason(), "sourguice.test.ViewTest.DefaultTestRenderer has no method annotated with @RenderFor(\"noview.view\")");
+		assertEquals(response.getReason(), "sourguice.test.mvc.ViewTest.DefaultTestRenderer has no method annotated with @RenderFor(\"noview.view\")");
     }
 
 }

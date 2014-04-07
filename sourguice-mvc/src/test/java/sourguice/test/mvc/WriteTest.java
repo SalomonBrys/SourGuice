@@ -1,4 +1,4 @@
-package sourguice.test;
+package sourguice.test.mvc;
 
 import static org.testng.Assert.assertEquals;
 

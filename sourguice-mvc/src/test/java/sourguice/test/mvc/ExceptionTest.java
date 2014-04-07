@@ -1,4 +1,4 @@
-package sourguice.test;
+package sourguice.test.mvc;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -149,7 +149,7 @@ public class ExceptionTest extends TestBase {
 
 	public void getOther() throws Exception {
 		HttpTester request = makeRequest("GET", "/other");
-        request.addHeader("x-sj-exc", "sourguice.test.ExceptionTest.OtherException");
+        request.addHeader("x-sj-exc", "sourguice.test.mvc.ExceptionTest.OtherException");
 
 		HttpTester response = getResponse(request);
 

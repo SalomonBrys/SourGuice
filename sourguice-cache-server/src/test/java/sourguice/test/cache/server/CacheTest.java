@@ -9,7 +9,7 @@ import org.eclipse.jetty.testing.HttpTester;
 import org.eclipse.jetty.testing.ServletTester;
 import org.testng.annotations.Test;
 
-import sourguice.test.TestBase;
+import sourguice.test.mvc.TestBase;
 
 import com.github.sourguice.SourGuice;
 import com.github.sourguice.cache.server.CacheFilter;
